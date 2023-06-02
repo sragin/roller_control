@@ -12,7 +12,7 @@ class RollerTeleop2CanPublisher(Node):
     def __init__(self):
         super().__init__('roller_teleop2can')
         qos_profile = QoSProfile(depth=10)
-        self.candb_controller = cantools.db.load_file('./install/can_interface/share/Controller_230518.dbc')
+        self.candb_controller = cantools.db.load_file('./install/roller_control/share/Controller_230518.dbc')
         self.can_msg_control = self.candb_controller.get_message_by_name('CONTROLLER_COMM')
 
         self.callback_group = ReentrantCallbackGroup()
@@ -25,7 +25,7 @@ class RollerTeleop2CanPublisher(Node):
         )
         self.publisher_ = self.create_publisher(Frame, 'to_can_bus', qos_profile)
         self.count = 0
-        self.log_display_cnt = 50
+        self.log_display_cnt = 10
 
     # 키보드나 조이스틱 조작으로 생성된 토픽(ex25_teleop_cmd/Exteleop 메시지)을
     # HYDAC 송신용 캔 패킷으로 변환 후 socketcan용 토픽(to_can_bus/Frame 메시지)으로 던진다
