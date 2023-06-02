@@ -14,6 +14,8 @@ class RollerTeleop2CanPublisher(Node):
         qos_profile = QoSProfile(depth=10)
         self.candb_controller = cantools.db.load_file('./install/roller_control/share/Controller_230518.dbc')
         self.can_msg_control = self.candb_controller.get_message_by_name('CONTROLLER_COMM')
+        self.candb_commandsv = cantools.db.load_file('./install/roller_control/share/ToSupervisor_210430.dbc')
+        self.can_msg_commandsv = self.candb_commandsv.get_message_by_name('Command_SV')
 
         self.callback_group = ReentrantCallbackGroup()
         self.can_msg_subscriber = self.create_subscription(
@@ -30,6 +32,19 @@ class RollerTeleop2CanPublisher(Node):
     # 키보드나 조이스틱 조작으로 생성된 토픽(ex25_teleop_cmd/Exteleop 메시지)을
     # HYDAC 송신용 캔 패킷으로 변환 후 socketcan용 토픽(to_can_bus/Frame 메시지)으로 던진다
     def recv_teleop_cmd(self, msg):
+        data2 = self.can_msg_commandsv.encode(
+            {'MODE':1,
+             'AUTO_DRIVE':0,
+             'STOP_CMD':0
+             }
+        )
+        send_msg2 = Frame()
+        send_msg2.id = self.can_msg_commandsv.frame_id
+        send_msg2.dlc = self.can_msg_commandsv.length
+        for i in range(send_msg2.dlc):
+            send_msg2.data[i] = int(data2[i])
+        self.publisher_.publish(send_msg2)
+
         data = self.can_msg_control.encode(
             {'LEFT_DUTY_CONTROL':msg.left_duty_control,
              'RIGHT_DUTY_CONTROL':msg.right_duty_control,
@@ -47,6 +62,7 @@ class RollerTeleop2CanPublisher(Node):
         if self.count == self.log_display_cnt:
             self.get_logger().info(f'Received: {msg}')
             self.get_logger().warning(f'Controller Command id: {send_msg.id} data: {send_msg.data}')
+            self.get_logger().warning(f'Supervisor Command id: {send_msg2.id} data: {send_msg2.data}')
             self.count = 0
         self.count += 1
 
