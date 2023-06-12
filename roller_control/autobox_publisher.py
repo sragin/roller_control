@@ -10,11 +10,11 @@ from can_msgs.msg import Frame
 class AutoboxPublisher(Node):
     def __init__(self):
         super().__init__('autobox_publisher')
+        self.nodeName = self.get_name()
+        self.get_logger().info("{0} started".format(self.nodeName))
         qos_profile = QoSProfile(depth=10)
         self.candb_autobox_to_supervisor = cantools.db.load_file('./install/roller_control/share/ToSupervisor_210430.dbc')
         self.can_msg_response = self.candb_autobox_to_supervisor.get_message_by_name('Response')
-        self.nodeName = self.get_name()
-        self.get_logger().info("{0} started".format(self.nodeName))
 
         self.callback_group = ReentrantCallbackGroup()
         self.can_msg_subscriber = self.create_subscription(

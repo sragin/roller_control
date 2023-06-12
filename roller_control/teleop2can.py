@@ -11,6 +11,8 @@ from can_msgs.msg import Frame
 class RollerTeleop2CanPublisher(Node):
     def __init__(self):
         super().__init__('roller_teleop2can')
+        self.nodeName = self.get_name()
+        self.get_logger().info("{0} started".format(self.nodeName))
         qos_profile = QoSProfile(depth=10)
         self.candb_controller = cantools.db.load_file('./install/roller_control/share/Controller_230518.dbc')
         self.can_msg_control = self.candb_controller.get_message_by_name('CONTROLLER_COMM')

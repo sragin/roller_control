@@ -25,6 +25,8 @@ class RollerTeleopKeyPublisher(QWidget):
     def initROS(self):
         rclpy.init(args=None)
         self.node = Node('roller_teleop_key')
+        self.nodeName = self.get_name()
+        self.get_logger().info("{0} started".format(self.nodeName))
         self.publisher_ = self.node.create_publisher(
             RollerTeleop,
             'roller_teleop_cmd',
