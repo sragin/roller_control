@@ -15,6 +15,8 @@ class AutoboxPublisher(Node):
         qos_profile = QoSProfile(depth=10)
         self.candb_autobox_to_supervisor = cantools.db.load_file('./install/roller_control/share/ToSupervisor_210430.dbc')
         self.can_msg_response = self.candb_autobox_to_supervisor.get_message_by_name('Response')
+        self.can_msg_drum_pos = self.candb_autobox_to_supervisor.get_message_by_name('Drum_Position')
+        self.can_msg_drum_ori = self.candb_autobox_to_supervisor.get_message_by_name('Drum_Orientation')
 
         self.callback_group = ReentrantCallbackGroup()
         self.can_msg_subscriber = self.create_subscription(
@@ -24,21 +26,34 @@ class AutoboxPublisher(Node):
             qos_profile,
             callback_group=self.callback_group
         )
+
+        self.orientation = [0., 0., 0.]   # orientation
+        self.position = [0, 0] # position
+
         self.count = 0
         self.log_display_cnt = 10
 
     def recv_autobox_state(self, msg):
         if msg.id == self.can_msg_response.frame_id:
             _cur = self.can_msg_response.decode(msg.data)
-            if self.count == self.log_display_cnt:
-                self.get_logger().info(f"MODE: {_cur['MODE']}, STATUS:{_cur['STATUS']}, STEER_ANGLE:{_cur['STEER_ANGLE']}")
-                self.count = 0
-            self.count += 1
+            # self.get_logger().info(f"MODE: {_cur['MODE']}, STATUS:{_cur['STATUS']}, STEER_ANGLE:{_cur['STEER_ANGLE']}")
+        elif msg.id == self.can_msg_drum_pos.frame_id:
+            _cur = self.can_msg_drum_pos.decode(msg.data)
+            self.position[0] = _cur['DRUM_POS_X']
+            self.position[1] = _cur['DRUM_POS_Y']
+            # self.get_logger().info(f"DRUM POS_X: {_cur['DRUM_POS_X']}, POS_Y:{_cur['DRUM_POS_Y']}")
+        elif msg.id == self.can_msg_drum_ori.frame_id:
+            _cur = self.can_msg_drum_ori.decode(msg.data)
+            self.orientation[0] = _cur['DRUM_PITCH']
+            self.orientation[1] = _cur['DRUM_ROLL']
+            self.orientation[2] = _cur['DRUM_HEAD']
+            # self.get_logger().info(f"DRUM PITCH: {_cur['DRUM_PITCH']}, ROLL:{_cur['DRUM_ROLL']}, HEAD:{_cur['DRUM_HEAD']}")
 
         if self.count == self.log_display_cnt:
             # self.get_logger().info(f'Received: {msg}')
-            # self.get_logger().warning(f'Controller Command id: {send_msg.id} data: {send_msg.data}')
-            # self.get_logger().warning(f'Supervisor Command id: {send_msg2.id} data: {send_msg2.data}')
+            # self.get_logger().info(f"MODE: {_cur['MODE']}, STATUS:{_cur['STATUS']}, STEER_ANGLE:{_cur['STEER_ANGLE']}")
+            self.get_logger().info(f"DRUM POS_X: {self.position[0]}, POS_Y:{self.position[1]}")
+            self.get_logger().info(f"DRUM PITCH: {self.orientation[0]}, ROLL:{self.orientation[1]}, HEAD:{self.orientation[2]}")
             self.count = 0
         self.count += 1
 
