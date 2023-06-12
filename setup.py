@@ -21,7 +21,8 @@ setup(
     entry_points={
         'console_scripts': [
             'teleop_key = roller_control.teleop_key:main',
-            'teleop2can = roller_control.teleop2can:main'
+            'teleop2can = roller_control.teleop2can:main',
+            'autobox_publisher = roller_control.autobox_publisher:main',
         ],
     },
 )
