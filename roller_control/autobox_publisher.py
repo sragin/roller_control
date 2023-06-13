@@ -39,13 +39,13 @@ class AutoboxPublisher(Node):
         )
 
         self.orientation = [0., 0., 0.]   # orientation
-        self.position = [0., 0.] # position
+        self.position = [0, 0] # position
         self.response = [0, 0, 0.]
 
         self.count = 0
         self.log_display_cnt = 50
 
-        self.drum_position_publisher = self.create_publisher(Float32MultiArray, 'drum_position', qos_profile)
+        self.drum_position_publisher = self.create_publisher(Int32MultiArray, 'drum_position', qos_profile)
         self.drum_orientation_publisher = self.create_publisher(Float32MultiArray, 'drum_orientation', qos_profile)
         self.timer_roller_geometry_msg = self.create_timer(1/50, self.publish_roller_geometry_msg)
 
@@ -74,19 +74,19 @@ class AutoboxPublisher(Node):
 
     def recv_gpsmsg(self, msg: GPSMsg):
         # self.get_logger().info(f'{msg}')
-        self.position[0] = msg.tm_x
-        self.position[1] = msg.tm_y
+        self.position[0] = int(msg.tm_x * 1000)
+        self.position[1] = int(msg.tm_y * 1000)
         self.orientation[2] = msg.heading - 90
 
     def publish_roller_geometry_msg(self):
-        msg = Float32MultiArray()
-        msg.data = self.position
-        self.drum_position_publisher.publish(msg)
-        msg = Float32MultiArray()
-        msg.data = self.orientation
-        self.drum_orientation_publisher.publish(msg)
+        msg_pos = Int32MultiArray()
+        msg_pos.data = self.position
+        self.drum_position_publisher.publish(msg_pos)
+
+        msg_ori = Float32MultiArray()
+        msg_ori.data = self.orientation
+        self.drum_orientation_publisher.publish(msg_ori)
         if self.count == self.log_display_cnt:
-            # self.get_logger().info(f'Received: {msg}')
             self.get_logger().info(f"MODE: {self.response[0]}, STATUS:{self.response[1]}, STEER_ANGLE:{self.response[2] :.1f}")
             self.get_logger().info(f"DRUM POS_X: {self.position[0]}, POS_Y:{self.position[1]}")
             self.get_logger().info(f"DRUM PITCH: {self.orientation[0] :.1f}, ROLL:{self.orientation[1] :.1f}, HEAD:{self.orientation[2] :.1f}")
@@ -95,8 +95,8 @@ class AutoboxPublisher(Node):
 
     def publish_roller_geometry_can(self):
         data = self.can_msg_drum_pos.encode(
-            {'DRUM_POS_X':int(self.position[0]*1000),
-             'DRUM_POS_Y':int(self.position[1]*1000)}
+            {'DRUM_POS_X':self.position[0],
+             'DRUM_POS_Y':self.position[1]}
         )
         send_msg = Frame()
         send_msg.id = self.can_msg_drum_pos.frame_id
