@@ -66,7 +66,7 @@ class AutoboxPublisher(Node):
             # self.get_logger().info(f'Received: {msg}')
             # self.get_logger().info(f"MODE: {_cur['MODE']}, STATUS:{_cur['STATUS']}, STEER_ANGLE:{_cur['STEER_ANGLE']}")
             self.get_logger().info(f"DRUM POS_X: {self.position[0]}, POS_Y:{self.position[1]}")
-            self.get_logger().info(f"DRUM PITCH: {self.orientation[0]}, ROLL:{self.orientation[1]}, HEAD:{self.orientation[2]}")
+            self.get_logger().info(f"DRUM PITCH: {self.orientation[0] :.1f}, ROLL:{self.orientation[1] :.1f}, HEAD:{self.orientation[2] :.1f}")
             self.count = 0
         self.count += 1
 
