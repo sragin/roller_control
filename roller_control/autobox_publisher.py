@@ -33,7 +33,7 @@ class AutoboxPublisher(Node):
         self.position = [0, 0] # position
 
         self.count = 0
-        self.log_display_cnt = 10
+        self.log_display_cnt = 50
 
         self.drum_position_publisher = self.create_publisher(Int32MultiArray, 'drum_position', qos_profile)
         self.drum_orientation_publisher = self.create_publisher(Float32MultiArray, 'drum_orientation', qos_profile)
@@ -55,14 +55,6 @@ class AutoboxPublisher(Node):
             self.orientation[2] = _cur['DRUM_HEAD']
             # self.get_logger().info(f"DRUM PITCH: {_cur['DRUM_PITCH']}, ROLL:{_cur['DRUM_ROLL']}, HEAD:{_cur['DRUM_HEAD']}")
 
-        if self.count == self.log_display_cnt:
-            # self.get_logger().info(f'Received: {msg}')
-            # self.get_logger().info(f"MODE: {_cur['MODE']}, STATUS:{_cur['STATUS']}, STEER_ANGLE:{_cur['STEER_ANGLE']}")
-            self.get_logger().info(f"DRUM POS_X: {self.position[0]}, POS_Y:{self.position[1]}")
-            self.get_logger().info(f"DRUM PITCH: {self.orientation[0]}, ROLL:{self.orientation[1]}, HEAD:{self.orientation[2]}")
-            self.count = 0
-        self.count += 1
-
     def publish_roller_geometry_msg(self):
         msg = Int32MultiArray()
         msg.data = self.position
@@ -70,6 +62,13 @@ class AutoboxPublisher(Node):
         msg = Float32MultiArray()
         msg.data = self.orientation
         self.drum_orientation_publisher.publish(msg)
+        if self.count == self.log_display_cnt:
+            # self.get_logger().info(f'Received: {msg}')
+            # self.get_logger().info(f"MODE: {_cur['MODE']}, STATUS:{_cur['STATUS']}, STEER_ANGLE:{_cur['STEER_ANGLE']}")
+            self.get_logger().info(f"DRUM POS_X: {self.position[0]}, POS_Y:{self.position[1]}")
+            self.get_logger().info(f"DRUM PITCH: {self.orientation[0]}, ROLL:{self.orientation[1]}, HEAD:{self.orientation[2]}")
+            self.count = 0
+        self.count += 1
 
 
 def main(args=None):
