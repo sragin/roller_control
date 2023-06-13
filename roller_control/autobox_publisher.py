@@ -2,6 +2,8 @@ import rclpy
 from rclpy.callback_groups import ReentrantCallbackGroup
 from rclpy.node import Node
 from rclpy.qos import QoSProfile
+from std_msgs.msg import Float32MultiArray
+from std_msgs.msg import Int32MultiArray
 
 import cantools
 from can_msgs.msg import Frame
@@ -33,6 +35,10 @@ class AutoboxPublisher(Node):
         self.count = 0
         self.log_display_cnt = 10
 
+        self.drum_position_publisher = self.create_publisher(Int32MultiArray, 'drum_position', qos_profile)
+        self.drum_orientation_publisher = self.create_publisher(Float32MultiArray, 'drum_orientation', qos_profile)
+        self.timer = self.create_timer(1/50, self.publish_roller_geometry_msg)
+
     def recv_autobox_state(self, msg):
         if msg.id == self.can_msg_response.frame_id:
             _cur = self.can_msg_response.decode(msg.data)
@@ -56,6 +62,14 @@ class AutoboxPublisher(Node):
             self.get_logger().info(f"DRUM PITCH: {self.orientation[0]}, ROLL:{self.orientation[1]}, HEAD:{self.orientation[2]}")
             self.count = 0
         self.count += 1
+
+    def publish_roller_geometry_msg(self):
+        msg = Int32MultiArray()
+        msg.data = self.position
+        self.drum_position_publisher.publish(msg)
+        msg = Float32MultiArray()
+        msg.data = self.orientation
+        self.drum_orientation_publisher.publish(msg)
 
 
 def main(args=None):
