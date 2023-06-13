@@ -31,6 +31,7 @@ class AutoboxPublisher(Node):
 
         self.orientation = [0., 0., 0.]   # orientation
         self.position = [0, 0] # position
+        self.response = [0, 0, 0.]
 
         self.count = 0
         self.log_display_cnt = 50
@@ -42,6 +43,9 @@ class AutoboxPublisher(Node):
     def recv_autobox_state(self, msg):
         if msg.id == self.can_msg_response.frame_id:
             _cur = self.can_msg_response.decode(msg.data)
+            self.response[0] = _cur['MODE']
+            self.response[1] = _cur['STATUS']
+            self.response[2] = _cur['STEER_ANGLE']
             # self.get_logger().info(f"MODE: {_cur['MODE']}, STATUS:{_cur['STATUS']}, STEER_ANGLE:{_cur['STEER_ANGLE']}")
         elif msg.id == self.can_msg_drum_pos.frame_id:
             _cur = self.can_msg_drum_pos.decode(msg.data)
@@ -64,7 +68,7 @@ class AutoboxPublisher(Node):
         self.drum_orientation_publisher.publish(msg)
         if self.count == self.log_display_cnt:
             # self.get_logger().info(f'Received: {msg}')
-            # self.get_logger().info(f"MODE: {_cur['MODE']}, STATUS:{_cur['STATUS']}, STEER_ANGLE:{_cur['STEER_ANGLE']}")
+            self.get_logger().info(f"MODE: {self.response[0]}, STATUS:{self.response[1]}, STEER_ANGLE:{self.response[2] :.1f}")
             self.get_logger().info(f"DRUM POS_X: {self.position[0]}, POS_Y:{self.position[1]}")
             self.get_logger().info(f"DRUM PITCH: {self.orientation[0] :.1f}, ROLL:{self.orientation[1] :.1f}, HEAD:{self.orientation[2] :.1f}")
             self.count = 0
