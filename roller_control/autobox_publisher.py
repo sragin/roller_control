@@ -50,7 +50,6 @@ class AutoboxPublisher(Node):
         self.timer_roller_geometry_msg = self.create_timer(1/50, self.publish_roller_geometry_msg)
 
         self.canbus_publisher = self.create_publisher(Frame, 'to_can_bus', qos_profile)
-        # self.timer_roller_geometry_can = self.create_timer(1/50, self.publish_roller_geometry_can)
         self.timer_commandsv = self.create_timer(1/10, self.publish_commandsv)
 
     def recv_autobox_state(self, msg):
@@ -59,21 +58,8 @@ class AutoboxPublisher(Node):
             self.response[0] = _cur['MODE']
             self.response[1] = _cur['STATUS']
             self.response[2] = _cur['STEER_ANGLE']
-            # self.get_logger().info(f"MODE: {_cur['MODE']}, STATUS:{_cur['STATUS']}, STEER_ANGLE:{_cur['STEER_ANGLE']}")
-        # elif msg.id == self.can_msg_drum_pos.frame_id:
-        #     _cur = self.can_msg_drum_pos.decode(msg.data)
-        #     self.position[0] = _cur['DRUM_POS_X']
-        #     self.position[1] = _cur['DRUM_POS_Y']
-        #     # self.get_logger().info(f"DRUM POS_X: {_cur['DRUM_POS_X']}, POS_Y:{_cur['DRUM_POS_Y']}")
-        # elif msg.id == self.can_msg_drum_ori.frame_id:
-        #     _cur = self.can_msg_drum_ori.decode(msg.data)
-        #     self.orientation[0] = _cur['DRUM_PITCH']
-        #     self.orientation[1] = _cur['DRUM_ROLL']
-        #     self.orientation[2] = _cur['DRUM_HEAD']
-        #     # self.get_logger().info(f"DRUM PITCH: {_cur['DRUM_PITCH']}, ROLL:{_cur['DRUM_ROLL']}, HEAD:{_cur['DRUM_HEAD']}")
 
     def recv_gpsmsg(self, msg: GPSMsg):
-        # self.get_logger().info(f'{msg}')
         self.position[0] = int(msg.tm_x * 1000)
         self.position[1] = int(msg.tm_y * 1000)
         self.orientation[2] = msg.heading - 90
