@@ -23,6 +23,8 @@ setup(
             'teleop_key = roller_control.teleop_key:main',
             'teleop2can = roller_control.teleop2can:main',
             'autobox_publisher = roller_control.autobox_publisher:main',
+            'path_generator = roller_control.path_generator:main',
+            'roller_controller = roller_control.roller_controller:main',
         ],
     },
 )
