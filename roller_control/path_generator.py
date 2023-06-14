@@ -1,39 +1,49 @@
 import rclpy
 from rclpy.node import Node
-from rclpy.qos import QoSProfile
-from std_msgs.msg import Float32MultiArray
-from std_msgs.msg import Int32MultiArray
+from roller_interfaces.srv import Path
+
+import numpy as np
 
 
-class PathGenerator(Node):
+class PathGeneratorService(Node):
     def __init__(self):
-        super().__init__('path_generator')
+        super().__init__('path_generator_service')
         self.nodeName = self.get_name()
         self.get_logger().info("{0} started".format(self.nodeName))
-        qos_profile = QoSProfile(depth=10)
-        self.rollerpose_subscriber = self.create_subscription(
-            Int32MultiArray,
-            'drum_position',
-            self.recieve_rollerpose_msg,
-            qos_profile
-        )
+        self.service = self.create_service(Path, 'roller_path', self.generate_path)
 
-        self.orientation = [0., 0., 0.]   # orientation
-        self.position = [0, 0] # position
+    def generate_path(self, request, response):
+        waypoints = [
+            (0, 0, 0.1),
+            (20, 20, 0)
+        ]
+        xs = waypoints[0][0]
+        xe = waypoints[1][0]
+        ys = waypoints[0][1]
+        ye = waypoints[1][1]
+        cmd_vels = waypoints[0][2]
+        cmd_vele = waypoints[1][2]
 
-        self.count = 0
-        self.log_display_cnt = 50
+        dist = np.sqrt(pow(xe-xs, 2) + pow(ye-ys, 2))
+        count = int(dist * 10)  # 0.1m 간격으로 목표점 인터폴레이션
+        map_xs = np.linspace(xs, xe, count)
+        map_ys = np.linspace(ys, ye, count)
+        map_yaws = np.arctan(np.gradient(map_ys)/np.gradient(map_xs))
+        cmd_vel = np.linspace(cmd_vels, cmd_vels, count)
+        cmd_vel[-1] = cmd_vele
 
-    def recieve_rollerpose_msg(self, msg: Int32MultiArray):
-        self.position[0] = msg.data[0]
-        self.position[1] = msg.data[1]
-        print(self.position)
+        response.x = map_xs
+        response.y = map_ys
+        response.theta = map_yaws
+        response.vel = cmd_vel
+
+        return response
 
 
 def main(args=None):
     rclpy.init(args=args)
     try:
-        path_generator = PathGenerator()
+        path_generator = PathGeneratorService()
         rclpy.spin(path_generator)
     except KeyboardInterrupt:
         path_generator.get_logger().info('Keyboard interrrupt (SIGINT)')
