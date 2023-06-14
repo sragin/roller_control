@@ -3,7 +3,7 @@ import rclpy
 from rclpy.node import Node
 
 import sys
-from teleop_msgs.msg import RollerTeleop
+from roller_interfaces.msg import RollerTeleop
 from PyQt5.QtWidgets import QApplication, QWidget
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QKeyEvent

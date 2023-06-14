@@ -4,7 +4,7 @@ from rclpy.node import Node
 from rclpy.qos import QoSProfile
 
 import cantools
-from teleop_msgs.msg import RollerTeleop
+from roller_interfaces.msg import RollerTeleop
 from can_msgs.msg import Frame
 
 
