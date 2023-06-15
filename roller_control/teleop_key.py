@@ -1,10 +1,10 @@
-from PyQt5 import QtCore, QtGui
 import rclpy
 from rclpy.node import Node
+from std_msgs.msg import String
 
 import sys
 from roller_interfaces.msg import RollerTeleop
-from PyQt5.QtWidgets import QApplication, QWidget
+from PyQt5.QtWidgets import QApplication, QWidget, QLabel
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QKeyEvent
 
@@ -20,18 +20,26 @@ class RollerTeleopKeyPublisher(QWidget):
 
     def initUI(self):
         self.setWindowTitle('Roller Teleop Key')
+        str = "Use arrow keys to move the roller.\n" \
+            "Use 'P' to read path file & generate path.\n" \
+            "Use 'O' to run."
+        label = QLabel(str, self)
+        label.setGeometry(0, 0, 800, 600)
+        label.setWordWrap(True)
         self.show()
 
     def initROS(self):
         rclpy.init(args=None)
         self.node = Node('roller_teleop_key')
-        self.nodeName = self.get_name()
-        self.get_logger().info("{0} started".format(self.nodeName))
-        self.publisher_ = self.node.create_publisher(
+        self.nodeName = self.node.get_name()
+        self.motioncmd_publisher = self.node.create_publisher(
+            String,
+            'roller_motion_cmd',
+            10)
+        self.teloopcmd_publisher = self.node.create_publisher(
             RollerTeleop,
             'roller_teleop_cmd',
             10)
-        # self.timer_ = self.node.create_timer(0.1, self.publish_commands)
         self.command_ = [0, 0, 0]
         self.MAX_POWER = 20
         rclpy.spin_once(self.node, timeout_sec=1)
@@ -46,6 +54,14 @@ class RollerTeleopKeyPublisher(QWidget):
             self.command_[0] = self.MAX_POWER
         elif e.key() == Qt.Key.Key_Right:
             self.command_[1] = self.MAX_POWER
+        elif e.key() == Qt.Key.Key_P:
+            msg = String()
+            msg.data = 'PATH'
+            self.motioncmd_publisher.publish(msg)
+        elif e.key() == Qt.Key.Key_O:
+            msg = String()
+            msg.data = 'START'
+            self.motioncmd_publisher.publish(msg)
         return super().keyPressEvent(e)
 
     def keyReleaseEvent(self, a0: QKeyEvent) -> None:
@@ -58,7 +74,7 @@ class RollerTeleopKeyPublisher(QWidget):
         msg.right_duty_control = self.command_[1]
         msg.auto_spd_control = self.command_[2]
 
-        self.publisher_.publish(msg)
+        self.teloopcmd_publisher.publish(msg)
         # self.node.get_logger().info(f'Publishing: {msg}')
 
 def main():
