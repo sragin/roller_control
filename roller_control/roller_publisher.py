@@ -65,6 +65,8 @@ class RollerPublisher(Node):
 
     def publish_roller_geometry_msg(self):
         msg = RollerStatus()
+        msg.header.frame_id = 'world'
+        msg.header.stamp = self.get_clock().now().to_msg()
         msg.steer_angle.data = self.steer_angle
         msg.pose.theta = self.theta
         msg.pose.x = self.position[0]
