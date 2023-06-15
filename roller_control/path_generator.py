@@ -31,31 +31,32 @@ class PathGenerator():
         path.header.frame_id = 'world'
 
         for i in range(len(map_xs)):
-            pose = PoseStamped()
-            pose.pose.position.x = map_xs[i]
-            pose.pose.position.y = map_ys[i]
-            pose.pose.orientation = self.get_quaternion_from_euler(0, 0, map_yaws[i])
-            path.poses.append(pose)
+            pose_stamped = PoseStamped()
+            pose_stamped.pose.position.x = map_xs[i]
+            pose_stamped.pose.position.y = map_ys[i]
+            o = pose_stamped.pose.orientation
+            o.x, o.y, o.z, o.w = get_quaternion_from_euler(0, 0, map_yaws[i])
+            path.poses.append(pose_stamped)
 
-        return path
+        return map_xs, map_ys, map_yaws, cmd_vel
 
 
-    def get_quaternion_from_euler(roll, pitch, yaw):
-        """
-        Convert an Euler angle to a quaternion.
-        Input
-            :param roll: The roll (rotation around x-axis) angle in radians.
-            :param pitch: The pitch (rotation around y-axis) angle in radians.
-            :param yaw: The yaw (rotation around z-axis) angle in radians.
-        Output
-            :return qx, qy, qz, qw: The orientation in quaternion [x,y,z,w] format
-        """
-        qx = np.sin(roll/2) * np.cos(pitch/2) * np.cos(yaw/2) - np.cos(roll/2) * np.sin(pitch/2) * np.sin(yaw/2)
-        qy = np.cos(roll/2) * np.sin(pitch/2) * np.cos(yaw/2) + np.sin(roll/2) * np.cos(pitch/2) * np.sin(yaw/2)
-        qz = np.cos(roll/2) * np.cos(pitch/2) * np.sin(yaw/2) - np.sin(roll/2) * np.sin(pitch/2) * np.cos(yaw/2)
-        qw = np.cos(roll/2) * np.cos(pitch/2) * np.cos(yaw/2) + np.sin(roll/2) * np.sin(pitch/2) * np.sin(yaw/2)
+def get_quaternion_from_euler(roll, pitch, yaw):
+    """
+    Convert an Euler angle to a quaternion.
+    Input
+        :param roll: The roll (rotation around x-axis) angle in radians.
+        :param pitch: The pitch (rotation around y-axis) angle in radians.
+        :param yaw: The yaw (rotation around z-axis) angle in radians.
+    Output
+        :return qx, qy, qz, qw: The orientation in quaternion [x,y,z,w] format
+    """
+    qx = np.sin(roll/2) * np.cos(pitch/2) * np.cos(yaw/2) - np.cos(roll/2) * np.sin(pitch/2) * np.sin(yaw/2)
+    qy = np.cos(roll/2) * np.sin(pitch/2) * np.cos(yaw/2) + np.sin(roll/2) * np.cos(pitch/2) * np.sin(yaw/2)
+    qz = np.cos(roll/2) * np.cos(pitch/2) * np.sin(yaw/2) - np.sin(roll/2) * np.sin(pitch/2) * np.cos(yaw/2)
+    qw = np.cos(roll/2) * np.cos(pitch/2) * np.cos(yaw/2) + np.sin(roll/2) * np.sin(pitch/2) * np.sin(yaw/2)
 
-        return [qx, qy, qz, qw]
+    return [qx, qy, qz, qw]
 
 
 def main(args=None):
