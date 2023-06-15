@@ -1,22 +1,25 @@
 import rclpy
 from rclpy.node import Node
 from rclpy.qos import QoSProfile
-from std_msgs.msg import Float32MultiArray
-from std_msgs.msg import Int32MultiArray
+from roller_interfaces.msg import RollerStatus
+
+from .path_generator import PathGenerator
 
 
 class RollerController(Node):
     def __init__(self):
         super().__init__('roller_controller')
         self.nodeName = self.get_name()
-        self.get_logger().info("{0} started".format(self.nodeName))
+        self.get_logger().info(f'{self.nodeName} started')
         qos_profile = QoSProfile(depth=10)
-        self.rollerpose_subscriber = self.create_subscription(
-            Int32MultiArray,
-            'drum_position',
-            self.recieve_rollerpose_msg,
+        self.rollerstatus_subscriber = self.create_subscription(
+            RollerStatus,
+            'roller_status',
+            self.recieve_rollerstatus,
             qos_profile
         )
+
+        self.path_generator = PathGenerator()
 
         self.orientation = [0., 0., 0.]   # orientation
         self.position = [0, 0] # position
@@ -24,10 +27,11 @@ class RollerController(Node):
         self.count = 0
         self.log_display_cnt = 50
 
-    def recieve_rollerpose_msg(self, msg: Int32MultiArray):
-        self.position[0] = msg.data[0]
-        self.position[1] = msg.data[1]
-        print(self.position)
+    def control(self):
+        pass
+
+    def recieve_rollerstatus(self, msg: RollerStatus):
+        self.get_logger().info(f'{msg}')
 
 
 def main(args=None):
