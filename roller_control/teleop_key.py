@@ -91,7 +91,7 @@ def main():
         msg.left_duty_control = 0
         msg.right_duty_control = 0
         msg.auto_spd_control = 0
-        roller.publisher_.publish(msg)
+        roller.teloopcmd_publisher.publish(msg)
         roller.node.get_logger().info('Set all commands to zero')
         roller.node.get_logger().info('Keyboard interrupt (SIGINT)')
         roller.node.destroy_node()
