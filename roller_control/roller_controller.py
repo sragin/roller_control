@@ -42,7 +42,8 @@ class RollerController(Node):
     def control(self):
         steer_, yaw_, cte_, min_dist_ = stanley_control(self.position[0], self.position[1], self.cmd_vel[0], self.orientation[2], self.map_xs, self.map_ys, self.map_yaws)
         self.get_logger().info(f"steer(deg):{steer_ * 180 / np.pi :.3f}, yaw:{yaw_ :.3f}, cte:{cte_ :.3f}, min_dist:{min_dist_ :.3f}")
-        self.get_logger().info(f'{self.map_xs[0] :.3f} {self.map_xs[-1] :.3f} {self.position[0] :.3f} {self.map_ys[0] :.3f} {self.map_ys[-1] :.3f} {self.position[1] :.3f}')
+        self.get_logger().info(f'xs:{self.map_xs[0] :.3f} xe:{self.map_xs[-1] :.3f} ys:{self.position[0] :.3f} ye:{self.map_ys[0] :.3f} x:{self.map_ys[-1] :.3f} y:{self.position[1] :.3f}')
+        self.get_logger().info(f'yaws:{self.map_yaws[0] :.1f} yaw:{self.orientation[2] :.1f}')
 
         # 종료조건 계산
         error = 0.05
