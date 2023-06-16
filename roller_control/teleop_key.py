@@ -62,6 +62,10 @@ class RollerTeleopKeyPublisher(QWidget):
             msg = String()
             msg.data = 'START'
             self.motioncmd_publisher.publish(msg)
+        elif e.key() == Qt.Key.Key_I:
+            msg = String()
+            msg.data = 'STOP'
+            self.motioncmd_publisher.publish(msg)
         return super().keyPressEvent(e)
 
     def keyReleaseEvent(self, a0: QKeyEvent) -> None:
