@@ -6,10 +6,12 @@ import numpy as np
 
 class PathGenerator():
     def __init__(self):
+        # 현재위치 기준 TM 좌표
         self.waypoints = [
             (0, 0, 0.1),
             (20, 20, 0)
         ]
+        # 롤러의 현재위치. 경로입력을 간단하게 하기 위해 사용
         self.x = 39.140
         self.y = 45.526
 
