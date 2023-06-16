@@ -5,8 +5,11 @@ from roller_interfaces.msg import RollerStatus
 from std_msgs.msg import String
 
 from .path_generator import PathGenerator
-import numpy as np
 from .control_algorithm import stanley_control
+from .control_algorithm import MAX_STEER_LIMIT, MAX_STEER_VEL
+import numpy as np
+
+CONTROL_PERIOD = 0.1
 
 
 class RollerController(Node):
@@ -33,40 +36,54 @@ class RollerController(Node):
         self.map_ys = None
         self.map_yaws = None
         self.cmd_vel = None
-        self.orientation = [0., 0., 0.]   # orientation
-        self.position = [0, 0] # position
+
+        self.roller_status = RollerStatus()
 
         self.count = 0
         self.log_display_cnt = 50
 
     def control(self):
-        steer_, yaw_, cte_, min_dist_ = stanley_control(self.position[0], self.position[1], self.cmd_vel[0], self.orientation[2], self.map_xs, self.map_ys, self.map_yaws)
-        self.get_logger().info(f"steer(deg):{steer_ * 180 / np.pi :.3f}, yaw:{yaw_ :.3f}, cte:{cte_ :.3f}, min_dist:{min_dist_ :.3f}")
-        self.get_logger().info(f'xs:{self.map_xs[0] :.3f} xe:{self.map_xs[-1] :.3f} ys:{self.position[0] :.3f} ye:{self.map_ys[0] :.3f} x:{self.map_ys[-1] :.3f} y:{self.position[1] :.3f}')
-        self.get_logger().info(f'yaws:{self.map_yaws[0] :.1f} yaw:{self.orientation[2] :.1f}')
+        dt = CONTROL_PERIOD
+        x = self.roller_status.pose.x
+        y = self.roller_status.pose.y
+        theta = self.roller_status.pose.theta
+        steer = self.roller_status.steer_angle.data
+        vel = self.cmd_vel[0]
+        
+        steer_, yaw_, cte_, min_dist_ = stanley_control(x, y, vel, theta, self.map_xs, self.map_ys, self.map_yaws)
+        steer_ = np.clip(steer_, -MAX_STEER_LIMIT, MAX_STEER_LIMIT)
+        if steer - steer_ > MAX_STEER_VEL*dt:
+            steer -= MAX_STEER_VEL*dt
+        elif steer - steer_ < -MAX_STEER_VEL*dt:
+            steer += MAX_STEER_VEL*dt
+        else:
+            steer = steer_
+
+        self.get_logger().info(f"steer(deg):{steer * 180 / np.pi :.3f}, steer_:{steer_ * 180 / np.pi :.3f}, yaw:{yaw_ :.3f}, cte:{cte_ :.3f}, min_dist:{min_dist_ :.3f}")
+        self.get_logger().info(f'xs:{self.map_xs[0] :.3f} xe:{self.map_xs[-1] :.3f} x:{x :.3f} ys:{self.map_ys[0] :.3f} ye:{self.map_ys[-1] :.3f} y:{y :.3f}')
+        self.get_logger().info(f'yaws:{self.map_yaws[0] :.1f} yaw:{theta :.1f}')
 
         # 종료조건 계산
         error = 0.05
         if self.map_xs[-1] > self.map_xs[0]:
-            if self.map_xs[-1] - error <= self.position[0]:
+            if self.map_xs[-1] - error <= x:
                 self.control_timer.cancel()
                 self.control_timer = None
-                return
         elif self.map_xs[-1] < self.map_xs[0]:
-            if self.map_xs[-1] - error >= self.position[0]:
+            if self.map_xs[-1] - error >= x:
                 self.control_timer.cancel()
                 self.control_timer = None
-                return
         if self.map_ys[-1] > self.map_ys[0]:
-            if self.map_ys[-1] - error <= self.position[1]:
+            if self.map_ys[-1] - error <= y:
                 self.control_timer.cancel()
                 self.control_timer = None
-                return
         elif self.map_ys[-1] < self.map_ys[0]:
-            if self.map_ys[-1] - error >= self.position[1]:
+            if self.map_ys[-1] - error >= y:
                 self.control_timer.cancel()
                 self.control_timer = None
-                return
+        if self.control_timer is None:
+            self.get_logger().info(f'motion doen')
+            return
 
     def recieve_motioncmd(self, msg):
         # self.get_logger().info(f'{msg}')
@@ -90,15 +107,13 @@ class RollerController(Node):
                 return
 
             if self.control_timer is None:
-                self.control_timer = self.create_timer(0.1, self.control)
+                self.control_timer = self.create_timer(CONTROL_PERIOD, self.control)
             else:
                 self.get_logger().info('control algorithm is already running')
                 return
 
     def recieve_rollerstatus(self, msg: RollerStatus):
-        self.position[0] = msg.pose.x
-        self.position[1] = msg.pose.y
-        self.orientation[2] = msg.pose.theta
+        self.roller_status = msg
 
 
 def main(args=None):

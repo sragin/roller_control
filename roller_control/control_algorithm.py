@@ -28,7 +28,6 @@ def stanley_control(x, y, yaw, v, map_xs, map_ys, map_yaws):
     min_dist = 1e9
     min_index = 0
     n_points = len(map_xs)
-    max_steering = np.radians(MAX_STEER_LIMIT)
 
     front_x = x + LENGTH_FRONT * np.cos(yaw)
     front_y = y + LENGTH_FRONT * np.sin(yaw)
@@ -58,7 +57,6 @@ def stanley_control(x, y, yaw, v, map_xs, map_ys, map_yaws):
 
     # steering
     steer = yaw_term + cte_term
-    steer = np.clip(steer, -max_steering, max_steering)
 
     return steer, yaw_term, cte_term, min_dist
 
