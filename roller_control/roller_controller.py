@@ -47,21 +47,22 @@ class RollerController(Node):
         x = self.roller_status.pose.x
         y = self.roller_status.pose.y
         theta = self.roller_status.pose.theta
-        steer = self.roller_status.steer_angle.data
+        steer_angle = self.roller_status.steer_angle.data
+        steer_cmd = steer_angle / 180 * np.pi
         vel = self.cmd_vel[0]
         
         steer_, yaw_, cte_, min_dist_ = stanley_control(x, y, vel, theta, self.map_xs, self.map_ys, self.map_yaws)
         steer_ = np.clip(steer_, -MAX_STEER_LIMIT, MAX_STEER_LIMIT)
-        if steer - steer_ > MAX_STEER_VEL*dt:
-            steer -= MAX_STEER_VEL*dt
-        elif steer - steer_ < -MAX_STEER_VEL*dt:
-            steer += MAX_STEER_VEL*dt
+        if steer_cmd - steer_ > MAX_STEER_VEL*dt:
+            steer_cmd -= MAX_STEER_VEL*dt
+        elif steer_cmd - steer_ < -MAX_STEER_VEL*dt:
+            steer_cmd += MAX_STEER_VEL*dt
         else:
-            steer = steer_
+            steer_cmd = steer_
 
-        self.get_logger().info(f"steer(deg):{steer * 180 / np.pi :.3f}, steer_:{steer_ * 180 / np.pi :.3f}, yaw:{yaw_ :.3f}, cte:{cte_ :.3f}, min_dist:{min_dist_ :.3f}")
+        self.get_logger().info(f"steer_:{steer_ * 180 / np.pi :.3f}, yaw:{yaw_ :.3f}, cte:{cte_ :.3f}, min_dist:{min_dist_ :.3f}")
         self.get_logger().info(f'xs:{self.map_xs[0] :.3f} xe:{self.map_xs[-1] :.3f} x:{x :.3f} ys:{self.map_ys[0] :.3f} ye:{self.map_ys[-1] :.3f} y:{y :.3f}')
-        self.get_logger().info(f'yaws:{self.map_yaws[0] :.1f} yaw:{theta :.1f}')
+        self.get_logger().info(f'steer(deg):{steer_angle :.1f} steer_cmd:{steer_cmd * 180 / np.pi :.1f} yaws:{self.map_yaws[0] :.1f} yaw:{theta :.1f}')
 
         # 종료조건 계산
         error = 0.05

@@ -14,8 +14,8 @@ TREAD_REAR = 0.85  # [m]
 BACKTOWHEEL = LENGTH - WHEEL_LEN - 0.25  # from back to front wheel
 
 MAX_STEER_VEL = 10 * np.pi / 180  # rad/s (10 deg/s)
-MAX_STEER = 31.5
-MAX_STEER_LIMIT = 30
+MAX_STEER = 31.5 * np.pi / 180  # rad
+MAX_STEER_LIMIT = 30 * np.pi / 180  # rad
 
 # stanley control algorithm
 # x, y: meter, yaw: radian
