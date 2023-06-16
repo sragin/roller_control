@@ -22,7 +22,8 @@ class RollerTeleopKeyPublisher(QWidget):
         self.setWindowTitle('Roller Teleop Key')
         str = "Use arrow keys to move the roller.\n" \
             "Use 'P' to read path file & generate path.\n" \
-            "Use 'O' to run."
+            "Use 'O' to run.\n"\
+            "Use 'I' or 'S' to stop."
         label = QLabel(str, self)
         label.setGeometry(0, 0, 800, 600)
         label.setWordWrap(True)
@@ -62,7 +63,7 @@ class RollerTeleopKeyPublisher(QWidget):
             msg = String()
             msg.data = 'START'
             self.motioncmd_publisher.publish(msg)
-        elif e.key() == Qt.Key.Key_I:
+        elif e.key() == Qt.Key.Key_I or e.key() == Qt.Key.Key_S:
             msg = String()
             msg.data = 'STOP'
             self.motioncmd_publisher.publish(msg)
