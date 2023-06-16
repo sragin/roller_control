@@ -3,6 +3,7 @@ from rclpy.node import Node
 from rclpy.qos import QoSProfile
 from roller_interfaces.msg import RollerStatus
 from std_msgs.msg import String
+from geometry_msgs.msg import Twist
 
 from .path_generator import PathGenerator
 from .control_algorithm import stanley_control
@@ -24,12 +25,13 @@ class RollerController(Node):
             self.recieve_rollerstatus,
             qos_profile
         )
-        self.rollerstatus_subscriber = self.create_subscription(
+        self.rollermotioncmd_subscriber = self.create_subscription(
             String,
             'roller_motion_cmd',
             self.recieve_motioncmd,
             qos_profile
         )
+        self.cmd_vel_publisher = self.create_publisher(Twist, 'cmd_vel', qos_profile)
         self.control_timer = None
 
         self.map_xs = None
@@ -50,19 +52,6 @@ class RollerController(Node):
         steer_angle = self.roller_status.steer_angle.data
         steer_cmd = steer_angle / 180 * np.pi
         vel = self.cmd_vel[0]
-        
-        steer_, yaw_, cte_, min_dist_ = stanley_control(x, y, vel, theta, self.map_xs, self.map_ys, self.map_yaws)
-        steer_ = np.clip(steer_, -MAX_STEER_LIMIT, MAX_STEER_LIMIT)
-        if steer_cmd - steer_ > MAX_STEER_VEL*dt:
-            steer_cmd -= MAX_STEER_VEL*dt
-        elif steer_cmd - steer_ < -MAX_STEER_VEL*dt:
-            steer_cmd += MAX_STEER_VEL*dt
-        else:
-            steer_cmd = steer_
-
-        self.get_logger().info(f"steer_:{steer_ * 180 / np.pi :.3f}, yaw:{yaw_ :.3f}, cte:{cte_ :.3f}, min_dist:{min_dist_ :.3f}")
-        self.get_logger().info(f'xs:{self.map_xs[0] :.3f} xe:{self.map_xs[-1] :.3f} x:{x :.3f} ys:{self.map_ys[0] :.3f} ye:{self.map_ys[-1] :.3f} y:{y :.3f}')
-        self.get_logger().info(f'steer(deg):{steer_angle :.1f} steer_cmd:{steer_cmd * 180 / np.pi :.1f} yaws:{self.map_yaws[0] :.1f} yaw:{theta :.1f}')
 
         # 종료조건 계산
         error = 0.05
@@ -83,8 +72,26 @@ class RollerController(Node):
                 self.control_timer.cancel()
                 self.control_timer = None
         if self.control_timer is None:
-            self.get_logger().info(f'motion doen')
+            self.get_logger().info(f'motion done')
             return
+
+        steer_, yaw_, cte_, min_dist_ = stanley_control(x, y, vel, theta, self.map_xs, self.map_ys, self.map_yaws)
+        steer_ = np.clip(steer_, -MAX_STEER_LIMIT, MAX_STEER_LIMIT)
+        if steer_cmd - steer_ > MAX_STEER_VEL*dt:
+            steer_cmd -= MAX_STEER_VEL*dt
+        elif steer_cmd - steer_ < -MAX_STEER_VEL*dt:
+            steer_cmd += MAX_STEER_VEL*dt
+        else:
+            steer_cmd = steer_
+
+        self.get_logger().info(f"steer_:{steer_ * 180 / np.pi :.3f}, yaw:{yaw_ :.3f}, cte:{cte_ :.3f}, min_dist:{min_dist_ :.3f}")
+        self.get_logger().info(f'xs:{self.map_xs[0] :.3f} xe:{self.map_xs[-1] :.3f} x:{x :.3f} ys:{self.map_ys[0] :.3f} ye:{self.map_ys[-1] :.3f} y:{y :.3f}')
+        self.get_logger().info(f'steer(deg):{steer_angle :.1f} steer_cmd(deg):{steer_cmd * 180 / np.pi :.1f} yaws:{self.map_yaws[0] :.1f} yaw:{theta :.1f}')
+        cmd_vel_msg = Twist()
+        cmd_vel_msg.linear.x = vel
+        cmd_vel_msg.angular.z = steer_cmd
+        self.cmd_vel_publisher.publish(cmd_vel_msg)
+
 
     def recieve_motioncmd(self, msg):
         # self.get_logger().info(f'{msg}')
