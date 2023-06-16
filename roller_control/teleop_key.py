@@ -1,9 +1,9 @@
 import rclpy
 from rclpy.node import Node
+from geometry_msgs.msg import Twist
 from std_msgs.msg import String
 
 import sys
-from roller_interfaces.msg import RollerTeleop
 from PyQt5.QtWidgets import QApplication, QWidget, QLabel
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QKeyEvent
@@ -14,9 +14,12 @@ class RollerTeleopKeyPublisher(QWidget):
         super(RollerTeleopKeyPublisher, self).__init__()
         self.initUI()
         self.initROS()
+        self.cmd_vel = Twist()
+        self.cmd_motion = String()
+
         self.timer_ = QTimer(self)
         self.timer_.timeout.connect(self.publish_commands)
-        self.timer_.start(100)
+        self.timer_.start(50)
 
     def initUI(self):
         self.setWindowTitle('Roller Teleop Key')
@@ -38,48 +41,42 @@ class RollerTeleopKeyPublisher(QWidget):
             'roller_motion_cmd',
             10)
         self.teloopcmd_publisher = self.node.create_publisher(
-            RollerTeleop,
-            'roller_teleop_cmd',
+            Twist,
+            'cmd_vel',
             10)
-        self.command_ = [0, 0, 0]
-        self.MAX_POWER = 20
         rclpy.spin_once(self.node, timeout_sec=1)
 
     def keyPressEvent(self, e: QKeyEvent) -> None:
         # self.node.get_logger().info(f'{e.key()} key pressed')
+        self.cmd_vel.linear.x = 0.0
+        self.cmd_vel.angular.z = 0.0
+        self.cmd_motion.data = ''
         if e.key() == Qt.Key.Key_Up:
-            self.command_[2] = self.MAX_POWER
+            self.cmd_vel.linear.x = 0.1
         elif e.key() == Qt.Key.Key_Down:
-            self.command_[2] = -self.MAX_POWER
+            self.cmd_vel.linear.x = -0.1
         elif e.key() == Qt.Key.Key_Left:
-            self.command_[0] = self.MAX_POWER
+            self.cmd_vel.angular.z = 1.0
         elif e.key() == Qt.Key.Key_Right:
-            self.command_[1] = self.MAX_POWER
+            self.cmd_vel.angular.z = -1.0
         elif e.key() == Qt.Key.Key_P:
-            msg = String()
-            msg.data = 'PATH'
-            self.motioncmd_publisher.publish(msg)
+            self.cmd_motion.data = 'PATH'
         elif e.key() == Qt.Key.Key_O:
-            msg = String()
-            msg.data = 'START'
-            self.motioncmd_publisher.publish(msg)
+            self.cmd_motion.data = 'START'
         elif e.key() == Qt.Key.Key_I or e.key() == Qt.Key.Key_S:
-            msg = String()
-            msg.data = 'STOP'
-            self.motioncmd_publisher.publish(msg)
+            self.cmd_motion.data = 'STOP'
         return super().keyPressEvent(e)
 
     def keyReleaseEvent(self, a0: QKeyEvent) -> None:
-        self.command_ = [0, 0, 0]
+        self.cmd_vel.linear.x = 0.0
+        self.cmd_vel.angular.z = 0.0
+        self.cmd_motion.data = 'STOP'
         return super().keyReleaseEvent(a0)
 
     def publish_commands(self):
-        msg = RollerTeleop()
-        msg.left_duty_control = self.command_[0]
-        msg.right_duty_control = self.command_[1]
-        msg.auto_spd_control = self.command_[2]
-
-        self.teloopcmd_publisher.publish(msg)
+        self.teloopcmd_publisher.publish(self.cmd_vel)
+        if self.cmd_motion.data != '':
+            self.motioncmd_publisher.publish(self.cmd_motion)
         # self.node.get_logger().info(f'Publishing: {msg}')
 
 def main():
@@ -87,11 +84,6 @@ def main():
     try:
         roller = RollerTeleopKeyPublisher()
     except:
-        msg = RollerTeleop()
-        msg.left_duty_control = 0
-        msg.right_duty_control = 0
-        msg.auto_spd_control = 0
-        roller.teloopcmd_publisher.publish(msg)
         roller.node.get_logger().info('Set all commands to zero')
         roller.node.get_logger().info('Keyboard interrupt (SIGINT)')
         roller.node.destroy_node()
