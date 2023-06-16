@@ -10,12 +10,14 @@ class PathGenerator():
             (0, 0, 0.1),
             (20, 20, 0)
         ]
+        self.x = 39.140
+        self.y = 45.526
 
     def generate_path(self):
-        xs = self.waypoints[0][0]
-        xe = self.waypoints[1][0]
-        ys = self.waypoints[0][1]
-        ye = self.waypoints[1][1]
+        xs = self.waypoints[0][0] + self.x
+        xe = self.waypoints[1][0] + self.x
+        ys = self.waypoints[0][1] + self.y
+        ye = self.waypoints[1][1] + self.y
         cmd_vels = self.waypoints[0][2]
         cmd_vele = self.waypoints[1][2]
 
