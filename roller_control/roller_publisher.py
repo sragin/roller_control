@@ -59,8 +59,8 @@ class RollerPublisher(Node):
             self.steer_angle = _cur['STEER_ANGLE']
 
     def recv_gpsmsg(self, msg: GPSMsg):
-        self.position[0] = msg.tm_x
-        self.position[1] = msg.tm_y
+        self.position[0] = msg.tm_x - 371400
+        self.position[1] = msg.tm_y - 159200
         self.theta = msg.heading - 90
 
     def publish_roller_geometry_msg(self):
