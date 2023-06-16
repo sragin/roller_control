@@ -5,6 +5,8 @@ from roller_interfaces.msg import RollerStatus
 from std_msgs.msg import String
 
 from .path_generator import PathGenerator
+import numpy as np
+from .control_algorithm import stanley_control
 
 
 class RollerController(Node):
@@ -38,18 +40,42 @@ class RollerController(Node):
         self.log_display_cnt = 50
 
     def control(self):
-        self.get_logger().info('in the control algorithm')
-        self.get_logger().info(f'{self.count}')
-        self.count = self.count + 1
+        steer_, yaw_, cte_, min_dist_ = stanley_control(self.position[0], self.position[1], self.cmd_vel[0], self.orientation[2], self.map_xs, self.map_ys, self.map_yaws)
+        self.get_logger().info(f"steer(deg):{steer_ * 180 / np.pi :.3f}, yaw:{yaw_ :.3f}, cte:{cte_ :.3f}, min_dist:{min_dist_ :.3f}")
+        self.get_logger().info(f'{self.map_xs[0] :.3f} {self.map_xs[-1] :.3f} {self.position[0] :.3f} {self.map_ys[0] :.3f} {self.map_ys[-1] :.3f} {self.position[1] :.3f}')
 
-        if self.count >= 100:
-            self.control_timer.cancel()
-            self.control_timer = None
-            self.count = 0
+        # 종료조건 계산
+        error = 0.05
+        if self.map_xs[-1] > self.map_xs[0]:
+            if self.map_xs[-1] - error <= self.position[0]:
+                self.control_timer.cancel()
+                self.control_timer = None
+                return
+        elif self.map_xs[-1] < self.map_xs[0]:
+            if self.map_xs[-1] - error >= self.position[0]:
+                self.control_timer.cancel()
+                self.control_timer = None
+                return
+        if self.map_ys[-1] > self.map_ys[0]:
+            if self.map_ys[-1] - error <= self.position[1]:
+                self.control_timer.cancel()
+                self.control_timer = None
+                return
+        elif self.map_ys[-1] < self.map_ys[0]:
+            if self.map_ys[-1] - error >= self.position[1]:
+                self.control_timer.cancel()
+                self.control_timer = None
+                return
 
     def recieve_motioncmd(self, msg):
         # self.get_logger().info(f'{msg}')
-        if msg.data == 'PATH':
+        if msg.data == 'STOP':
+            if self.control_timer is not None:
+                self.control_timer.cancel()
+                self.control_timer = None
+                self.get_logger().info('control algorithm has been stopped')
+                return
+        elif msg.data == 'PATH':
             if self.control_timer is None:
                 p = PathGenerator()
                 self.map_xs, self.map_ys, self.map_yaws, self.cmd_vel = p.generate_path()
@@ -69,7 +95,9 @@ class RollerController(Node):
                 return
 
     def recieve_rollerstatus(self, msg: RollerStatus):
-        self.get_logger().info(f'{msg}')
+        self.position[0] = msg.pose.x
+        self.position[1] = msg.pose.y
+        self.orientation[2] = msg.pose.theta
 
 
 def main(args=None):
