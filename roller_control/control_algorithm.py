@@ -58,7 +58,7 @@ def stanley_control(x, y, yaw, v, map_xs, map_ys, map_yaws):
     # steering
     steer = yaw_term + cte_term
 
-    return steer, yaw_term, cte_term, min_dist
+    return steer, yaw_term, cte_term, min_dist, min_index
 
 def normalize_angle(angle):
     while angle > np.pi:

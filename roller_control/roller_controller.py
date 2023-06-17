@@ -75,7 +75,7 @@ class RollerController(Node):
             self.get_logger().info(f'motion done')
             return
 
-        steer_, yaw_, cte_, min_dist_ = stanley_control(x, y, vel, theta, self.map_xs, self.map_ys, self.map_yaws)
+        steer_, yaw_, cte_, min_dist_, min_index_ = stanley_control(x, y, vel, theta, self.map_xs, self.map_ys, self.map_yaws)
         steer_ = np.clip(steer_, -MAX_STEER_LIMIT, MAX_STEER_LIMIT)
         if steer_cmd - steer_ > MAX_STEER_VEL*dt:
             steer_cmd -= MAX_STEER_VEL*dt
@@ -88,7 +88,7 @@ class RollerController(Node):
         self.get_logger().info(f'xs:{self.map_xs[0] :.3f} xe:{self.map_xs[-1] :.3f} x:{x :.3f} ys:{self.map_ys[0] :.3f} ye:{self.map_ys[-1] :.3f} y:{y :.3f}')
         self.get_logger().info(f'steer(deg):{steer_angle :.1f} steer_cmd(deg):{steer_cmd * 180 / np.pi :.1f} yaws:{self.map_yaws[0] :.1f} yaw:{theta :.1f}')
         cmd_vel_msg = Twist()
-        cmd_vel_msg.linear.x = vel
+        cmd_vel_msg.linear.x = self.cmd_vel[min_index_]
         cmd_vel_msg.angular.z = steer_cmd
         self.cmd_vel_publisher.publish(cmd_vel_msg)
 
