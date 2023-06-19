@@ -15,7 +15,7 @@ class RollerPublisher(Node):
         self.nodeName = self.get_name()
         self.get_logger().info("{0} started".format(self.nodeName))
         qos_profile = QoSProfile(depth=10)
-        self.candb_autobox_to_supervisor = cantools.db.load_file('./install/roller_control/share/ToSupervisor_220619.dbc')
+        self.candb_autobox_to_supervisor = cantools.db.load_file('./install/roller_control/share/ToSupervisor_230619.dbc')
         self.can_msg_response = self.candb_autobox_to_supervisor.get_message_by_name('Response')
         self.can_msg_drum_pos = self.candb_autobox_to_supervisor.get_message_by_name('Drum_Position')
         self.can_msg_drum_ori = self.candb_autobox_to_supervisor.get_message_by_name('Drum_Orientation')
