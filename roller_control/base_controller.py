@@ -50,7 +50,7 @@ class BaseController(Node):
         self.vel_pid.SetTunnings(0.1, 0.0, 0.0)
         self.vel_pid.SetOutputLimits(1000.0)
         self.steer_pid = PID()
-        self.steer_pid.SetTunnings(35, 0.0, 0.0)
+        self.steer_pid.SetTunnings(35, 1.0, 0.0)
         self.steer_pid.SetOutputLimits(100.0, -100.0)
         self.steer_filter = LowPassFilter(1, CONTROL_PERIOD)
         self.vel_filter = LowPassFilter(0.2, CONTROL_PERIOD)
@@ -88,7 +88,7 @@ class BaseController(Node):
 
         # self.get_logger().info(f'raw: {cur_steer}, filter: {filtered_steer}')
         # self.get_logger().info(f'raw: {steer_vel_deg}, filter: {filterted_steer_vel}')
-        self.get_logger().info(f'Steer cmd: {self.cmd_steer_vel :.2f} out: {out :.2f} vel: {steer_vel :.2f} vel_filter: {_steer_vel} enc: {filtered_steer :.2f}')
+        self.get_logger().info(f'Steer cmd: {self.cmd_steer_vel :.2f} out: {out :.2f} vel: {steer_vel :.2f} vel_filter: {_steer_vel :.2f} enc: {filtered_steer :.2f}')
         self.last_steer = filtered_steer
 
     def send_cancommand(self):
