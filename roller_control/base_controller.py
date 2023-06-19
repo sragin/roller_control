@@ -10,7 +10,7 @@ import cantools
 from can_msgs.msg import Frame
 import numpy as np
 
-CONTROL_PERIOD = 0.02
+CONTROL_PERIOD = 0.1
 
 
 class BaseController(Node):
@@ -108,9 +108,12 @@ class BaseController(Node):
         if self.out_steering > 0:
             left = self.out_steering
             right = 0.
-        else:
+        elif self.out_steering < 0:
             left = 0.
             right = -self.out_steering
+        else:
+            left = 0.
+            right = 0.
         data = self.can_msg_control.encode(
             {'LEFT_DUTY_CONTROL':left,
              'RIGHT_DUTY_CONTROL':right,
