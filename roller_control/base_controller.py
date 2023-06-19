@@ -50,8 +50,10 @@ class BaseController(Node):
         self.vel_pid.SetTunnings(0.1, 0.0, 0.0)
         self.vel_pid.SetOutputLimits(1000.0)
         self.steer_pid = PID()
-        self.steer_pid.SetTunnings(0.1, 0.0, 0.0)
-        self.steer_pid.SetOutputLimits(100.0)
+        self.steer_pid.SetTunnings(35, 0.0, 0.0)
+        self.steer_pid.SetOutputLimits(100.0, -100.0)
+        self.steer_filter = LowPassFilter(1, CONTROL_PERIOD)
+        self.vel_filter = LowPassFilter(0.2, CONTROL_PERIOD)
 
         self.roller_status = RollerStatus()
         self.last_steer = 0.
@@ -74,13 +76,20 @@ class BaseController(Node):
 
     def steering_controller(self):
         cur_steer = self.roller_status.steer_angle.data
-        steer_vel_deg = cur_steer - self.last_steer
-        steer_vel = (steer_vel_deg / CONTROL_PERIOD) / 180 * np.pi
-        out = self.steer_pid.Compute(self.cmd_steer_vel, steer_vel)
+        filtered_steer = self.steer_filter.filter(cur_steer)
+        steer_vel = (filtered_steer - self.last_steer) / CONTROL_PERIOD
+        _steer_vel = np.round(steer_vel, 0)
+        if self.cmd_steer_vel == 0.0:
+            out = 0.0
+        else:
+            out = self.steer_pid.Compute(self.cmd_steer_vel, _steer_vel)
         self.out_steering = out
 
-        self.last_steer = cur_steer
-        self.get_logger().info(f'Steering cmd: {self.cmd_steer_vel :.2f} out: {out :.2f} cur: {steer_vel :.2f}')
+        # self.get_logger().info(f'raw: {cur_steer}, filter: {filtered_steer}')
+        # self.get_logger().info(f'raw: {steer_vel_deg}, filter: {filterted_steer_vel}')
+        # self.get_logger().info(f'Steer cur: {filtered_steer :.2f} vel: {steer_vel_deg :.2f}')
+        self.get_logger().info(f'Steer cmd: {self.cmd_steer_vel :.2f} out: {out :.2f} vel: {steer_vel :.2f} vel_round: {_steer_vel} enc: {filtered_steer :.2f}')
+        self.last_steer = filtered_steer
 
     def send_cancommand(self):
         commandsv = self.can_msg_commandsv.encode(
@@ -169,6 +178,26 @@ class PID():
             return
         self.outMin = Min
         self.outMax = Max
+
+
+class LowPassFilter(object):
+    def __init__(self, cut_off_freqency, ts):
+    	# cut_off_freqency: 차단 주파수
+        # ts: 주기
+        
+        self.ts = ts
+        self.cut_off_freqency = cut_off_freqency
+        self.tau = self.get_tau()
+
+        self.prev_data = 0.
+        
+    def get_tau(self):
+        return 1 / (2 * np.pi * self.cut_off_freqency)
+
+    def filter(self, data):
+        val = (self.ts * data + self.tau * self.prev_data) / (self.tau + self.ts)
+        self.prev_data = val
+        return val
 
 
 def main(args=None):
