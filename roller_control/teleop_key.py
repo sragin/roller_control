@@ -28,7 +28,7 @@ class RollerTeleopKeyPublisher(QWidget):
             "Use 'O' to run.\n"\
             "Use 'I' or 'S' to stop."
         label = QLabel(str, self)
-        label.setGeometry(0, 0, 800, 600)
+        label.setGeometry(0, 0, 300, 150)
         label.setWordWrap(True)
         self.show()
 
