@@ -1,22 +1,24 @@
+from can_msgs.msg import Frame
+import cantools
 import rclpy
 from rclpy.callback_groups import ReentrantCallbackGroup
 from rclpy.node import Node
 from rclpy.qos import QoSProfile
-
-import cantools
 from roller_interfaces.msg import RollerTeleop
-from can_msgs.msg import Frame
 
 
 class RollerTeleop2CanPublisher(Node):
+
     def __init__(self):
         super().__init__('roller_teleop2can')
         self.nodeName = self.get_name()
-        self.get_logger().info("{0} started".format(self.nodeName))
+        self.get_logger().info(f'{self.nodeName} started')
         qos_profile = QoSProfile(depth=10)
-        self.candb_controller = cantools.db.load_file('./install/roller_control/share/Controller_230518.dbc')
+        self.candb_controller = cantools.db.load_file(
+            './install/roller_control/share/Controller_230518.dbc')
         self.can_msg_control = self.candb_controller.get_message_by_name('CONTROLLER_COMM')
-        self.candb_commandsv = cantools.db.load_file('./install/roller_control/share/ToSupervisor_210430.dbc')
+        self.candb_commandsv = cantools.db.load_file(
+            './install/roller_control/share/ToSupervisor_210430.dbc')
         self.can_msg_commandsv = self.candb_commandsv.get_message_by_name('Command_SV')
 
         self.callback_group = ReentrantCallbackGroup()
@@ -35,9 +37,9 @@ class RollerTeleop2CanPublisher(Node):
     # HYDAC 송신용 캔 패킷으로 변환 후 socketcan용 토픽(to_can_bus/Frame 메시지)으로 던진다
     def recv_teleop_cmd(self, msg):
         data2 = self.can_msg_commandsv.encode(
-            {'MODE':1,
-             'AUTO_DRIVE':0,
-             'STOP_CMD':0
+            {'MODE': 1,
+             'AUTO_DRIVE': 0,
+             'STOP_CMD': 0
              }
         )
         send_msg2 = Frame()
@@ -48,10 +50,10 @@ class RollerTeleop2CanPublisher(Node):
         self.publisher_.publish(send_msg2)
 
         data = self.can_msg_control.encode(
-            {'LEFT_DUTY_CONTROL':msg.left_duty_control,
-             'RIGHT_DUTY_CONTROL':msg.right_duty_control,
-             'AUTO_SPD_CONTROL':msg.auto_spd_control,
-             'UNUSED_CONTROL':0}
+            {'LEFT_DUTY_CONTROL': msg.left_duty_control,
+             'RIGHT_DUTY_CONTROL': msg.right_duty_control,
+             'AUTO_SPD_CONTROL': msg.auto_spd_control,
+             'UNUSED_CONTROL': 0}
             )
         send_msg = Frame()
         send_msg.id = self.can_msg_control.frame_id
@@ -63,8 +65,10 @@ class RollerTeleop2CanPublisher(Node):
 
         if self.count == self.log_display_cnt:
             self.get_logger().info(f'Received: {msg}')
-            self.get_logger().warning(f'Controller Command id: {send_msg.id} data: {send_msg.data}')
-            self.get_logger().warning(f'Supervisor Command id: {send_msg2.id} data: {send_msg2.data}')
+            self.get_logger().warning(
+                f'Controller Command id: {send_msg.id} data: {send_msg.data}')
+            self.get_logger().warning(
+                f'Supervisor Command id: {send_msg2.id} data: {send_msg2.data}')
             self.count = 0
         self.count += 1
 
