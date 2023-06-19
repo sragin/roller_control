@@ -78,7 +78,8 @@ class BaseController(Node):
         cur_steer = self.roller_status.steer_angle.data
         filtered_steer = self.steer_filter.filter(cur_steer)
         steer_vel = (filtered_steer - self.last_steer) / CONTROL_PERIOD
-        _steer_vel = np.round(steer_vel, 0)
+        # _steer_vel = np.round(steer_vel, 0)
+        _steer_vel = self.vel_filter.filter(steer_vel)
         if self.cmd_steer_vel == 0.0:
             out = 0.0
         else:
@@ -87,8 +88,7 @@ class BaseController(Node):
 
         # self.get_logger().info(f'raw: {cur_steer}, filter: {filtered_steer}')
         # self.get_logger().info(f'raw: {steer_vel_deg}, filter: {filterted_steer_vel}')
-        # self.get_logger().info(f'Steer cur: {filtered_steer :.2f} vel: {steer_vel_deg :.2f}')
-        self.get_logger().info(f'Steer cmd: {self.cmd_steer_vel :.2f} out: {out :.2f} vel: {steer_vel :.2f} vel_round: {_steer_vel} enc: {filtered_steer :.2f}')
+        self.get_logger().info(f'Steer cmd: {self.cmd_steer_vel :.2f} out: {out :.2f} vel: {steer_vel :.2f} vel_filter: {_steer_vel} enc: {filtered_steer :.2f}')
         self.last_steer = filtered_steer
 
     def send_cancommand(self):
