@@ -15,7 +15,7 @@ class RollerPublisher(Node):
         self.nodeName = self.get_name()
         self.get_logger().info("{0} started".format(self.nodeName))
         qos_profile = QoSProfile(depth=10)
-        self.candb_autobox_to_supervisor = cantools.db.load_file('./install/roller_control/share/ToSupervisor_210430.dbc')
+        self.candb_autobox_to_supervisor = cantools.db.load_file('./install/roller_control/share/ToSupervisor_220619.dbc')
         self.can_msg_response = self.candb_autobox_to_supervisor.get_message_by_name('Response')
         self.can_msg_drum_pos = self.candb_autobox_to_supervisor.get_message_by_name('Drum_Position')
         self.can_msg_drum_ori = self.candb_autobox_to_supervisor.get_message_by_name('Drum_Orientation')
@@ -73,7 +73,7 @@ class RollerPublisher(Node):
         msg.pose.y = self.position[1]
         self.roller_status_publisher.publish(msg)
         if self.count == self.log_display_cnt:
-            self.get_logger().info(f"MODE: {self.response[0]}, STATUS:{self.response[1]}, STEER_ANGLE:{self.steer_angle :.1f}")
+            self.get_logger().info(f"MODE: {self.response[0]}, STATUS:{self.response[1]}, STEER_ANGLE:{self.steer_angle :.2f}")
             self.get_logger().info(f"DRUM POS_X: {self.position[0] :.4f}, POS_Y:{self.position[1] :.4f}, HEAD:{self.theta :.1f}")
             self.count = 0
         self.count += 1
