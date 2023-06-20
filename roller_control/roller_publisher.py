@@ -46,6 +46,7 @@ class RollerPublisher(Node):
         self.steer_angle = 0.0
         self.position = [0., 0.] # position
         self.response = [0, 0]
+        self.speed = 0.0
 
         self.count = 0
         self.log_display_cnt = 50
@@ -62,6 +63,7 @@ class RollerPublisher(Node):
         self.position[0] = msg.tm_x - 371400
         self.position[1] = msg.tm_y - 159200
         self.theta = msg.heading - 90
+        self.speed = msg.speed * 1000 / 3600
 
     def publish_roller_geometry_msg(self):
         msg = RollerStatus()
@@ -71,10 +73,11 @@ class RollerPublisher(Node):
         msg.pose.theta = self.theta
         msg.pose.x = self.position[0]
         msg.pose.y = self.position[1]
+        msg.speed.data = self.speed
         self.roller_status_publisher.publish(msg)
         if self.count == self.log_display_cnt:
             self.get_logger().info(f"MODE: {self.response[0]}, STATUS:{self.response[1]}, STEER_ANGLE:{self.steer_angle :.2f}")
-            self.get_logger().info(f"DRUM POS_X: {self.position[0] :.4f}, POS_Y:{self.position[1] :.4f}, HEAD:{self.theta :.1f}")
+            self.get_logger().info(f"DRUM POS_X: {self.position[0] :.4f}, POS_Y:{self.position[1] :.4f}, HEAD:{self.theta :.1f}, SPEED:{self.speed :.2f}")
             self.count = 0
         self.count += 1
 
