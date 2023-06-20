@@ -47,7 +47,7 @@ class BaseController(Node):
         self.out_velocity = 0.
         self.out_steering = 0.
         self.vel_pid = PID()
-        self.vel_pid.SetTunnings(500, 0.0, 0.0)
+        self.vel_pid.SetTunnings(500, 50.0, 0.0)
         self.vel_pid.SetOutputLimits(1000.0, -1000.0)
         self.steer_pid = PID()
         self.steer_pid.SetTunnings(35, 1.0, 0.0)
@@ -71,11 +71,15 @@ class BaseController(Node):
     def velocity_controller(self):
         vel_ = self.roller_status.speed.data
         vel = (self.roller_status.speed.data * 1000 // 10) / 100
+        # 후진일경우 음수를 붙여준다
+        if self.out_velocity < 0:
+            vel *= -1
         out = self.vel_pid.Compute(self.cmd_drv_vel, vel)
-        self.get_logger().info(f'Velocity cmd: {self.cmd_drv_vel} vel: {vel :.3f} raw: {vel_ :.5f} out: {out : .1f}')
         if self.cmd_drv_vel == 0.0:
             out = 0.0
+            self.vel_pid.Reset()
         self.out_velocity = out
+        self.get_logger().info(f'Velocity cmd: {self.cmd_drv_vel} vel: {vel :.3f} raw: {vel_ :.5f} out: {out : .1f}')
 
     def steering_controller(self):
         cur_steer = self.roller_status.steer_angle.data
@@ -85,13 +89,14 @@ class BaseController(Node):
         _steer_vel = self.vel_filter.filter(steer_vel)
         if self.cmd_steer_vel == 0.0:
             out = 0.0
+            self.steer_pid.Reset()
         else:
             out = self.steer_pid.Compute(self.cmd_steer_vel, _steer_vel)
         self.out_steering = out
 
         # self.get_logger().info(f'raw: {cur_steer}, filter: {filtered_steer}')
         # self.get_logger().info(f'raw: {steer_vel_deg}, filter: {filterted_steer_vel}')
-        # self.get_logger().info(f'Steer cmd: {self.cmd_steer_vel :.2f} out: {out :.2f} vel: {steer_vel :.2f} vel_filter: {_steer_vel :.2f} enc: {filtered_steer :.2f}')
+        self.get_logger().info(f'Steer cmd: {self.cmd_steer_vel :.2f} out: {out :.2f} vel: {steer_vel :.2f} vel_filter: {_steer_vel :.2f} enc: {filtered_steer :.2f}')
         self.last_steer = filtered_steer
 
     def send_cancommand(self):
@@ -108,12 +113,13 @@ class BaseController(Node):
             cmdsv_msg.data[i] = int(commandsv[i])
         self.publisher_.publish(cmdsv_msg)
 
-        if self.out_steering > 0:
+        steer_angle = self.roller_status.steer_angle.data
+        if self.out_steering > 0 and steer_angle < 30.0:
             left = self.out_steering
             right = 0.
-        elif self.out_steering < 0:
-            left = 0.
+        elif self.out_steering < 0 and steer_angle > -30.0:
             right = -self.out_steering
+            left = 0.
         else:
             left = 0.
             right = 0.
@@ -132,10 +138,10 @@ class BaseController(Node):
         self.publisher_.publish(control_msg)
 
         if self.count == self.log_display_cnt:
-            self.get_logger().warning(f'Controller Command id: {control_msg.id} data: {control_msg.data}')
-            self.get_logger().warning(f'Supervisor Command id: {cmdsv_msg.id} data: {cmdsv_msg.data}')
-            self.get_logger().info(f'Velocity cmd: {self.cmd_drv_vel} out: {self.out_velocity}')
-            self.get_logger().info(f'Steering cmd: {self.cmd_steer_vel} out: {self.out_steering}')
+            # self.get_logger().warning(f'Controller Command id: {control_msg.id} data: {control_msg.data}')
+            # self.get_logger().warning(f'Supervisor Command id: {cmdsv_msg.id} data: {cmdsv_msg.data}')
+            # self.get_logger().info(f'Velocity cmd: {self.cmd_drv_vel} out: {self.out_velocity}')
+            # self.get_logger().info(f'Steering cmd: {self.cmd_steer_vel} out: {self.out_steering}')
             self.count = 0
         self.count += 1
 
@@ -184,6 +190,12 @@ class PID():
             return
         self.outMin = Min
         self.outMax = Max
+
+    def Reset(self):
+        self.lastInput = 0.
+        self.errSum = 0.
+        self.lastErr = 0.
+        self.ITerm = 0.      
 
 
 class LowPassFilter(object):
