@@ -18,9 +18,9 @@ class RollerTeleopKeyPublisher(QWidget):
         self.cmd_vel = Twist()
         self.cmd_motion = String()
 
-        self.timer_ = QTimer(self)
-        self.timer_.timeout.connect(self.publish_commands)
-        self.timer_.start(50)
+        # self.timer_ = QTimer(self)
+        # self.timer_.timeout.connect(self.publish_commands)
+        # self.timer_.start(50)
 
     def initUI(self):
         self.setWindowTitle('Roller Teleop Key')
@@ -66,12 +66,14 @@ class RollerTeleopKeyPublisher(QWidget):
             self.cmd_motion.data = 'START'
         elif e.key() == Qt.Key.Key_I or e.key() == Qt.Key.Key_S:
             self.cmd_motion.data = 'STOP'
+        self.publish_commands()
         return super().keyPressEvent(e)
 
     def keyReleaseEvent(self, a0: QKeyEvent) -> None:
         self.cmd_vel.linear.x = 0.0
         self.cmd_vel.angular.z = 0.0
         self.cmd_motion.data = ''
+        self.publish_commands()
         return super().keyReleaseEvent(a0)
 
     def publish_commands(self):
