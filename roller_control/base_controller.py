@@ -47,7 +47,7 @@ class BaseController(Node):
         self.out_velocity = 0.
         self.out_steering = 0.
         self.vel_pid = PID()
-        self.vel_pid.SetTunnings(1000, 0.0, 0.0)
+        self.vel_pid.SetTunnings(500, 0.0, 0.0)
         self.vel_pid.SetOutputLimits(1000.0, -1000.0)
         self.steer_pid = PID()
         self.steer_pid.SetTunnings(35, 1.0, 0.0)
@@ -70,9 +70,9 @@ class BaseController(Node):
 
     def velocity_controller(self):
         vel_ = self.roller_status.speed.data
-        vel = (self.roller_status.speed.data * 100 // 10) / 1000
+        vel = (self.roller_status.speed.data * 1000 // 10) / 100
         out = self.vel_pid.Compute(self.cmd_drv_vel, vel)
-        self.get_logger().info(f'Velocity cmd: {self.cmd_drv_vel} vel: {vel :.4f} raw: {vel_} out: {out : .1f}')
+        self.get_logger().info(f'Velocity cmd: {self.cmd_drv_vel} vel: {vel :.3f} raw: {vel_ :.5f} out: {out : .1f}')
         if self.cmd_drv_vel == 0.0:
             out = 0.0
         self.out_velocity = out
