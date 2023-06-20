@@ -24,14 +24,12 @@ class RollerController(Node):
             RollerStatus,
             'roller_status',
             self.recieve_rollerstatus,
-            qos_profile
-        )
+            qos_profile)
         self.rollermotioncmd_subscriber = self.create_subscription(
             String,
             'roller_motion_cmd',
             self.recieve_motioncmd,
-            qos_profile
-        )
+            qos_profile)
         self.cmd_vel_publisher = self.create_publisher(Twist, 'cmd_vel', qos_profile)
         self.control_timer = None
 
@@ -89,15 +87,13 @@ class RollerController(Node):
         cmd_vel_msg.linear.x = self.cmd_vel[min_index_]
         cmd_vel_msg.angular.z = steer_cmd
         self.cmd_vel_publisher.publish(cmd_vel_msg)
-        self.get_logger().info(f'steer_:{steer_ :.3f}, yaw:{yaw_ :.3f}, cte:{cte_ :.3f},'
-                               f' min_dist:{min_dist_ :.3f} idx:{min_index_}'
-                               f'xs:{self.map_xs[0] :.3f} xe:{self.map_xs[-1] :.3f}'
-                               f' x:{x :.3f}'
-                               f' ys:{self.map_ys[0] :.3f} ye:{self.map_ys[-1] :.3f}'
-                               f' y:{y :.3f}'
-                               f'steer(deg):{steer_angle :.1f} steer_cmd(deg):{steer_cmd :.1f}'
-                               f' yaws:{self.map_yaws[0] :.1f} yaw:{theta :.1f}'
-                               f' cmd_vel:{self.cmd_vel[min_index_]}')
+        self.get_logger().info(
+            f'steer_:{steer_ :.3f}, yaw:{yaw_ :.3f}, cte:{cte_ :.3f},'
+            f' min_dist:{min_dist_ :.3f} idx:{min_index_}\n'
+            f'xs:{self.map_xs[0] :.3f} xe:{self.map_xs[-1] :.3f} x:{x :.3f} '
+            f'ys:{self.map_ys[0] :.3f} ye:{self.map_ys[-1] :.3f} y:{y :.3f}\n'
+            f'steer(deg):{steer_angle :.1f} steer_cmd(deg):{steer_cmd :.1f}'
+            f' yaws:{self.map_yaws[0] :.1f} yaw:{theta :.1f} cmd_vel:{self.cmd_vel[min_index_]}')
 
     def recieve_motioncmd(self, msg):
         # self.get_logger().info(f'{msg}')
