@@ -4,7 +4,7 @@ package_name = 'roller_control'
 
 setup(
     name=package_name,
-    version='0.0.0',
+    version='0.0.ㅎ',
     packages=[package_name],
     data_files=[
         ('share/ament_index/resource_index/packages',
@@ -21,7 +21,6 @@ setup(
     entry_points={
         'console_scripts': [
             'teleop_key = roller_control.teleop_key:main',
-            'teleop2can = roller_control.teleop2can:main',
             'roller_publisher = roller_control.roller_publisher:main',
             'roller_controller = roller_control.roller_controller:main',
             'base_controller = roller_control.base_controller:main',
