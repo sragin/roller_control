@@ -8,12 +8,12 @@ class PathGenerator():
     def __init__(self):
         # 현재위치 기준 TM 좌표
         self.waypoints = [
-            (0, 0, 0.1),
-            (20, 20, 0)
+            (0, 0, 0.5),
+            (0, 10, 0)
         ]
         # 롤러의 현재위치. 경로입력을 간단하게 하기 위해 사용
-        self.x = 39.140
-        self.y = 45.526
+        self.x = 0.46
+        self.y = 0.19
 
     def generate_path(self):
         xs = self.waypoints[0][0] + self.x
@@ -27,7 +27,7 @@ class PathGenerator():
         count = int(dist * 10)  # 0.1m 간격으로 목표점 인터폴레이션
         map_xs = np.linspace(xs, xe, count)
         map_ys = np.linspace(ys, ye, count)
-        map_yaws = np.arctan(np.gradient(map_ys)/np.gradient(map_xs))
+        map_yaws = np.arctan(np.gradient(map_xs)/np.gradient(map_ys)) / np.pi * 180
         cmd_vel = np.linspace(cmd_vels, cmd_vels, count)
         cmd_vel[-1] = cmd_vele
 
