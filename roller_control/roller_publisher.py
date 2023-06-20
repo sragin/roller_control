@@ -42,11 +42,14 @@ class RollerPublisher(Node):
         self.timer_commandsv = self.create_timer(1/10, self.publish_commandsv)
         self.timer_roller_geometry_msg = self.create_timer(1/50, self.publish_roller_geometry_msg)
 
-        self.theta = 0.0
-        self.steer_angle = 0.0
+        self.theta = 0.0 # degree
+        self.steer_angle = 0.0 # degree
         self.position = [0., 0.] # position
         self.response = [0, 0]
         self.speed = 0.0
+
+        # 소부연 테스트베드 원점. 임의로 정한값임. 수준점 측량 후 변경해줘야 함)
+        self.basepoint = [371394.576, 159245.570]
 
         self.count = 0
         self.log_display_cnt = 50
@@ -60,8 +63,8 @@ class RollerPublisher(Node):
             self.steer_angle = _cur['STEER_ANGLE']
 
     def recv_gpsmsg(self, msg: GPSMsg):
-        self.position[0] = msg.tm_x - 371400
-        self.position[1] = msg.tm_y - 159200
+        self.position[0] = msg.tm_x - self.basepoint[0]
+        self.position[1] = msg.tm_y - self.basepoint[1]
         self.theta = msg.heading - 90
         self.speed = msg.speed * 1000 / 3600
 
