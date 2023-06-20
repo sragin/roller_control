@@ -97,18 +97,14 @@ class BaseController(Node):
 
         # self.get_logger().info(f'raw: {cur_steer}, filter: {filtered_steer}')
         # self.get_logger().info(f'raw: {steer_vel_deg}, filter: {filterted_steer_vel}')
-        self.get_logger().info(f'Steer cmd: {self.cmd_steer_vel :.2f} out: {out :.2f}'
-                               f' vel: {steer_vel :.2f} vel_filter: {_steer_vel :.2f}'
-                               f' enc: {filtered_steer :.2f}')
+        self.get_logger().info(
+            f'Steer cmd: {self.cmd_steer_vel :.2f} out: {out :.2f} vel: {steer_vel :.2f}'
+            f' vel_filter: {_steer_vel :.2f} enc: {filtered_steer :.2f}')
         self.last_steer = filtered_steer
 
     def send_cancommand(self):
         commandsv = self.can_msg_commandsv.encode(
-            {'MODE': 1,
-             'AUTO_DRIVE': 0,
-             'STOP_CMD': 0
-             }
-        )
+            {'MODE': 1, 'AUTO_DRIVE': 0, 'STOP_CMD': 0})
         cmdsv_msg = Frame()
         cmdsv_msg.id = self.can_msg_commandsv.frame_id
         cmdsv_msg.dlc = self.can_msg_commandsv.length
@@ -130,8 +126,7 @@ class BaseController(Node):
             {'LEFT_DUTY_CONTROL': left,
              'RIGHT_DUTY_CONTROL': right,
              'AUTO_SPD_CONTROL': self.out_velocity,
-             'UNUSED_CONTROL': 0}
-            )
+             'UNUSED_CONTROL': 0})
         control_msg = Frame()
         control_msg.id = self.can_msg_control.frame_id
         for i in range(8):
