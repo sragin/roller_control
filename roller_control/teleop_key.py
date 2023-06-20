@@ -52,7 +52,7 @@ class RollerTeleopKeyPublisher(QWidget):
         self.cmd_vel.angular.z = 0.0
         self.cmd_motion.data = ''
         if e.key() == Qt.Key.Key_Up:
-            self.cmd_vel.linear.x = 0.1
+            self.cmd_vel.linear.x = 0.3
         elif e.key() == Qt.Key.Key_Down:
             self.cmd_vel.linear.x = -0.1
         elif e.key() == Qt.Key.Key_Left:
@@ -70,7 +70,7 @@ class RollerTeleopKeyPublisher(QWidget):
     def keyReleaseEvent(self, a0: QKeyEvent) -> None:
         self.cmd_vel.linear.x = 0.0
         self.cmd_vel.angular.z = 0.0
-        self.cmd_motion.data = 'STOP'
+        self.cmd_motion.data = ''
         return super().keyReleaseEvent(a0)
 
     def publish_commands(self):
