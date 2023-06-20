@@ -1,11 +1,12 @@
 import rclpy
 from rclpy.node import Node
 from rclpy.qos import QoSProfile
-from turtlesim.msg import Pose
 from roller_interfaces.msg import RollerStatus
+from turtlesim.msg import Pose
 
 
 class TurtleSimInterface(Node):
+
     def __init__(self):
         super().__init__('roller_controller')
         self.nodeName = self.get_name()
@@ -18,8 +19,9 @@ class TurtleSimInterface(Node):
             self.recieve_pose,
             qos_profile
         )
-        self.rollerpose_publisher = self.create_publisher(RollerStatus, 'roller_status', qos_profile)
-    
+        self.rollerpose_publisher = self.create_publisher(
+            RollerStatus, 'roller_status', qos_profile)
+
     def recieve_pose(self, msg: Pose):
         r_msg = RollerStatus()
         r_msg.header.frame_id = 'world'

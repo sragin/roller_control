@@ -1,10 +1,11 @@
-from nav_msgs.msg import Path
 from geometry_msgs.msg import PoseStamped
+from nav_msgs.msg import Path
 
 import numpy as np
 
 
 class PathGenerator():
+
     def __init__(self):
         # 현재위치 기준 TM 좌표
         self.waypoints = [
@@ -48,6 +49,7 @@ class PathGenerator():
 def get_quaternion_from_euler(roll, pitch, yaw):
     """
     Convert an Euler angle to a quaternion.
+
     Input
         :param roll: The roll (rotation around x-axis) angle in radians.
         :param pitch: The pitch (rotation around y-axis) angle in radians.
@@ -55,10 +57,14 @@ def get_quaternion_from_euler(roll, pitch, yaw):
     Output
         :return qx, qy, qz, qw: The orientation in quaternion [x,y,z,w] format
     """
-    qx = np.sin(roll/2) * np.cos(pitch/2) * np.cos(yaw/2) - np.cos(roll/2) * np.sin(pitch/2) * np.sin(yaw/2)
-    qy = np.cos(roll/2) * np.sin(pitch/2) * np.cos(yaw/2) + np.sin(roll/2) * np.cos(pitch/2) * np.sin(yaw/2)
-    qz = np.cos(roll/2) * np.cos(pitch/2) * np.sin(yaw/2) - np.sin(roll/2) * np.sin(pitch/2) * np.cos(yaw/2)
-    qw = np.cos(roll/2) * np.cos(pitch/2) * np.cos(yaw/2) + np.sin(roll/2) * np.sin(pitch/2) * np.sin(yaw/2)
+    qx = np.sin(roll/2) * np.cos(pitch/2) * np.cos(yaw/2) \
+        - np.cos(roll/2) * np.sin(pitch/2) * np.sin(yaw/2)
+    qy = np.cos(roll/2) * np.sin(pitch/2) * np.cos(yaw/2) \
+        + np.sin(roll/2) * np.cos(pitch/2) * np.sin(yaw/2)
+    qz = np.cos(roll/2) * np.cos(pitch/2) * np.sin(yaw/2) \
+        - np.sin(roll/2) * np.sin(pitch/2) * np.cos(yaw/2)
+    qw = np.cos(roll/2) * np.cos(pitch/2) * np.cos(yaw/2) \
+        + np.sin(roll/2) * np.sin(pitch/2) * np.sin(yaw/2)
 
     return [qx, qy, qz, qw]
 
@@ -66,6 +72,7 @@ def get_quaternion_from_euler(roll, pitch, yaw):
 def main(args=None):
     path_generator = PathGenerator()
     path_generator.generate_path()
+
 
 if __name__ == '__main__':
     main()

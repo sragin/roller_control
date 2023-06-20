@@ -1,24 +1,27 @@
+from can_msgs.msg import Frame
+import cantools
+from msg_gps_interface.msg import GPSMsg
 import rclpy
 from rclpy.callback_groups import ReentrantCallbackGroup
 from rclpy.node import Node
 from rclpy.qos import QoSProfile
 from roller_interfaces.msg import RollerStatus
 
-import cantools
-from can_msgs.msg import Frame
-from msg_gps_interface.msg import GPSMsg
-
 
 class RollerPublisher(Node):
+
     def __init__(self):
         super().__init__('roller_publisher')
         self.nodeName = self.get_name()
-        self.get_logger().info("{0} started".format(self.nodeName))
+        self.get_logger().info(f'{self.nodeName} started')
         qos_profile = QoSProfile(depth=10)
-        self.candb_autobox_to_supervisor = cantools.db.load_file('./install/roller_control/share/ToSupervisor_230619.dbc')
+        self.candb_autobox_to_supervisor = \
+            cantools.db.load_file('./install/roller_control/share/ToSupervisor_230619.dbc')
         self.can_msg_response = self.candb_autobox_to_supervisor.get_message_by_name('Response')
-        self.can_msg_drum_pos = self.candb_autobox_to_supervisor.get_message_by_name('Drum_Position')
-        self.can_msg_drum_ori = self.candb_autobox_to_supervisor.get_message_by_name('Drum_Orientation')
+        self.can_msg_drum_pos = \
+            self.candb_autobox_to_supervisor.get_message_by_name('Drum_Position')
+        self.can_msg_drum_ori = \
+            self.candb_autobox_to_supervisor.get_message_by_name('Drum_Orientation')
         self.can_msg_commandsv = self.candb_autobox_to_supervisor.get_message_by_name('Command_SV')
 
         self.callback_group = ReentrantCallbackGroup()
@@ -37,14 +40,15 @@ class RollerPublisher(Node):
             callback_group=self.callback_group
         )
         self.canbus_publisher = self.create_publisher(Frame, 'to_can_bus', qos_profile)
-        self.roller_status_publisher = self.create_publisher(RollerStatus, 'roller_status', qos_profile)
+        self.roller_status_publisher = \
+            self.create_publisher(RollerStatus, 'roller_status', qos_profile)
 
         self.timer_commandsv = self.create_timer(1/10, self.publish_commandsv)
         self.timer_roller_geometry_msg = self.create_timer(1/50, self.publish_roller_geometry_msg)
 
-        self.theta = 0.0 # degree
-        self.steer_angle = 0.0 # degree
-        self.position = [0., 0.] # position
+        self.theta = 0.0  # degree
+        self.steer_angle = 0.0  # degree
+        self.position = [0., 0.]  # position
         self.response = [0, 0]
         self.speed = 0.0
 
@@ -53,7 +57,6 @@ class RollerPublisher(Node):
 
         self.count = 0
         self.log_display_cnt = 50
-
 
     def recv_autobox_state(self, msg):
         if msg.id == self.can_msg_response.frame_id:
@@ -79,16 +82,19 @@ class RollerPublisher(Node):
         msg.speed.data = self.speed
         self.roller_status_publisher.publish(msg)
         if self.count == self.log_display_cnt:
-            self.get_logger().info(f"MODE: {self.response[0]}, STATUS:{self.response[1]}, STEER_ANGLE:{self.steer_angle :.2f}")
-            self.get_logger().info(f"DRUM POS_X: {self.position[0] :.4f}, POS_Y:{self.position[1] :.4f}, HEAD:{self.theta :.1f}, SPEED:{self.speed :.2f}")
+            self.get_logger().info(f'MODE: {self.response[0]}, STATUS:{self.response[1]},'
+                                   f' STEER_ANGLE:{self.steer_angle :.2f}')
+            self.get_logger().info(f'DRUM POS_X: {self.position[0] :.4f},'
+                                   f' POS_Y:{self.position[1] :.4f},'
+                                   f' HEAD:{self.theta :.1f}, SPEED:{self.speed :.2f}')
             self.count = 0
         self.count += 1
 
     def publish_commandsv(self):
         data = self.can_msg_commandsv.encode(
-            {'MODE':1,
-             'AUTO_DRIVE':0,
-             'STOP_CMD':0}
+            {'MODE': 1,
+             'AUTO_DRIVE': 0,
+             'STOP_CMD': 0}
         )
         send_msg = Frame()
         send_msg.id = self.can_msg_commandsv.frame_id

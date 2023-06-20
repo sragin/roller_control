@@ -1,27 +1,27 @@
+from can_msgs.msg import Frame
+import cantools
+from geometry_msgs.msg import Twist
+import numpy as np
 import rclpy
 from rclpy.node import Node
 from rclpy.qos import QoSProfile
-from geometry_msgs.msg import Twist
 from roller_interfaces.msg import RollerStatus
-from std_msgs.msg import String
-
-from .control_algorithm import MAX_STEER_LIMIT, MAX_STEER_VEL
-import cantools
-from can_msgs.msg import Frame
-import numpy as np
 
 CONTROL_PERIOD = 0.1
 
 
 class BaseController(Node):
+
     def __init__(self):
         super().__init__('base_controller')
         self.nodeName = self.get_name()
         self.get_logger().info(f'{self.nodeName} started')
 
-        self.candb_controller = cantools.db.load_file('./install/roller_control/share/Controller_230518.dbc')
+        self.candb_controller = cantools.db.load_file(
+            './install/roller_control/share/Controller_230518.dbc')
         self.can_msg_control = self.candb_controller.get_message_by_name('CONTROLLER_COMM')
-        self.candb_commandsv = cantools.db.load_file('./install/roller_control/share/ToSupervisor_230619.dbc')
+        self.candb_commandsv = cantools.db.load_file(
+            './install/roller_control/share/ToSupervisor_230619.dbc')
         self.can_msg_commandsv = self.candb_commandsv.get_message_by_name('Command_SV')
 
         qos_profile = QoSProfile(depth=10)
@@ -79,14 +79,15 @@ class BaseController(Node):
             out = 0.0
             self.vel_pid.Reset()
         self.out_velocity = out
-        self.get_logger().info(f'Velocity cmd: {self.cmd_drv_vel} vel: {vel :.3f} raw: {vel_ :.5f} out: {out : .1f}')
+        self.get_logger().info(f'Velocity cmd: {self.cmd_drv_vel} vel: {vel :.3f}'
+                               f' raw: {vel_ :.5f} out: {out : .1f}')
 
     def steering_controller(self):
         cur_steer = self.roller_status.steer_angle.data
-        filtered_steer = self.steer_filter.filter(cur_steer)
+        filtered_steer = self.steer_filter.lowpass_filter(cur_steer)
         steer_vel = (filtered_steer - self.last_steer) / CONTROL_PERIOD
         # _steer_vel = np.round(steer_vel, 0)
-        _steer_vel = self.vel_filter.filter(steer_vel)
+        _steer_vel = self.vel_filter.lowpass_filter(steer_vel)
         if self.cmd_steer_vel == 0.0:
             out = 0.0
             self.steer_pid.Reset()
@@ -96,14 +97,16 @@ class BaseController(Node):
 
         # self.get_logger().info(f'raw: {cur_steer}, filter: {filtered_steer}')
         # self.get_logger().info(f'raw: {steer_vel_deg}, filter: {filterted_steer_vel}')
-        self.get_logger().info(f'Steer cmd: {self.cmd_steer_vel :.2f} out: {out :.2f} vel: {steer_vel :.2f} vel_filter: {_steer_vel :.2f} enc: {filtered_steer :.2f}')
+        self.get_logger().info(f'Steer cmd: {self.cmd_steer_vel :.2f} out: {out :.2f}'
+                               f' vel: {steer_vel :.2f} vel_filter: {_steer_vel :.2f}'
+                               f' enc: {filtered_steer :.2f}')
         self.last_steer = filtered_steer
 
     def send_cancommand(self):
         commandsv = self.can_msg_commandsv.encode(
-            {'MODE':1,
-             'AUTO_DRIVE':0,
-             'STOP_CMD':0
+            {'MODE': 1,
+             'AUTO_DRIVE': 0,
+             'STOP_CMD': 0
              }
         )
         cmdsv_msg = Frame()
@@ -124,10 +127,10 @@ class BaseController(Node):
             left = 0.
             right = 0.
         data = self.can_msg_control.encode(
-            {'LEFT_DUTY_CONTROL':left,
-             'RIGHT_DUTY_CONTROL':right,
-             'AUTO_SPD_CONTROL':self.out_velocity,
-             'UNUSED_CONTROL':0}
+            {'LEFT_DUTY_CONTROL': left,
+             'RIGHT_DUTY_CONTROL': right,
+             'AUTO_SPD_CONTROL': self.out_velocity,
+             'UNUSED_CONTROL': 0}
             )
         control_msg = Frame()
         control_msg.id = self.can_msg_control.frame_id
@@ -138,15 +141,19 @@ class BaseController(Node):
         self.publisher_.publish(control_msg)
 
         if self.count == self.log_display_cnt:
-            # self.get_logger().warning(f'Controller Command id: {control_msg.id} data: {control_msg.data}')
-            # self.get_logger().warning(f'Supervisor Command id: {cmdsv_msg.id} data: {cmdsv_msg.data}')
+            # self.get_logger().warning(f'Controller Command id: {control_msg.id}'
+            #   ' data: {control_msg.data}')
+            # self.get_logger().warning(f'Supervisor Command id: {cmdsv_msg.id}'
+            #   ' data: {cmdsv_msg.data}')
             # self.get_logger().info(f'Velocity cmd: {self.cmd_drv_vel} out: {self.out_velocity}')
-            # self.get_logger().info(f'Steering cmd: {self.cmd_steer_vel} out: {self.out_steering}')
+            # self.get_logger().info(f'Steering cmd: {self.cmd_steer_vel}'
+            #   ' out: {self.out_steering}')
             self.count = 0
         self.count += 1
 
 
 class PID():
+
     def __init__(self):
         self.lastInput = 0.
         self.errSum = 0.
@@ -195,24 +202,25 @@ class PID():
         self.lastInput = 0.
         self.errSum = 0.
         self.lastErr = 0.
-        self.ITerm = 0.      
+        self.ITerm = 0.
 
 
 class LowPassFilter(object):
+
     def __init__(self, cut_off_freqency, ts):
-    	# cut_off_freqency: 차단 주파수
+        # cut_off_freqency: 차단 주파수
         # ts: 주기
-        
+
         self.ts = ts
         self.cut_off_freqency = cut_off_freqency
         self.tau = self.get_tau()
 
         self.prev_data = 0.
-        
+
     def get_tau(self):
         return 1 / (2 * np.pi * self.cut_off_freqency)
 
-    def filter(self, data):
+    def lowpass_filter(self, data):
         val = (self.ts * data + self.tau * self.prev_data) / (self.tau + self.ts)
         self.prev_data = val
         return val

@@ -1,19 +1,20 @@
+from geometry_msgs.msg import Twist
+import numpy as np
 import rclpy
 from rclpy.node import Node
 from rclpy.qos import QoSProfile
 from roller_interfaces.msg import RollerStatus
 from std_msgs.msg import String
-from geometry_msgs.msg import Twist
 
-from .path_generator import PathGenerator
-from .control_algorithm import stanley_control
 from .control_algorithm import MAX_STEER_LIMIT, MAX_STEER_VEL
-import numpy as np
+from .control_algorithm import stanley_control
+from .path_generator import PathGenerator
 
 CONTROL_PERIOD = 0.1
 
 
 class RollerController(Node):
+
     def __init__(self):
         super().__init__('roller_controller')
         self.nodeName = self.get_name()
@@ -71,10 +72,11 @@ class RollerController(Node):
                 self.control_timer.cancel()
                 self.control_timer = None
         if self.control_timer is None:
-            self.get_logger().info(f'motion done')
+            self.get_logger().info('motion done')
             return
 
-        steer_, yaw_, cte_, min_dist_, min_index_ = stanley_control(x, y, vel, theta, self.map_xs, self.map_ys, self.map_yaws)
+        steer_, yaw_, cte_, min_dist_, min_index_ =\
+            stanley_control(x, y, vel, theta, self.map_xs, self.map_ys, self.map_yaws)
         steer_ = np.clip(steer_, -MAX_STEER_LIMIT, MAX_STEER_LIMIT)
         if steer_angle - steer_ > MAX_STEER_VEL*dt:
             steer_cmd = -MAX_STEER_VEL*dt
@@ -87,10 +89,15 @@ class RollerController(Node):
         cmd_vel_msg.linear.x = self.cmd_vel[min_index_]
         cmd_vel_msg.angular.z = steer_cmd
         self.cmd_vel_publisher.publish(cmd_vel_msg)
-        self.get_logger().info(f"steer_:{steer_ :.3f}, yaw:{yaw_ :.3f}, cte:{cte_ :.3f}, min_dist:{min_dist_ :.3f} idx:{min_index_}")
-        self.get_logger().info(f'xs:{self.map_xs[0] :.3f} xe:{self.map_xs[-1] :.3f} x:{x :.3f} ys:{self.map_ys[0] :.3f} ye:{self.map_ys[-1] :.3f} y:{y :.3f}')
-        self.get_logger().info(f'steer(deg):{steer_angle :.1f} steer_cmd(deg):{steer_cmd :.1f} yaws:{self.map_yaws[0] :.1f} yaw:{theta :.1f} cmd_vel:{self.cmd_vel[min_index_]}')
-
+        self.get_logger().info(f'steer_:{steer_ :.3f}, yaw:{yaw_ :.3f}, cte:{cte_ :.3f},'
+                               f' min_dist:{min_dist_ :.3f} idx:{min_index_}'
+                               f'xs:{self.map_xs[0] :.3f} xe:{self.map_xs[-1] :.3f}'
+                               f' x:{x :.3f}'
+                               f' ys:{self.map_ys[0] :.3f} ye:{self.map_ys[-1] :.3f}'
+                               f' y:{y :.3f}'
+                               f'steer(deg):{steer_angle :.1f} steer_cmd(deg):{steer_cmd :.1f}'
+                               f' yaws:{self.map_yaws[0] :.1f} yaw:{theta :.1f}'
+                               f' cmd_vel:{self.cmd_vel[min_index_]}')
 
     def recieve_motioncmd(self, msg):
         # self.get_logger().info(f'{msg}')

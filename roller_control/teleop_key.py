@@ -1,15 +1,16 @@
-import rclpy
-from rclpy.node import Node
-from geometry_msgs.msg import Twist
-from std_msgs.msg import String
-
 import sys
-from PyQt5.QtWidgets import QApplication, QWidget, QLabel
+
+from geometry_msgs.msg import Twist
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QKeyEvent
+from PyQt5.QtWidgets import QApplication, QLabel, QWidget
+import rclpy
+from rclpy.node import Node
+from std_msgs.msg import String
 
 
 class RollerTeleopKeyPublisher(QWidget):
+
     def __init__(self):
         super(RollerTeleopKeyPublisher, self).__init__()
         self.initUI()
@@ -23,11 +24,11 @@ class RollerTeleopKeyPublisher(QWidget):
 
     def initUI(self):
         self.setWindowTitle('Roller Teleop Key')
-        str = "Use arrow keys to move the roller.\n" \
-            "Use 'P' to read path file & generate path.\n" \
-            "Use 'O' to run.\n"\
-            "Use 'I' or 'S' to stop."
-        label = QLabel(str, self)
+        str_ = 'Use arrow keys to move the roller.\n' \
+            'Use "P" to read path file & generate path.\n' \
+            'Use "O" to run.\n'\
+            'Use "I" or "S" to stop.'
+        label = QLabel(str_, self)
         label.setGeometry(0, 0, 300, 150)
         label.setWordWrap(True)
         self.show()
@@ -79,16 +80,18 @@ class RollerTeleopKeyPublisher(QWidget):
             self.motioncmd_publisher.publish(self.cmd_motion)
         # self.node.get_logger().info(f'Publishing: {msg}')
 
+
 def main():
     app = QApplication(sys.argv)
     try:
         roller = RollerTeleopKeyPublisher()
-    except:
+    except Exception as e:
+        roller.node.get_logger().info(f'{e}')
         roller.node.get_logger().info('Set all commands to zero')
-        roller.node.get_logger().info('Keyboard interrupt (SIGINT)')
         roller.node.destroy_node()
         rclpy.shutdown()
     sys.exit(app.exec_())
 
-if __name__ == "__main__":
+
+if __name__ == '__main__':
     main()

@@ -17,12 +17,12 @@ MAX_STEER_VEL = 10
 MAX_STEER = 31.5
 MAX_STEER_LIMIT = 30
 
+
 # stanley control algorithm
 # x, y: meter, yaw: radian
 def stanley_control(x, y, yaw, v, map_xs, map_ys, map_yaws):
     # control gain
     k = 0.5
-    dt = 0.1
 
     # find the nearest point
     min_dist = 1e9
@@ -59,6 +59,7 @@ def stanley_control(x, y, yaw, v, map_xs, map_ys, map_yaws):
     steer = yaw_term + cte_term
 
     return steer, yaw_term, cte_term, min_dist, min_index
+
 
 def normalize_angle(angle):
     while angle > np.pi:
