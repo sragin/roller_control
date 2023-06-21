@@ -69,8 +69,8 @@ class BaseController(Node):
         self.roller_status = msg
 
     def velocity_controller(self):
-        vel_ = self.roller_status.speed.data
-        vel = (self.roller_status.speed.data * 1000 // 10) / 100
+        vel_ = self.roller_status.speed
+        vel = int(self.roller_status.speed * 100) / 100
         # 후진일경우 음수를 붙여준다
         if self.out_velocity < 0:
             vel *= -1
@@ -83,7 +83,7 @@ class BaseController(Node):
                                f' raw: {vel_ :.5f} out: {out : .1f}')
 
     def steering_controller(self):
-        cur_steer = self.roller_status.steer_angle.data
+        cur_steer = self.roller_status.steer_angle
         filtered_steer = self.steer_filter.lowpass_filter(cur_steer)
         steer_vel = (filtered_steer - self.last_steer) / CONTROL_PERIOD
         # _steer_vel = np.round(steer_vel, 0)
@@ -112,7 +112,7 @@ class BaseController(Node):
             cmdsv_msg.data[i] = int(commandsv[i])
         self.publisher_.publish(cmdsv_msg)
 
-        steer_angle = self.roller_status.steer_angle.data
+        steer_angle = self.roller_status.steer_angle
         if self.out_steering > 0 and steer_angle < 30.0:
             left = self.out_steering
             right = 0.
