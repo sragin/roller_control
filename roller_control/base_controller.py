@@ -50,7 +50,7 @@ class BaseController(Node):
         self.vel_pid.SetTunnings(500, 50.0, 0.0)
         self.vel_pid.SetOutputLimits(1000.0, -1000.0)
         self.steer_pid = PID()
-        self.steer_pid.SetTunnings(35, 1.0, 0.0)
+        self.steer_pid.SetTunnings(15, 0.1, 0.0)
         self.steer_pid.SetOutputLimits(100.0, -100.0)
         self.steer_filter = LowPassFilter(1, CONTROL_PERIOD)
         self.vel_filter = LowPassFilter(0.2, CONTROL_PERIOD)
