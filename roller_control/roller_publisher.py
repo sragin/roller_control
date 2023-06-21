@@ -65,7 +65,7 @@ class RollerPublisher(Node):
         self.position[0] = msg.tm_x - self.basepoint[0]
         self.position[1] = msg.tm_y - self.basepoint[1]
         self.theta = msg.heading - 90
-        self.speed = msg.speed * 1000 / 3600
+        self.speed = msg.speed * 1000 / 3600  # km/h - m/s 단위변환
 
     def publish_roller_geometry_msg(self):
         msg = RollerStatus()
@@ -75,7 +75,7 @@ class RollerPublisher(Node):
         msg.pose.theta = self.theta
         msg.pose.x = self.position[0]
         msg.pose.y = self.position[1]
-        msg.speed.data = self.speed
+        msg.speed = self.speed
         self.roller_status_publisher.publish(msg)
         if self.count == self.log_display_cnt:
             self.get_logger().info(f'MODE: {self.response[0]}, STATUS:{self.response[1]},'
