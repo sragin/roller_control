@@ -2,7 +2,6 @@ from can_msgs.msg import Frame
 import cantools
 from msg_gps_interface.msg import GPSMsg
 import rclpy
-from rclpy.callback_groups import ReentrantCallbackGroup
 from rclpy.node import Node
 from rclpy.qos import QoSProfile
 from roller_interfaces.msg import RollerStatus
@@ -24,20 +23,17 @@ class RollerPublisher(Node):
             self.candb_autobox_to_supervisor.get_message_by_name('Drum_Orientation')
         self.can_msg_commandsv = self.candb_autobox_to_supervisor.get_message_by_name('Command_SV')
 
-        self.callback_group = ReentrantCallbackGroup()
         self.can_msg_subscriber = self.create_subscription(
             Frame,
             'from_can_bus',
             self.recv_autobox_state,
-            qos_profile,
-            callback_group=self.callback_group
+            qos_profile
         )
         self.gps_msg_subscriber = self.create_subscription(
             GPSMsg,
             'gps_msg',
             self.recv_gpsmsg,
-            qos_profile,
-            callback_group=self.callback_group
+            qos_profile
         )
         self.canbus_publisher = self.create_publisher(Frame, 'to_can_bus', qos_profile)
         self.roller_status_publisher = \
