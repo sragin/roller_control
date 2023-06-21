@@ -48,7 +48,7 @@ class RollerController(Node):
         x = self.roller_status.pose.x
         y = self.roller_status.pose.y
         theta = self.roller_status.pose.theta
-        steer_angle = self.roller_status.steer_angle.data
+        steer_angle = self.roller_status.steer_angle
         vel = self.cmd_vel[0]
 
         # 종료조건 계산
