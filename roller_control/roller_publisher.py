@@ -84,7 +84,7 @@ class RollerPublisher(Node):
                                    f' STEER_ANGLE:{self.steer_angle :.2f}')
             self.get_logger().info(f'DRUM POS_X: {self.position[0] :.4f},'
                                    f' POS_Y:{self.position[1] :.4f},'
-                                   f' HEAD:{self.theta :.1f}, SPEED:{self.speed :.2f}')
+                                   f' HEAD:{self.theta :.2f}, SPEED:{self.speed :.2f}')
             self.count = 0
         self.count += 1
 
