@@ -86,8 +86,8 @@ class RollerController(Node):
             f' min_dist:{min_dist_ :.3f} idx:{min_index_}\n'
             f'xs:{self.map_xs[0] :.3f} xe:{self.map_xs[-1] :.3f} x:{x :.3f} '
             f'ys:{self.map_ys[0] :.3f} ye:{self.map_ys[-1] :.3f} y:{y :.3f}\n'
-            f'steer(deg):{steer_angle :.1f} steer_cmd(deg):{steer_cmd :.1f}'
-            f' yaws:{self.map_yaws[0] :.1f} yaw:{theta :.1f} cmd_vel:{self.cmd_vel[min_index_]}')
+            f'steer(rad):{steer_angle :.3f} steer_cmd(rad):{steer_cmd :.3f}'
+            f' yaws:{self.map_yaws[0] :.3f} yaw:{theta + steer_angle :.3f} cmd_vel:{self.cmd_vel[min_index_]}')
 
     def recieve_motioncmd(self, msg):
         # self.get_logger().info(f'{msg}')
