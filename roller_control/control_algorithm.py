@@ -15,7 +15,7 @@ BACKTOWHEEL = LENGTH - WHEEL_LEN - 0.25  # from back to front wheel
 
 MAX_STEER_VEL = 10.0 / 180 * np.pi
 MAX_STEER = 31.5
-MAX_STEER_LIMIT = 30
+MAX_STEER_LIMIT = 30 / 180 * np.pi
 
 
 # stanley control algorithm
