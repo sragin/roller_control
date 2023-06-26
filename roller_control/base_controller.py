@@ -47,10 +47,10 @@ class BaseController(Node):
         self.out_velocity = 0.
         self.out_steering = 0.
         self.vel_pid = PID()
-        self.vel_pid.SetTunnings(10, 0.0, 0.0)
+        self.vel_pid.SetTunnings(500, 0.0, 0.0)
         self.vel_pid.SetOutputLimits(1000.0, -1000.0)
         self.steer_pid = PID()
-        self.steer_pid.SetTunnings(3, 0.0, 0.0)
+        self.steer_pid.SetTunnings(20, 0.0, 0.0)
         self.steer_pid.SetOutputLimits(100.0, -100.0)
         self.steer_filter = LowPassFilter(1, CONTROL_PERIOD)
         self.vel_filter = LowPassFilter(0.2, CONTROL_PERIOD)
@@ -63,7 +63,7 @@ class BaseController(Node):
 
     def recieve_cmdvel(self, msg: Twist):
         self.cmd_drv_vel = msg.linear.x
-        self.cmd_steer_vel = msg.angular.z
+        self.cmd_steer_pos = msg.angular.z
 
     def recieve_rollerstatus(self, msg: RollerStatus):
         self.roller_status = msg
@@ -91,7 +91,7 @@ class BaseController(Node):
             out = self.steer_pid.Compute(self.cmd_steer_pos, cur_steer)
         self.out_steering = out
         self.get_logger().info(
-            f'Steer cmd: {self.cmd_steer_pos :.2f} cur: {cur_steer} valve out: {out :.2f}')
+            f'Steer cmd: {self.cmd_steer_pos :.2f} cur: {cur_steer :.3f} valve out: {out :.2f}')
 
     def send_cancommand(self):
         commandsv = self.can_msg_commandsv.encode(
