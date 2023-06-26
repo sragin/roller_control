@@ -43,14 +43,14 @@ class BaseController(Node):
         self.create_timer(CONTROL_PERIOD, self.send_cancommand)
 
         self.cmd_drv_vel = 0.
-        self.cmd_steer_vel = 0.
+        self.cmd_steer_pos = 0.
         self.out_velocity = 0.
         self.out_steering = 0.
         self.vel_pid = PID()
-        self.vel_pid.SetTunnings(500, 50.0, 0.0)
+        self.vel_pid.SetTunnings(10, 0.0, 0.0)
         self.vel_pid.SetOutputLimits(1000.0, -1000.0)
         self.steer_pid = PID()
-        self.steer_pid.SetTunnings(15, 0.1, 0.0)
+        self.steer_pid.SetTunnings(3, 0.0, 0.0)
         self.steer_pid.SetOutputLimits(100.0, -100.0)
         self.steer_filter = LowPassFilter(1, CONTROL_PERIOD)
         self.vel_filter = LowPassFilter(0.2, CONTROL_PERIOD)
@@ -84,23 +84,14 @@ class BaseController(Node):
 
     def steering_controller(self):
         cur_steer = self.roller_status.steer_angle
-        filtered_steer = self.steer_filter.lowpass_filter(cur_steer)
-        steer_vel = (filtered_steer - self.last_steer) / CONTROL_PERIOD
-        # _steer_vel = np.round(steer_vel, 0)
-        _steer_vel = self.vel_filter.lowpass_filter(steer_vel)
-        if self.cmd_steer_vel == 0.0:
+        if self.cmd_steer_pos == 0.0:
             out = 0.0
             self.steer_pid.Reset()
         else:
-            out = self.steer_pid.Compute(self.cmd_steer_vel, _steer_vel)
+            out = self.steer_pid.Compute(self.cmd_steer_pos, cur_steer)
         self.out_steering = out
-
-        # self.get_logger().info(f'raw: {cur_steer}, filter: {filtered_steer}')
-        # self.get_logger().info(f'raw: {steer_vel_deg}, filter: {filterted_steer_vel}')
         self.get_logger().info(
-            f'Steer cmd: {self.cmd_steer_vel :.2f} out: {out :.2f} vel: {steer_vel :.2f}'
-            f' vel_filter: {_steer_vel :.2f} enc: {filtered_steer :.2f}')
-        self.last_steer = filtered_steer
+            f'Steer cmd: {self.cmd_steer_pos :.2f} cur: {cur_steer} valve out: {out :.2f}')
 
     def send_cancommand(self):
         commandsv = self.can_msg_commandsv.encode(

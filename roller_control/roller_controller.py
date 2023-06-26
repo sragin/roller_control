@@ -75,7 +75,7 @@ class RollerController(Node):
 
         steer_, yaw_, cte_, min_dist_, min_index_ =\
             stanley_control(x, y, vel, theta + steer_angle, self.map_xs, self.map_ys, self.map_yaws)
-        steer_cmd = np.clip(steer_, -MAX_STEER_VEL, MAX_STEER_VEL)
+        steer_cmd = np.clip(steer_, -MAX_STEER_LIMIT, MAX_STEER_LIMIT)
 
         cmd_vel_msg = Twist()
         cmd_vel_msg.linear.x = self.cmd_vel[min_index_]
