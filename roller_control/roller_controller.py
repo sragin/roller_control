@@ -6,7 +6,7 @@ from rclpy.qos import QoSProfile
 from roller_interfaces.msg import RollerStatus
 from std_msgs.msg import String
 
-from .control_algorithm import MAX_STEER_LIMIT, MAX_STEER_VEL
+from .control_algorithm import MAX_STEER_LIMIT
 from .control_algorithm import stanley_control
 from .path_generator import PathGenerator
 
@@ -44,7 +44,6 @@ class RollerController(Node):
         self.log_display_cnt = 50
 
     def control(self):
-        dt = CONTROL_PERIOD
         x = self.roller_status.pose.x
         y = self.roller_status.pose.y
         theta = self.roller_status.pose.theta
@@ -74,7 +73,8 @@ class RollerController(Node):
             return
 
         steer_, yaw_, cte_, min_dist_, min_index_ =\
-            stanley_control(x, y, vel, theta + steer_angle, self.map_xs, self.map_ys, self.map_yaws)
+            stanley_control(x, y, vel, theta + steer_angle,
+                            self.map_xs, self.map_ys, self.map_yaws)
         steer_cmd = np.clip(steer_, -MAX_STEER_LIMIT, MAX_STEER_LIMIT)
 
         cmd_vel_msg = Twist()
@@ -87,7 +87,8 @@ class RollerController(Node):
             f'xs:{self.map_xs[0] :.3f} xe:{self.map_xs[-1] :.3f} x:{x :.3f} '
             f'ys:{self.map_ys[0] :.3f} ye:{self.map_ys[-1] :.3f} y:{y :.3f}\n'
             f'steer(rad):{steer_angle :.3f} steer_cmd(rad):{steer_cmd :.3f}'
-            f' yaws:{self.map_yaws[0] :.3f} yaw:{theta + steer_angle :.3f} cmd_vel:{self.cmd_vel[min_index_]}')
+            f' yaws:{self.map_yaws[0] :.3f} yaw:{theta + steer_angle :.3f}'
+            f' cmd_vel:{self.cmd_vel[min_index_]}')
 
     def recieve_motioncmd(self, msg):
         # self.get_logger().info(f'{msg}')

@@ -1,7 +1,7 @@
 from can_msgs.msg import Frame
 import cantools
-import numpy as np
 from msg_gps_interface.msg import GPSMsg
+import numpy as np
 import rclpy
 from rclpy.node import Node
 from rclpy.qos import QoSProfile
