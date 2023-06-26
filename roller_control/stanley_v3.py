@@ -1,11 +1,11 @@
+import math
 import matplotlib.pyplot as plt
-
 import numpy as np
 
 # paramters
 dt = 0.1
 
-k = 0.5  # control gain
+k = 10.0  # control gain
 
 # ROLLER PARAMETERS
 LENGTH = 5.870
@@ -20,30 +20,30 @@ TREAD_FRONT = 0  # [m]
 TREAD_REAR = 0.85  # [m]
 BACKTOWHEEL = LENGTH - WHEEL_LEN - 0.25  # from back to front wheel
 
-MAX_STEER_VEL = 10 * np.pi / 180  # rad/s (10 deg/s)
+MAX_STEER_VEL = 30 * np.pi / 180  # rad/s (30 deg/s)
 MAX_STEER = 31.5
 MAX_STEER_LIMIT = 30
 
 
 class VehicleModel(object):
-
     def __init__(self, x=0.0, y=0.0, yaw=0.0, v=0.0):
         self.x = x
         self.y = y
         self.yaw = yaw  # 차체의 헤딩 각도
         self.v = v
         self.w = 0
+        self.steer = 0
 
         self.max_steering = np.radians(MAX_STEER_LIMIT)
         self.update = self.update_roller
 
     def update_roller(self, steer, a=0):
         steer = np.clip(steer, -self.max_steering, self.max_steering)
+        self.steer = steer
         self.x += self.v * np.cos(self.yaw) * dt
         self.y += self.v * np.sin(self.yaw) * dt
         self.w = self.v * steer / (LENGTH_FRONT + LENGTH_REAR) * dt
-        self.yaw += (self.v * np.sin(steer) + LENGTH_REAR * self.w) * dt
-        self.yaw /= (LENGTH_FRONT * np.cos(steer) + LENGTH_REAR)
+        self.yaw += (self.v * np.sin(steer) + LENGTH_REAR * self.w) * dt / (LENGTH_FRONT * np.cos(steer) + LENGTH_REAR)
         self.yaw = self.yaw % (2.0 * np.pi)
         self.v += a * dt
 
@@ -178,8 +178,7 @@ for step in range(500):
     # plt.clf()
     t = step * dt
 
-    steer_new, yaw_, cte_, min_dist_ = stanley_control(
-        model.x, model.y, model.yaw, model.v, map_xs, map_ys, map_yaws)
+    steer_new, yaw_, cte_, min_dist_ = stanley_control(model.x, model.y, model.steer + model.yaw, model.v, map_xs, map_ys, map_yaws)
     steer_new = np.clip(steer_new, -model.max_steering, model.max_steering)
     if steer - steer_new >= MAX_STEER_VEL*dt:
         steer -= MAX_STEER_VEL*dt
@@ -188,9 +187,8 @@ for step in range(500):
     else:
         steer = steer_new
     model.update(steer)
-    print(f'steer(deg):{steer * 180 / np.pi :.3f}, yaw:{yaw_ :.3f}, cte:{cte_ :.3f},'
-          'min_dist:{min_dist_ :.3f}')
-    print(f'x:{model.x :.3f}, y:{model.y :.3f}')
+    print(f"steer(deg):{steer * 180 / np.pi :.3f}, yaw:{yaw_ :.3f}, cte:{cte_ :.3f}, min_dist:{min_dist_ :.3f}")
+    print(f"x:{model.x :.3f}, y:{model.y :.3f}")
 
     xs.append(model.x)
     ys.append(model.y)
@@ -216,8 +214,8 @@ for step in range(500):
 
 # plot car
 plt.figure(figsize=(12, 3))
-plt.plot(map_xs, map_ys, 'r-', label='reference')
-plt.plot(xs, ys, 'b--', alpha=0.5, label='stanley')
+plt.plot(map_xs, map_ys, 'r-', label="reference")
+plt.plot(xs, ys, 'b--', alpha=0.5, label="stanley")
 for i in range(len(xs)):
     # plt.clf()
     if i % 30 == 0:
@@ -226,16 +224,12 @@ for i in range(len(xs)):
         yaw = yaws[i]
         steer = steers[i]
 
-        outline = np.array([[-BACKTOWHEEL, (LENGTH - BACKTOWHEEL), (LENGTH - BACKTOWHEEL),
-                            -BACKTOWHEEL, -BACKTOWHEEL],
+        outline = np.array([[-BACKTOWHEEL, (LENGTH - BACKTOWHEEL), (LENGTH - BACKTOWHEEL), -BACKTOWHEEL, -BACKTOWHEEL],
                             [WIDTH / 2, WIDTH / 2, - WIDTH / 2, -WIDTH / 2, WIDTH / 2]])
         fr_wheel = np.array([[WHEEL_LEN, -WHEEL_LEN, -WHEEL_LEN, WHEEL_LEN, WHEEL_LEN],
-                            [-WHEEL_WIDTH_FRONT / 2, -WHEEL_WIDTH_FRONT / 2,
-                            WHEEL_WIDTH_FRONT / 2, WHEEL_WIDTH_FRONT / 2,
-                            -WHEEL_WIDTH_FRONT / 2]])
+                             [-WHEEL_WIDTH_FRONT / 2, -WHEEL_WIDTH_FRONT / 2, WHEEL_WIDTH_FRONT / 2, WHEEL_WIDTH_FRONT / 2, -WHEEL_WIDTH_FRONT / 2]])
         rr_wheel = np.array([[WHEEL_LEN, -WHEEL_LEN, -WHEEL_LEN, WHEEL_LEN, WHEEL_LEN],
-                            [-WHEEL_WIDTH_REAR/2, -WHEEL_WIDTH_REAR/2, WHEEL_WIDTH_REAR/2,
-                            WHEEL_WIDTH_REAR/2, -WHEEL_WIDTH_REAR/2]])
+                             [-WHEEL_WIDTH_REAR/2, -WHEEL_WIDTH_REAR/2, WHEEL_WIDTH_REAR/2, WHEEL_WIDTH_REAR/2, -WHEEL_WIDTH_REAR/2]])
         rl_wheel = np.copy(rr_wheel)
 
         Rot1 = np.array([[np.cos(yaw), np.sin(yaw)],
@@ -267,13 +261,13 @@ for i in range(len(xs)):
         rl_wheel[0, :] += x
         rl_wheel[1, :] += y
 
-        plt.plot(x, y, 'bo')
+        plt.plot(x, y, "bo")
         # plt.plot(dx, dy, "ro")
-        plt.axis('equal')
+        plt.axis("equal")
         # plt.pause(0.1)
-plt.xlabel('X [m]')
-plt.ylabel('Y [m]')
-plt.legend(loc='best')
+plt.xlabel("X [m]")
+plt.ylabel("Y [m]")
+plt.legend(loc="best")
 plt.tight_layout()
-plt.savefig('stanley_method.png', dpi=300)
+plt.savefig("stanley_method.png", dpi=300)
 plt.show()
