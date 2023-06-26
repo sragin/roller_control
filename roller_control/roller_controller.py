@@ -73,8 +73,8 @@ class RollerController(Node):
             return
 
         steer_, yaw_, cte_, min_dist_, min_index_ =\
-            stanley_control(x, y, vel, theta + steer_angle,
-                            self.map_xs, self.map_ys, self.map_yaws)
+            stanley_control(x=x, y=y, yaw=theta+steer_angle, v=vel,
+                            map_xs=self.map_xs, map_ys=self.map_ys, map_yaws=self.map_yaws)
         steer_cmd = np.clip(steer_, -MAX_STEER_LIMIT, MAX_STEER_LIMIT)
 
         cmd_vel_msg = Twist()
@@ -82,13 +82,16 @@ class RollerController(Node):
         cmd_vel_msg.angular.z = steer_cmd
         self.cmd_vel_publisher.publish(cmd_vel_msg)
         self.get_logger().info(
-            f'steer_:{steer_ :.3f}, yaw:{yaw_ :.3f}, cte:{cte_ :.3f},'
-            f' min_dist:{min_dist_ :.3f} idx:{min_index_}\n'
+            f'steer_:{steer_ :.3f}, yaw_:{yaw_ :.3f}, cte_:{cte_ :.3f}, '
+            f'min_dist_:{min_dist_ :.3f} idx:{min_index_}\n'
             f'xs:{self.map_xs[0] :.3f} xe:{self.map_xs[-1] :.3f} x:{x :.3f} '
             f'ys:{self.map_ys[0] :.3f} ye:{self.map_ys[-1] :.3f} y:{y :.3f}\n'
-            f'steer(rad):{steer_angle :.3f} steer_cmd(rad):{steer_cmd :.3f}'
-            f' yaws:{self.map_yaws[0] :.3f} yaw:{theta + steer_angle :.3f}'
-            f' cmd_vel:{self.cmd_vel[min_index_]}')
+            f'steer:{steer_angle / 180 * np.pi :.3f} '
+            f'steer_cmd:{steer_cmd / 180 * np.pi :.3f} '
+            f'heading:{theta / 180 * np.pi :.3f} '
+            f'yaws:{self.map_yaws[0] / 180 * np.pi :.3f} '
+            f'yaw:{(theta + steer_angle) / 180 * np.pi :.3f} '
+            f'cmd_vel:{self.cmd_vel[min_index_]}')
 
     def recieve_motioncmd(self, msg):
         # self.get_logger().info(f'{msg}')
@@ -100,7 +103,7 @@ class RollerController(Node):
                 return
         elif msg.data == 'PATH':
             if self.control_timer is None:
-                p = PathGenerator()
+                p = PathGenerator(self.roller_status.pose.x, self.roller_status.pose.y)
                 self.map_xs, self.map_ys, self.map_yaws, self.cmd_vel = p.generate_path()
                 self.get_logger().info('path stamped has been loaded')
             else:
