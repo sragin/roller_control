@@ -1,5 +1,6 @@
 from can_msgs.msg import Frame
 import cantools
+import numpy as np
 from msg_gps_interface.msg import GPSMsg
 import rclpy
 from rclpy.node import Node
@@ -42,8 +43,8 @@ class RollerPublisher(Node):
         self.timer_commandsv = self.create_timer(1/10, self.publish_commandsv)
         self.timer_roller_geometry_msg = self.create_timer(1/50, self.publish_roller_geometry_msg)
 
-        self.theta = 0.0  # degree
-        self.steer_angle = 0.0  # degree
+        self.theta = 0.0  # radian. 바디의 헤딩각
+        self.steer_angle = 0.0  # radian 스티어링 각도
         self.position = [0., 0.]  # position
         self.response = [0, 0]
         self.speed = 0.0
@@ -59,12 +60,13 @@ class RollerPublisher(Node):
             _cur = self.can_msg_response.decode(msg.data)
             self.response[0] = _cur['MODE']
             self.response[1] = _cur['STATUS']
-            self.steer_angle = _cur['STEER_ANGLE']
+            self.steer_angle = _cur['STEER_ANGLE'] / 180 * np.pi
 
     def recv_gpsmsg(self, msg: GPSMsg):
         self.position[0] = msg.tm_x - self.basepoint[0]
         self.position[1] = msg.tm_y - self.basepoint[1]
-        self.theta = msg.heading - 90
+        self.theta = (-msg.heading + 90) / 180 * np.pi  # 헤딩각과 조향각 방향 맞춤. East를 0도 변경
+        self.theta = normalize_angle(self.theta)
         self.speed = msg.speed * 1000 / 3600  # km/h - m/s 단위변환
 
     def publish_roller_geometry_msg(self):
@@ -98,6 +100,16 @@ class RollerPublisher(Node):
         for i in range(send_msg.dlc):
             send_msg.data[i] = int(data[i])
         self.canbus_publisher.publish(send_msg)
+
+
+def normalize_angle(angle):
+    while angle > np.pi:
+        angle -= 2.0 * np.pi
+
+    while angle < -np.pi:
+        angle += 2.0 * np.pi
+
+    return angle
 
 
 def main(args=None):
