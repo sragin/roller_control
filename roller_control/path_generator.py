@@ -13,8 +13,8 @@ class PathGenerator():
             (0, 10, 0)
         ]
         # 롤러의 현재위치. 경로입력을 간단하게 하기 위해 사용
-        self.x = 0.46
-        self.y = 0.19
+        self.x = 10.0
+        self.y = 0.60
 
     def generate_path(self):
         xs = self.waypoints[0][0] + self.x
