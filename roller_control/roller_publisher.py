@@ -40,7 +40,6 @@ class RollerPublisher(Node):
         self.roller_status_publisher = \
             self.create_publisher(RollerStatus, 'roller_status', qos_profile)
 
-        self.timer_commandsv = self.create_timer(1/10, self.publish_commandsv)
         self.timer_roller_geometry_msg = self.create_timer(1/50, self.publish_roller_geometry_msg)
 
         self.theta = 0.0  # radian. 바디의 헤딩각
@@ -91,19 +90,6 @@ class RollerPublisher(Node):
                                    f' POS X:{self.position[0] :.3f}, Y:{self.position[1] :.3f}')
             self.count = 0
         self.count += 1
-
-    def publish_commandsv(self):
-        data = self.can_msg_commandsv.encode(
-            {'MODE': 1,
-             'AUTO_DRIVE': 0,
-             'STOP_CMD': 0}
-        )
-        send_msg = Frame()
-        send_msg.id = self.can_msg_commandsv.frame_id
-        send_msg.dlc = self.can_msg_commandsv.length
-        for i in range(send_msg.dlc):
-            send_msg.data[i] = int(data[i])
-        self.canbus_publisher.publish(send_msg)
 
 
 def normalize_angle(angle):
