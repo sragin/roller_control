@@ -63,22 +63,23 @@ class RollerPublisher(Node):
             self.steer_angle = _cur['STEER_ANGLE'] / 180 * np.pi
 
     def recv_gpsmsg(self, msg: GPSMsg):
-        self.position[0] = msg.tm_x - self.basepoint[0]
-        self.position[1] = msg.tm_y - self.basepoint[1]
-        self.theta = (-msg.heading + 90) / 180 * np.pi  # 헤딩각과 조향각 방향 맞춤. East를 0도 변경
+        # 로봇기준으로 X, Y 좌표 바꿈. 오른손 좌표계로 변환
+        self.position[0] = msg.tm_y - self.basepoint[1]
+        self.position[1] = msg.tm_x - self.basepoint[0]
+        self.theta = (-msg.heading + 90) / 180 * np.pi  # 헤딩각과 조향각 방향 맞춤. East를 0도로 변경
         self.theta = normalize_angle(self.theta)
         self.speed = msg.speed * 1000 / 3600  # km/h - m/s 단위변환
 
     def publish_roller_geometry_msg(self):
-        DRUM_LENGTH = 1405  # 드럼이 BX992 기준점보다 앞서있는 거리. mm 단위
+        DRUM_LENGTH = 1.405  # 드럼이 BX992 기준점보다 앞서있는 거리. mm 단위
         msg = RollerStatus()
         msg.header.frame_id = 'world'
         msg.header.stamp = self.get_clock().now().to_msg()
         msg.steer_angle = self.steer_angle
         msg.pose.theta = self.theta
         # 롤러좌표를 기준으로 드럼좌표를 계산하여 보낸다
-        msg.pose.x = self.position[0] + DRUM_LENGTH * np.sin(self.theta + self.steer_angle) / 1000
-        msg.pose.y = self.position[1] + DRUM_LENGTH * np.cos(self.theta + self.steer_angle) / 1000
+        msg.pose.x = self.position[0] + DRUM_LENGTH * np.sin(self.theta + self.steer_angle)
+        msg.pose.y = self.position[1] + DRUM_LENGTH * np.cos(self.theta + self.steer_angle)
         msg.speed = self.speed
         self.roller_status_publisher.publish(msg)
         if self.count == self.log_display_cnt:
