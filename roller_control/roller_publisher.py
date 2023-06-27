@@ -45,12 +45,13 @@ class RollerPublisher(Node):
 
         self.theta = 0.0  # radian. 바디의 헤딩각
         self.steer_angle = 0.0  # radian 스티어링 각도
-        self.position = [0., 0.]  # position
+        self.position = [0., 0.]  # position X(N), Y(E)
         self.response = [0, 0]
         self.speed = 0.0
 
         # 소부연 테스트베드 원점. 임의로 정한값임. 수준점 측량 후 변경해줘야 함)
         self.basepoint = [371394.576, 159245.570]
+        # self.basepoint = [0.0, 0.0]
 
         self.count = 0
         self.log_display_cnt = 50
@@ -70,21 +71,24 @@ class RollerPublisher(Node):
         self.speed = msg.speed * 1000 / 3600  # km/h - m/s 단위변환
 
     def publish_roller_geometry_msg(self):
+        DRUM_LENGTH = 1405  # 드럼이 BX992 기준점보다 앞서있는 거리. mm 단위
         msg = RollerStatus()
         msg.header.frame_id = 'world'
         msg.header.stamp = self.get_clock().now().to_msg()
         msg.steer_angle = self.steer_angle
         msg.pose.theta = self.theta
-        msg.pose.x = self.position[0]
-        msg.pose.y = self.position[1]
+        # 롤러좌표를 기준으로 드럼좌표를 계산하여 보낸다
+        msg.pose.x = self.position[0] + DRUM_LENGTH * np.sin(self.theta + self.steer_angle) / 1000
+        msg.pose.y = self.position[1] + DRUM_LENGTH * np.cos(self.theta + self.steer_angle) / 1000
         msg.speed = self.speed
         self.roller_status_publisher.publish(msg)
         if self.count == self.log_display_cnt:
             self.get_logger().info(f'MODE: {self.response[0]}, STATUS:{self.response[1]},'
                                    f' STEER_ANGLE:{self.steer_angle :.2f}')
-            self.get_logger().info(f'DRUM POS_X: {self.position[0] :.4f},'
-                                   f' POS_Y:{self.position[1] :.4f},'
-                                   f' HEAD:{self.theta :.2f}, SPEED:{self.speed :.2f}')
+            self.get_logger().info(f'DRUM POS_X: {msg.pose.x :.4f},'
+                                   f' POS_Y:{msg.pose.y :.4f},'
+                                   f' HEAD:{self.theta :.2f}, SPEED:{self.speed :.2f}'
+                                   f' POS X:{self.position[0] :.3f}, Y:{self.position[1] :.3f}')
             self.count = 0
         self.count += 1
 
