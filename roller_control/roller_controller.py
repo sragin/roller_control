@@ -82,17 +82,17 @@ class RollerController(Node):
         cmd_vel_msg.angular.z = steer_cmd
         self.cmd_vel_publisher.publish(cmd_vel_msg)
         self.get_logger().info(
-            f'steer_:{steer_ :.3f}, yaw_:{yaw_ :.3f}, cte_:{cte_ :.3f}, '
+            f'Controller = steer_:{steer_ :.3f}, yaw_:{yaw_ :.3f}, cte_:{cte_ :.3f}, '
             f'min_dist_:{min_dist_ :.3f} idx:{min_index_}\n'
-            f'xs:{self.map_xs[0] :.3f} xe:{self.map_xs[-1] :.3f} '
+            f'MAP = xs:{self.map_xs[0] :.3f} xe:{self.map_xs[-1] :.3f} '
             f'xi:{self.map_xs[min_index_] :.3f} x:{x :.3f} '
             f'ys:{self.map_ys[0] :.3f} ye:{self.map_ys[-1] :.3f} '
-            f'yi:{self.map_ys[min_index_] :.3f} y:{y :.3f}\n'
-            f'steer:{steer_angle / 180 * np.pi :.3f} '
+            f'yi:{self.map_ys[min_index_] :.3f} y:{y :.3f} '
+            f'yaw goal:{self.map_yaws[min_index_] / 180 * np.pi :.3f} '
+            f'yaw:{(theta + steer_angle) / 180 * np.pi :.3f}\n'
+            f'Roller Status = steer angle:{steer_angle / 180 * np.pi :.3f} '
             f'steer_cmd:{steer_cmd / 180 * np.pi :.3f} '
             f'heading:{theta / 180 * np.pi :.3f} '
-            f'yaws:{self.map_yaws[0] / 180 * np.pi :.3f} '
-            f'yaw:{(theta + steer_angle) / 180 * np.pi :.3f} '
             f'cmd_vel:{self.cmd_vel[min_index_]}')
 
     def recieve_motioncmd(self, msg):
