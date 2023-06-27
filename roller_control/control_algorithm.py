@@ -29,8 +29,10 @@ def stanley_control(x, y, yaw, v, map_xs, map_ys, map_yaws):
     min_index = 0
     n_points = len(map_xs)
 
-    front_x = x + LENGTH_FRONT * np.cos(yaw)
-    front_y = y + LENGTH_FRONT * np.sin(yaw)
+    # front_x = x + LENGTH_FRONT * np.cos(yaw)
+    # front_y = y + LENGTH_FRONT * np.sin(yaw)
+    front_x = x
+    front_y = y
 
     for i in range(n_points):
         dx = front_x - map_xs[i]
