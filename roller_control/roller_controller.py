@@ -84,8 +84,10 @@ class RollerController(Node):
         self.get_logger().info(
             f'steer_:{steer_ :.3f}, yaw_:{yaw_ :.3f}, cte_:{cte_ :.3f}, '
             f'min_dist_:{min_dist_ :.3f} idx:{min_index_}\n'
-            f'xs:{self.map_xs[0] :.3f} xe:{self.map_xs[-1] :.3f} x:{x :.3f} '
-            f'ys:{self.map_ys[0] :.3f} ye:{self.map_ys[-1] :.3f} y:{y :.3f}\n'
+            f'xs:{self.map_xs[0] :.3f} xe:{self.map_xs[-1] :.3f} '
+            f'xi:{self.map_xs[min_index_] :.3f} x:{x :.3f} '
+            f'ys:{self.map_ys[0] :.3f} ye:{self.map_ys[-1] :.3f} '
+            f'yi:{self.map_ys[min_index_] :.3f} y:{y :.3f}\n'
             f'steer:{steer_angle / 180 * np.pi :.3f} '
             f'steer_cmd:{steer_cmd / 180 * np.pi :.3f} '
             f'heading:{theta / 180 * np.pi :.3f} '
