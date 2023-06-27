@@ -6,6 +6,7 @@ import rclpy
 from rclpy.node import Node
 from rclpy.qos import QoSProfile
 from roller_interfaces.msg import RollerStatus
+from std_msgs.msg import String
 
 CONTROL_PERIOD = 0.1
 
@@ -38,6 +39,11 @@ class BaseController(Node):
             self.recieve_rollerstatus,
             qos_profile
         )
+        self.rollermotioncmd_subscriber = self.create_subscription(
+            String,
+            'roller_motion_cmd',
+            self.recieve_motioncmd,
+            qos_profile)
         self.create_timer(CONTROL_PERIOD, self.velocity_controller)
         self.create_timer(CONTROL_PERIOD, self.steering_controller)
         self.create_timer(CONTROL_PERIOD, self.send_cancommand)
@@ -50,10 +56,11 @@ class BaseController(Node):
         self.vel_pid.SetTunnings(500, 0.0, 0.0)
         self.vel_pid.SetOutputLimits(1000.0, -1000.0)
         self.steer_pid = PID()
-        self.steer_pid.SetTunnings(20, 0.0, 0.0)
+        self.steer_pid.SetTunnings(100, 0.0, 0.0)
         self.steer_pid.SetOutputLimits(100.0, -100.0)
         self.steer_filter = LowPassFilter(1, CONTROL_PERIOD)
         self.vel_filter = LowPassFilter(0.2, CONTROL_PERIOD)
+        self.mode = 0
 
         self.roller_status = RollerStatus()
         self.last_steer = 0.
@@ -98,9 +105,16 @@ class BaseController(Node):
         self.get_logger().info(
             f'Steer cmd: {self.cmd_steer_pos :.2f} cur: {cur_steer :.3f} valve out: {out :.2f}')
 
+    def recieve_motioncmd(self, msg):
+        self.get_logger().info(f'{msg}')
+        if msg.data == 'STOP':
+            self.mode = 0
+        elif msg.data == 'START':
+            self.mode = 1
+
     def send_cancommand(self):
         commandsv = self.can_msg_commandsv.encode(
-            {'MODE': 1, 'AUTO_DRIVE': 0, 'STOP_CMD': 0})
+            {'MODE': self.mode, 'AUTO_DRIVE': 0, 'STOP_CMD': 0})
         cmdsv_msg = Frame()
         cmdsv_msg.id = self.can_msg_commandsv.frame_id
         cmdsv_msg.dlc = self.can_msg_commandsv.length
@@ -135,7 +149,7 @@ class BaseController(Node):
             # self.get_logger().warning(f'Controller Command id: {control_msg.id}'
             #   ' data: {control_msg.data}')
             # self.get_logger().warning(f'Supervisor Command id: {cmdsv_msg.id}'
-            #   ' data: {cmdsv_msg.data}')
+            #   f' data: {cmdsv_msg.data}')
             # self.get_logger().info(f'Velocity cmd: {self.cmd_drv_vel} out: {self.out_velocity}')
             # self.get_logger().info(f'Steering cmd: {self.cmd_steer_vel}'
             #   ' out: {self.out_steering}')
