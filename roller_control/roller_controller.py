@@ -88,11 +88,11 @@ class RollerController(Node):
             f'xi:{self.map_xs[min_index_] :.3f} x:{x :.3f} '
             f'ys:{self.map_ys[0] :.3f} ye:{self.map_ys[-1] :.3f} '
             f'yi:{self.map_ys[min_index_] :.3f} y:{y :.3f} '
-            f'yaw goal:{self.map_yaws[min_index_] / 180 * np.pi :.3f} '
-            f'yaw:{(theta + steer_angle) / 180 * np.pi :.3f}\n'
-            f'Roller Status = steer angle:{steer_angle / 180 * np.pi :.3f} '
-            f'steer_cmd:{steer_cmd / 180 * np.pi :.3f} '
-            f'heading:{theta / 180 * np.pi :.3f} '
+            f'yaw goal:{self.map_yaws[min_index_] * 180 / np.pi :.3f} '
+            f'yaw:{(theta + steer_angle) * 180 / np.pi :.3f}\n'
+            f'Roller Status = steer angle:{steer_angle * 180 / np.pi :.3f} '
+            f'steer_cmd:{steer_cmd * 180 / np.pi :.3f} '
+            f'heading:{theta * 180 / np.pi :.3f} '
             f'cmd_vel:{self.cmd_vel[min_index_]}')
 
     def recieve_motioncmd(self, msg):
