@@ -69,6 +69,8 @@ class RollerController(Node):
                 self.control_timer.cancel()
                 self.control_timer = None
         if self.control_timer is None:
+            cmd_vel_msg = Twist()
+            self.cmd_vel_publisher.publish(cmd_vel_msg)
             self.get_logger().info('motion done')
             return
 
