@@ -84,7 +84,7 @@ class RollerPublisher(Node):
         self.roller_status_publisher.publish(msg)
         if self.count == self.log_display_cnt:
             self.get_logger().info(f'MODE: {self.response[0]}, STATUS:{self.response[1]},'
-                                   f' STEER_ANGLE:{self.steer_angle :.2f}')
+                                   f' STEER_ANGLE(deg):{self.steer_angle / np.pi * 180 :.2f}')
             self.get_logger().info(f'DRUM POS_X: {msg.pose.x :.4f},'
                                    f' POS_Y:{msg.pose.y :.4f},'
                                    f' HEAD:{self.theta :.2f}, SPEED:{self.speed :.2f}'
