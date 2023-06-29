@@ -28,7 +28,7 @@ class PathGenerator():
         count = int(dist * 10)  # 0.1m 간격으로 목표점 인터폴레이션
         map_xs = np.linspace(xs, xe, count)
         map_ys = np.linspace(ys, ye, count)
-        map_yaws = np.arctan(np.gradient(map_xs)/np.gradient(map_ys))
+        map_yaws = np.arctan2(np.gradient(map_ys), np.gradient(map_xs))
         cmd_vel = np.linspace(cmd_vels, cmd_vels, count)
         cmd_vel[-1] = cmd_vele
 
