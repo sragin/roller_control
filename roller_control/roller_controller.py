@@ -37,6 +37,7 @@ class RollerController(Node):
         self.map_ys = None
         self.map_yaws = None
         self.cmd_vel = None
+        self.goal_check_error = 0.05
 
         self.roller_status = RollerStatus()
 
@@ -50,30 +51,6 @@ class RollerController(Node):
         steer_angle = self.roller_status.steer_angle
         vel = self.cmd_vel[0]
 
-        # 종료조건 계산
-        error = 0.05
-        if self.map_xs[-1] > self.map_xs[0]:
-            if self.map_xs[-1] - error <= x:
-                self.control_timer.cancel()
-                self.control_timer = None
-        elif self.map_xs[-1] < self.map_xs[0]:
-            if self.map_xs[-1] - error >= x:
-                self.control_timer.cancel()
-                self.control_timer = None
-        if self.map_ys[-1] > self.map_ys[0]:
-            if self.map_ys[-1] - error <= y:
-                self.control_timer.cancel()
-                self.control_timer = None
-        elif self.map_ys[-1] < self.map_ys[0]:
-            if self.map_ys[-1] - error >= y:
-                self.control_timer.cancel()
-                self.control_timer = None
-        if self.control_timer is None:
-            cmd_vel_msg = Twist()
-            self.cmd_vel_publisher.publish(cmd_vel_msg)
-            self.get_logger().info('motion done')
-            return
-
         steer_, yaw_, cte_, min_dist_, min_index_ =\
             stanley_control(x=x, y=y, yaw=theta+steer_angle, v=vel,
                             map_xs=self.map_xs, map_ys=self.map_ys, map_yaws=self.map_yaws)
@@ -82,6 +59,14 @@ class RollerController(Node):
         cmd_vel_msg = Twist()
         cmd_vel_msg.linear.x = self.cmd_vel[min_index_]
         cmd_vel_msg.angular.z = steer_cmd
+
+        if self.check_goal(self.map_xs, self.map_ys, x, y, self.goal_check_error):
+            cmd_vel_msg.linear.x = 0.0
+            cmd_vel_msg.angular.z = 0.0
+            self.control_timer.cancel()
+            self.control_timer = None
+            self.get_logger().info('motion done')
+
         self.cmd_vel_publisher.publish(cmd_vel_msg)
         self.get_logger().info(
             f'Controller = steer_:{steer_ :.3f}, yaw_:{yaw_ :.3f}, cte_:{cte_ :.3f}, '
@@ -96,6 +81,33 @@ class RollerController(Node):
             f'steer_cmd:{steer_cmd * 180 / np.pi :.3f} '
             f'heading:{theta * 180 / np.pi :.3f} '
             f'cmd_vel:{self.cmd_vel[min_index_]}')
+
+    def check_goal(map_xs, map_ys, x, y, error):
+        x1 = map_xs[-1]
+        y1 = map_ys[-1]
+
+        # 거리가 error 보다 작으면 무조건 종료
+        dx = x1 - x
+        dy = y1 - y
+        dist = np.sqrt(dx*dx + dy*dy)
+        if dist < error:
+            # print('Distance to GOAL is less than error')
+            return True
+
+        # 시작점(x)을 종료점(x1) 기준으로 90도 회전한 점을 x2라고 정의
+        # x1에서 x2 방향으로 이어지는 직선 왼쪽영역을 종료조건으로 하여
+        # 현재위치가 왼쪽에 있는지 오른쪽에 있는지 벡터의 외적을 이용해서 계산한다
+        x2_trans1 = map_xs[0] - x1
+        y2_trans1 = map_ys[0] - y1
+        theta = np.pi/2
+        x2_rot = x2_trans1 * np.cos(theta) - y2_trans1 * np.sin(theta)
+        y2_rot = x2_trans1 * np.sin(theta) + y2_trans1 * np.cos(theta)
+        x2 = x2_rot + x1
+        y2 = y2_rot + y1
+
+        cross = (x2 - x1)*(y - y1) - (x - x1) * (y2 - y1)
+        # print(f'[{x1:.2f}, {y1:.2f}] [{x2:.2f}, {y2:.2f}] [{x:.2f}, {y:.2f}] {cross:.2f}')
+        return cross >= 0
 
     def recieve_motioncmd(self, msg):
         # self.get_logger().info(f'{msg}')
