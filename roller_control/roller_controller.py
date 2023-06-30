@@ -82,7 +82,7 @@ class RollerController(Node):
             f'heading:{theta * 180 / np.pi :.3f} '
             f'cmd_vel:{self.cmd_vel[min_index_]}')
 
-    def check_goal(map_xs, map_ys, x, y, error):
+    def check_goal(self, map_xs, map_ys, x, y, error):
         x1 = map_xs[-1]
         y1 = map_ys[-1]
 
