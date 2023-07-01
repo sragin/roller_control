@@ -83,10 +83,7 @@ class BaseController(Node):
             vel *= -1
         out = self.vel_pid.Compute(self.cmd_drv_vel, vel)
         out = self.cmd_drv_vel * 1000
-        if out > 1000:
-            out = 1000
-        elif out < -1000:
-            out = -1000
+        np.clip(out, -1000, 1000, out=out)
         if self.cmd_drv_vel == 0.0:
             out = 0.0
             self.vel_pid.Reset()
