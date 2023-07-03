@@ -25,7 +25,7 @@ class PathGenerator():
         cmd_vele = self.waypoints[1][2]
 
         dist = np.sqrt(pow(xe-xs, 2) + pow(ye-ys, 2))
-        count = int(dist * 10)  # 0.1m 간격으로 목표점 인터폴레이션
+        count = int(dist * 10) + 1  # 0.1m 간격으로 목표점 인터폴레이션
         map_xs = np.linspace(xs, xe, count)
         map_ys = np.linspace(ys, ye, count)
         map_yaws = np.arctan2(np.gradient(map_ys), np.gradient(map_xs))
