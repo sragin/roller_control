@@ -63,7 +63,7 @@ class RollerTeleopKeyPublisher(QWidget):
             self.cmd_vel.angular.z = -1.0
         elif e.key() == Qt.Key.Key_P:
             self.cmd_motion.data = 'PATH'
-        elif e.key() == Qt.Key.Key_Semicolonn:
+        elif e.key() == Qt.Key.Key_Semicolon:
             self.cmd_motion.data = 'PATH_BACKWARD'
         elif e.key() == Qt.Key.Key_O:
             self.cmd_motion.data = 'START'
