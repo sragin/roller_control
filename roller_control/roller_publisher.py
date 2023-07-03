@@ -80,6 +80,8 @@ class RollerPublisher(Node):
         # 롤러좌표를 기준으로 드럼좌표를 계산하여 보낸다
         msg.pose.x = self.position[0] + DRUM_LENGTH * np.cos(self.theta + self.steer_angle)
         msg.pose.y = self.position[1] + DRUM_LENGTH * np.sin(self.theta + self.steer_angle)
+        msg.body_pose.x = self.position[0]
+        msg.body_pose.y = self.position[1]
         msg.speed = self.speed
         self.roller_status_publisher.publish(msg)
         if self.count == self.log_display_cnt:
