@@ -55,10 +55,8 @@ class BaseController(Node):
         self.vel_pid = PID()
         self.vel_pid.SetTunnings(500, 0.0, 0.0)
         self.vel_pid.SetOutputLimits(1000.0, -1000.0)
-        # https://setoo0922.tistory.com/259 지클러니콜스 튜닝 some overshoot 값 선정
-        # Ku = 100, Tu = 35s
         self.steer_pid = PID()
-        self.steer_pid.SetTunnings(33, 17.5, 11.3)
+        self.steer_pid.SetTunnings(200, 0., 0.)
         self.steer_pid.SetOutputLimits(100.0, -100.0)
         self.steer_filter = LowPassFilter(1, CONTROL_PERIOD)
         self.vel_filter = LowPassFilter(0.2, CONTROL_PERIOD)
@@ -85,7 +83,7 @@ class BaseController(Node):
             vel *= -1
         out = self.vel_pid.Compute(self.cmd_drv_vel, vel)
         out = self.cmd_drv_vel * 1000
-        np.clip(out, -1000, 1000, out=out)
+        out = np.clip(out, -1000, 1000)
         if self.cmd_drv_vel == 0.0:
             out = 0.0
             self.vel_pid.Reset()
