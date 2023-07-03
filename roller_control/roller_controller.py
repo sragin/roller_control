@@ -45,6 +45,15 @@ class RollerController(Node):
         self.log_display_cnt = 50
 
     def control(self):
+        '''
+        제어 알고리즘 실행구문
+
+        전진시 롤러 드럼을 기준으로 제어
+
+        후진시 바디를 기준으로 제어
+        -X방향(후진주행방향)을 +X방향으로 변환
+        왼손좌표계사용 (좌회전:음수, 우회전:양수)
+        '''
         vel = self.cmd_vel[0]
 
         if vel < 0:
