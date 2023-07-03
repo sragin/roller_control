@@ -6,7 +6,7 @@ import numpy as np
 
 class PathGenerator():
 
-    def __init__(self, x=0, y=0, x_end=38.94, y_end=10.825):
+    def __init__(self, x=0, y=0, x_end=41.275, y_end=10.825):
         # 현재위치 기준 TM 좌표
         self.waypoints = [
             (x, y, 0.3),
