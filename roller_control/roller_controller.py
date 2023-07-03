@@ -45,14 +45,22 @@ class RollerController(Node):
         self.log_display_cnt = 50
 
     def control(self):
-        x = self.roller_status.pose.x
-        y = self.roller_status.pose.y
-        theta = self.roller_status.pose.theta
-        steer_angle = self.roller_status.steer_angle
         vel = self.cmd_vel[0]
 
+        if vel < 0:
+            x = self.roller_status.body_pose.x
+            y = self.roller_status.body_pose.y
+            theta_ = self.roller_status.pose.theta + np.pi
+            steer_angle = self.roller_status.steer_angle
+        else:
+            x = self.roller_status.pose.x
+            y = self.roller_status.pose.y
+            theta = self.roller_status.pose.theta
+            steer_angle = self.roller_status.steer_angle
+            theta_ = theta + steer_angle
+
         steer_, yaw_, cte_, min_dist_, min_index_ =\
-            stanley_control(x=x, y=y, yaw=theta+steer_angle, v=vel,
+            stanley_control(x=x, y=y, yaw=theta_, v=vel,
                             map_xs=self.map_xs, map_ys=self.map_ys, map_yaws=self.map_yaws)
         steer_cmd = np.clip(steer_, -MAX_STEER_LIMIT, MAX_STEER_LIMIT)
 

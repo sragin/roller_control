@@ -55,7 +55,10 @@ def stanley_control(x, y, yaw, v, map_xs, map_ys, map_yaws):
 
     # control law
     yaw_term = normalize_angle(map_yaw - yaw)
-    cte_term = np.arctan2(k*cte, v)
+    cte_term = np.arctan2(k*cte, abs(v))
+    if v < 0:
+        yaw_term *= -1
+        cte_term *= -1
 
     # steering
     steer = yaw_term + cte_term

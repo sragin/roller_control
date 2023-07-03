@@ -31,8 +31,6 @@ class PathGenerator():
         map_xs = np.linspace(xs, xe, count)
         map_ys = np.linspace(ys, ye, count)
         map_yaws = np.arctan2(np.gradient(map_ys), np.gradient(map_xs))
-        if is_backward:
-            map_yaws = np.array(list(map(lambda x: x - np.pi if x >= 0 else x + np.pi, map_yaws)))
         cmd_vel = np.linspace(cmd_vels, cmd_vels, count)
         cmd_vel[-1] = cmd_vele
 
