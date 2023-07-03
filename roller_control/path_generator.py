@@ -16,12 +16,14 @@ class PathGenerator():
         self.x = 0
         self.y = 0
 
-    def generate_path(self):
+    def generate_path(self, is_backward=False):
         xs = self.waypoints[0][0] + self.x
         xe = self.waypoints[1][0] + self.x
         ys = self.waypoints[0][1] + self.y
         ye = self.waypoints[1][1] + self.y
         cmd_vels = self.waypoints[0][2]
+        if is_backward:
+            cmd_vels = -cmd_vels
         cmd_vele = self.waypoints[1][2]
 
         dist = np.sqrt(pow(xe-xs, 2) + pow(ye-ys, 2))
@@ -29,6 +31,8 @@ class PathGenerator():
         map_xs = np.linspace(xs, xe, count)
         map_ys = np.linspace(ys, ye, count)
         map_yaws = np.arctan2(np.gradient(map_ys), np.gradient(map_xs))
+        if is_backward:
+            map_yaws = np.array(list(map(lambda x: x - np.pi if x >= 0 else x + np.pi, map_yaws)))
         cmd_vel = np.linspace(cmd_vels, cmd_vels, count)
         cmd_vel[-1] = cmd_vele
 

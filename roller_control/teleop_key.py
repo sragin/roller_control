@@ -26,6 +26,7 @@ class RollerTeleopKeyPublisher(QWidget):
         self.setWindowTitle('Roller Teleop Key')
         str_ = 'Use arrow keys to move the roller.\n' \
             'Use "P" to read path file & generate path.\n' \
+            'Use ";" to generate backward path.\n' \
             'Use "O" to run.\n'\
             'Use "I" or "S" to stop.'
         label = QLabel(str_, self)
@@ -62,6 +63,8 @@ class RollerTeleopKeyPublisher(QWidget):
             self.cmd_vel.angular.z = -1.0
         elif e.key() == Qt.Key.Key_P:
             self.cmd_motion.data = 'PATH'
+        elif e.key() == Qt.Key.Key_Semicolonn:
+            self.cmd_motion.data = 'PATH_BACKWARD'
         elif e.key() == Qt.Key.Key_O:
             self.cmd_motion.data = 'START'
         elif e.key() == Qt.Key.Key_I or e.key() == Qt.Key.Key_S:
