@@ -18,9 +18,19 @@ MAX_STEER = 31.5
 MAX_STEER_LIMIT = 30 / 180 * np.pi
 
 
-# stanley control algorithm
-# x, y: meter, yaw: radian
 def stanley_control(x, y, yaw, v, map_xs, map_ys, map_yaws):
+    '''
+    The stanley control algorithm
+
+    Args:
+        x (float): Meter. X coordinate position of the vehicle
+        y (float): Meter. Y coordinate position of the vehicle
+        yaw (float): Radian. Heading value of the GNSS
+        v (float): Meter/Second. Target speed of the vehicle
+        map_xs (list(float)): X coordinate goal posiiton to the destination
+        map_ys (list(float)): Y coordinate goal posiiton to the destination
+        map_yaws (list(float)): Target heading values at each goal position
+    '''
     # control gain
     k = 0.5
 
