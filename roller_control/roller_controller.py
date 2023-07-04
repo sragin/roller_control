@@ -55,16 +55,16 @@ class RollerController(Node):
         왼손좌표계사용 (좌회전:음수, 우회전:양수)
         '''
         vel = self.cmd_vel[0]
+        theta = self.roller_status.pose.theta
 
         if vel < 0:
             x = self.roller_status.body_pose.x
             y = self.roller_status.body_pose.y
-            theta_ = self.roller_status.pose.theta + np.pi
+            theta_ = theta + np.pi
             steer_angle = self.roller_status.steer_angle
         else:
             x = self.roller_status.pose.x
             y = self.roller_status.pose.y
-            theta = self.roller_status.pose.theta
             steer_angle = self.roller_status.steer_angle
             theta_ = theta + steer_angle
 
@@ -138,10 +138,14 @@ class RollerController(Node):
                 return
         elif msg.data == 'PATH' or msg.data == 'PATH_BACKWARD':
             if self.control_timer is None:
-                p = PathGenerator(self.roller_status.pose.x, self.roller_status.pose.y)
+                x = self.roller_status.pose.x
+                y = self.roller_status.pose.y
                 is_backward = False
                 if msg.data == 'PATH_BACKWARD':
                     is_backward = True
+                    x = self.roller_status.body_pose.x
+                    y = self.roller_status.body_pose.y
+                p = PathGenerator(x, y)
                 self.map_xs, self.map_ys, self.map_yaws, self.cmd_vel = p.generate_path(is_backward)
                 for i in range(len(self.map_xs)):
                     print(f'x:{self.map_xs[i] :.3f}, y:{self.map_ys[i] :.3f}, theta(deg):{self.map_yaws[i]/np.pi*180 :.3f}, vel:{self.cmd_vel[i] :.2f}')
