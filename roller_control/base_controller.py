@@ -82,7 +82,7 @@ class BaseController(Node):
         if self.out_velocity < 0:
             vel *= -1
         out = self.vel_pid.Compute(self.cmd_drv_vel, vel)
-        out = self.cmd_drv_vel * 1000
+        out = self.cmd_drv_vel / 1.25 * 1000
         out = np.clip(out, -1000, 1000)
         if self.cmd_drv_vel == 0.0:
             out = 0.0
