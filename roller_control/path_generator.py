@@ -31,8 +31,7 @@ class PathGenerator():
         map_xs = np.linspace(xs, xe, count)
         map_ys = np.linspace(ys, ye, count)
         map_yaws = np.arctan2(np.gradient(map_ys), np.gradient(map_xs))
-        cmd_vel = np.linspace(cmd_vels, cmd_vels, count)
-        cmd_vel[-1] = cmd_vele
+        cmd_vel = make_velocity_profile(cmd_vels, cmd_vele, count)
 
         path = Path()
         path.header.frame_id = 'world'
@@ -69,6 +68,13 @@ def get_quaternion_from_euler(roll, pitch, yaw):
         + np.sin(roll/2) * np.sin(pitch/2) * np.sin(yaw/2)
 
     return [qx, qy, qz, qw]
+
+
+def make_velocity_profile(cmd_vels, cmd_vele, count):
+    vel_middle = [cmd_vels for x in range(count - 22)]
+    cmd_acc = [i*cmd_vels*0.1 for i in range(11)]
+    cmd_dec = cmd_acc[::-1]
+    return cmd_acc + vel_middle + cmd_dec
 
 
 def main(args=None):
