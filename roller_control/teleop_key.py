@@ -3,7 +3,7 @@ import sys
 from geometry_msgs.msg import Twist
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QKeyEvent
-from PyQt5.QtWidgets import QApplication, QLabel, QWidget
+from PyQt5.QtWidgets import QApplication, QLabel, QWidget, QRadioButton
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import String
@@ -32,7 +32,15 @@ class RollerTeleopKeyPublisher(QWidget):
         label = QLabel(str_, self)
         label.setGeometry(0, 0, 300, 150)
         label.setWordWrap(True)
+
+        self.rbtn_manual = QRadioButton('Manual', self)
+        self.rbtn_manual.setChecked(True)
+        self.rbtn_auto = QRadioButton('Auto', self)
+        self.rbtn_auto.move(70, 0)
         self.show()
+
+        self.rbtn_manual.clicked.connect(self.clickMode)
+        self.rbtn_auto.clicked.connect(self.clickMode)
 
     def initROS(self):
         rclpy.init(args=None)
@@ -86,6 +94,15 @@ class RollerTeleopKeyPublisher(QWidget):
         self.cmd_motion.data = ''
         self.publish_commands()
         return super().keyReleaseEvent(a0)
+
+    def clickMode(self):
+        self.cmd_vel.linear.x = 0.0
+        self.cmd_vel.angular.z = 0.0
+        if self.rbtn_auto.isChecked():
+            self.cmd_motion.data = 'AUTO'
+        elif self.rbtn_manual.isChecked():
+            self.cmd_motion.data = 'MANUAL'
+        self.publish_commands()
 
     def publish_commands(self):
         self.teloopcmd_publisher.publish(self.cmd_vel)

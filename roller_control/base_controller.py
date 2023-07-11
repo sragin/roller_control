@@ -104,9 +104,9 @@ class BaseController(Node):
 
     def recieve_motioncmd(self, msg):
         self.get_logger().info(f'{msg}')
-        if msg.data == 'STOP':
+        if msg.data == 'MANUAL':
             self.mode = 0
-        elif msg.data == 'START':
+        elif msg.data == 'AUTO':
             self.mode = 1
 
     def send_cancommand(self):
