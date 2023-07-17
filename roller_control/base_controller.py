@@ -22,7 +22,7 @@ class BaseController(Node):
             './install/roller_control/share/Controller_230518.dbc')
         self.can_msg_control = self.candb_controller.get_message_by_name('CONTROLLER_COMM')
         self.candb_commandsv = cantools.db.load_file(
-            './install/roller_control/share/ToSupervisor_230619.dbc')
+            './install/roller_control/share/ToSupervisor_210430.dbc')
         self.can_msg_commandsv = self.candb_commandsv.get_message_by_name('Command_SV')
 
         qos_profile = QoSProfile(depth=10)
