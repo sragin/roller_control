@@ -71,10 +71,10 @@ def get_quaternion_from_euler(roll, pitch, yaw):
 
 
 def make_velocity_profile(cmd_vels, cmd_vele, count):
-    vel_middle = [cmd_vels for x in range(count - 22)]
-    cmd_acc = [i*cmd_vels*0.1 for i in range(11)]
+    vel_middle = [cmd_vels for x in range(count - 10)]
+    cmd_acc = [(i+1)*cmd_vels*0.1 for i in range(10)]
     cmd_dec = cmd_acc[::-1]
-    return cmd_acc + vel_middle + cmd_dec
+    return vel_middle + cmd_dec
 
 
 def main(args=None):
