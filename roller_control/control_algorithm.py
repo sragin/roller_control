@@ -12,7 +12,7 @@ WHEEL_WIDTH_REAR = 0.5  # [m]
 TREAD_FRONT = 0  # [m]
 TREAD_REAR = 0.85  # [m]
 BACKTOWHEEL = LENGTH - WHEEL_LEN - 0.25  # from back to front wheel
-
+Lmin = 3.680  # [m] minimum turning radius
 MAX_STEER_VEL = 10.0 / 180 * np.pi
 MAX_STEER = 31.5
 MAX_STEER_LIMIT = 30 / 180 * np.pi
