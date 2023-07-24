@@ -3,7 +3,7 @@ import sys
 from geometry_msgs.msg import Twist
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QKeyEvent
-from PyQt5.QtWidgets import QApplication, QLabel, QWidget, QRadioButton
+from PyQt5.QtWidgets import QApplication, QLabel, QRadioButton, QWidget
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import String
