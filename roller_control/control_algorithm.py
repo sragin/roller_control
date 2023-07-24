@@ -30,6 +30,7 @@ def stanley_control(x, y, yaw, v, map_xs, map_ys, map_yaws):
         map_xs (list(float)): X coordinate goal posiiton to the destination
         map_ys (list(float)): Y coordinate goal posiiton to the destination
         map_yaws (list(float)): Target heading values at each goal position
+
     """
     # control gain
     k = 0.5
