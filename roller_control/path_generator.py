@@ -1,86 +1,48 @@
-from geometry_msgs.msg import PoseStamped
-from nav_msgs.msg import Path
-
 import numpy as np
 
 
-class PathGenerator():
+class PathGenerator:
 
-    def __init__(self, x=0, y=0, x_end=41.275, y_end=10.825, v=0.3):
-        # 현재위치 기준 TM 좌표
-        self.waypoints = [
-            (x, y, v),
-            (x_end, y_end, 0)
-        ]
+    def __init__(self, s_x, s_y, s_yaw, g_x, g_y, g_yaw, s_v=1.25, ref_v=1.25, g_v=1.25):
+        self.s_x = s_x
+        self.s_y = s_y
+        self.s_yaw = s_yaw
+        self.s_v = s_v
+        self.g_x = g_x
+        self.g_y = g_y
+        self.g_yaw = g_yaw
+        self.g_v = g_v
+        self.s_v = s_v
+        self.ref_v = ref_v
+        self.g_v = g_v
         # 롤러의 현재위치. 경로입력을 간단하게 하기 위해 사용
         self.x = 0
         self.y = 0
+        # 경로생성 알고리즘 선택
+        self.plan_path = self.plan_simple_path
+        self.make_velocity_profile = self.make_simple_velocity_profile
 
-    def generate_path(self, is_backward=False):
-        xs = self.waypoints[0][0] + self.x
-        xe = self.waypoints[1][0] + self.x
-        ys = self.waypoints[0][1] + self.y
-        ye = self.waypoints[1][1] + self.y
-        cmd_vels = self.waypoints[0][2]
-        if is_backward:
-            cmd_vels = -cmd_vels
-        cmd_vele = self.waypoints[1][2]
+    def plan_simple_path(self):
+        s_x = self.s_x + self.x
+        g_x = self.g_x + self.x
+        s_y = self.s_y + self.y
+        g_y = self.g_y + self.y
 
-        dist = np.sqrt(pow(xe-xs, 2) + pow(ye-ys, 2))
+        dist = np.sqrt(pow(g_x-s_x, 2) + pow(g_y-s_y, 2))
         count = int(dist * 10) + 1  # 0.1m 간격으로 목표점 인터폴레이션
-        map_xs = np.linspace(xs, xe, count)
-        map_ys = np.linspace(ys, ye, count)
+        map_xs = np.linspace(s_x, g_x, count)
+        map_ys = np.linspace(s_y, g_y, count)
         map_yaws = np.arctan2(np.gradient(map_ys), np.gradient(map_xs))
-        cmd_vel = make_velocity_profile(cmd_vels, cmd_vele, count)
 
-        path = Path()
-        path.header.frame_id = 'world'
-
-        for i in range(len(map_xs)):
-            pose_stamped = PoseStamped()
-            pose_stamped.pose.position.x = map_xs[i]
-            pose_stamped.pose.position.y = map_ys[i]
-            o = pose_stamped.pose.orientation
-            o.x, o.y, o.z, o.w = get_quaternion_from_euler(0, 0, map_yaws[i])
-            path.poses.append(pose_stamped)
+        cmd_vel = self.make_velocity_profile(self.s_v, self.ref_v, self.g_v, count)
 
         return map_xs, map_ys, map_yaws, cmd_vel
 
+    def make_simple_velocity_profile(self, s_v, ref_v, g_v, count):
+        vel_middle = [ref_v for _ in range(count - 10)]
+        cmd_acc = [(i+1)*ref_v*0.1 for i in range(10)]
+        cmd_dec = cmd_acc[::-1]
+        return vel_middle + cmd_dec
 
-def get_quaternion_from_euler(roll, pitch, yaw):
-    """
-    Convert an Euler angle to a quaternion.
-
-    Input
-        :param roll: The roll (rotation around x-axis) angle in radians.
-        :param pitch: The pitch (rotation around y-axis) angle in radians.
-        :param yaw: The yaw (rotation around z-axis) angle in radians.
-    Output
-        :return qx, qy, qz, qw: The orientation in quaternion [x,y,z,w] format
-    """
-    qx = np.sin(roll/2) * np.cos(pitch/2) * np.cos(yaw/2) \
-        - np.cos(roll/2) * np.sin(pitch/2) * np.sin(yaw/2)
-    qy = np.cos(roll/2) * np.sin(pitch/2) * np.cos(yaw/2) \
-        + np.sin(roll/2) * np.cos(pitch/2) * np.sin(yaw/2)
-    qz = np.cos(roll/2) * np.cos(pitch/2) * np.sin(yaw/2) \
-        - np.sin(roll/2) * np.sin(pitch/2) * np.cos(yaw/2)
-    qw = np.cos(roll/2) * np.cos(pitch/2) * np.cos(yaw/2) \
-        + np.sin(roll/2) * np.sin(pitch/2) * np.sin(yaw/2)
-
-    return [qx, qy, qz, qw]
-
-
-def make_velocity_profile(cmd_vels, cmd_vele, count):
-    vel_middle = [cmd_vels for x in range(count - 10)]
-    cmd_acc = [(i+1)*cmd_vels*0.1 for i in range(10)]
-    cmd_dec = cmd_acc[::-1]
-    return vel_middle + cmd_dec
-
-
-def main(args=None):
-    path_generator = PathGenerator()
-    path_generator.generate_path()
-
-
-if __name__ == '__main__':
-    main()
+    def plan_dubins_path(self):
+        pass
