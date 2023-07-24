@@ -111,11 +111,11 @@ class RollerController(Node):
             # print('Distance to GOAL is less than error')
             return True
 
-        '''
+        """
         시작점(x)을 종료점(x1) 기준으로 90도 회전한 점을 x2라고 정의
         x1에서 x2 방향으로 이어지는 직선 왼쪽영역을 종료조건으로 하여
         현재위치가 왼쪽에 있는지 오른쪽에 있는지 벡터의 외적을 이용해서 계산한다
-        '''
+        """
         x2_trans1 = map_xs[0] - x1
         y2_trans1 = map_ys[0] - y1
         theta = np.pi/2
