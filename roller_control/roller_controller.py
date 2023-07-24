@@ -46,7 +46,7 @@ class RollerController(Node):
 
     def control(self):
         """
-        제어 알고리즘 실행구문
+        제어 알고리즘 실행구문.
 
         전진시 롤러 드럼을 기준으로 제어
 
