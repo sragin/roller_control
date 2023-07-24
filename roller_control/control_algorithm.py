@@ -23,6 +23,7 @@ def stanley_control(x, y, yaw, v, map_xs, map_ys, map_yaws):
     Run the stanley control algorithm.
 
     Args:
+    ----
         x (float): Meter. X coordinate position of the vehicle
         y (float): Meter. Y coordinate position of the vehicle
         yaw (float): Radian. Heading value of the GNSS
