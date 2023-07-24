@@ -45,4 +45,11 @@ class PathGenerator:
         return vel_middle + cmd_dec
 
     def plan_dubins_path(self):
+        map_xs = [0]
+        map_ys = [0]
+        map_yaws = [0]
+        cmd_vel = [0]
+        return map_xs, map_ys, map_yaws, cmd_vel
+
+    def make_trapezoidal_velocity_profile(self, s_v, ref_v, g_v, count):
         pass
