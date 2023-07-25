@@ -24,8 +24,10 @@ class PathGenerator:
         self.x = 0
         self.y = 0
         # 경로생성 알고리즘 선택
-        self.plan_path = self.plan_simple_path
-        self.make_velocity_profile = self.make_simple_velocity_profile
+        # self.plan_path = self.plan_simple_path
+        # self.make_velocity_profile = self.make_simple_velocity_profile
+        self.plan_path = self.plan_dubins_path
+        self.make_velocity_profile = self.make_trapezoidal_velocity_profile
 
     def plan_simple_path(self):
         s_x = self.s_x + self.x
@@ -65,7 +67,7 @@ class PathGenerator:
         path_x, path_y, path_yaw, mode, lengths = \
             plan_dubins_path(start_x, start_y, start_yaw,
                              end_x, end_y, end_yaw,
-                             curvature)
+                             curvature, 0.02)
         cmd_vel = self.make_velocity_profile(self.s_v, self.ref_v, self.g_v,
                                             path_x, path_y)
 
