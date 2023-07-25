@@ -51,7 +51,7 @@ class PathGenerator:
 
     def plan_dubins_path(self):
         from .dubins_path import plan_dubins_path
-        from .control_algorithm import MIN_TURNING_R
+        from .control_algorithm import MINIMUM_TURNING_RADIUS
         start_x = self.s_x
         start_y = self.s_y
         start_yaw = self.s_yaw
@@ -60,7 +60,7 @@ class PathGenerator:
         end_y = self.g_y
         end_yaw = self.g_yaw
 
-        curvature = 1 / (MIN_TURNING_R * 1.1)
+        curvature = 1 / (MINIMUM_TURNING_RADIUS * 1.1)
 
         path_x, path_y, path_yaw, mode, lengths = \
             plan_dubins_path(start_x,
