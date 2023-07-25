@@ -143,95 +143,29 @@ class RollerController(Node):
                 self.control_timer = None
                 self.get_logger().info('control algorithm has been stopped')
                 return
-        elif msg.data == 'PATH1':
-            if self.control_timer is None:
-                x = self.roller_status.pose.x
-                y = self.roller_status.pose.y
-                is_backward = False
-                p = PathGenerator(x=x, y=y, v=0.8)
-                self.map_xs, self.map_ys, self.map_yaws, self.cmd_vel =\
-                    p.generate_path(is_backward)
-                for i in range(len(self.map_xs)):
-                    print(f'x:{self.map_xs[i] :.3f},'
-                          f' y:{self.map_ys[i] :.3f},'
-                          f' theta(deg):{self.map_yaws[i]/np.pi*180 :.3f},'
-                          f' vel:{self.cmd_vel[i] :.2f}')
-                self.get_logger().info('path stamped has been loaded')
-            else:
-                self.get_logger().info('control algorithm is already running')
-                return
-        elif msg.data == 'PATH2':
-            if self.control_timer is None:
-                is_backward = True
-                x = self.roller_status.body_pose.x
-                y = self.roller_status.body_pose.y
-                p = PathGenerator(x=x, y=y, x_end=22.495, y_end=1.713, v=0.6)
-                self.map_xs, self.map_ys, self.map_yaws, self.cmd_vel =\
-                    p.generate_path(is_backward)
-                for i in range(len(self.map_xs)):
-                    print(f'x:{self.map_xs[i] :.3f},'
-                          f' y:{self.map_ys[i] :.3f},'
-                          f' theta(deg):{self.map_yaws[i]/np.pi*180 :.3f},'
-                          f' vel:{self.cmd_vel[i] :.2f}')
-                self.get_logger().info('path stamped has been loaded')
-            else:
-                self.get_logger().info('control algorithm is already running')
-                return
-        elif msg.data == 'PATH3':
-            if self.control_timer is None:
-                is_backward = True
-                x = self.roller_status.body_pose.x
-                y = self.roller_status.body_pose.y
-                p = PathGenerator(x=x, y=y, x_end=-4.024, y_end=0.274, v=0.8)
-                self.map_xs, self.map_ys, self.map_yaws, self.cmd_vel =\
-                    p.generate_path(is_backward)
-                for i in range(len(self.map_xs)):
-                    print(f'x:{self.map_xs[i] :.3f},'
-                          f' y:{self.map_ys[i] :.3f},'
-                          f' theta(deg):{self.map_yaws[i]/np.pi*180 :.3f},'
-                          f' vel:{self.cmd_vel[i] :.2f}')
-                self.get_logger().info('path stamped has been loaded')
-            else:
-                self.get_logger().info('control algorithm is already running')
-                return
-        elif msg.data == 'PATH4':
-            if self.control_timer is None:
-                is_backward = False
-                x = self.roller_status.pose.x
-                y = self.roller_status.pose.y
-                p = PathGenerator(x=x, y=y, x_end=11.462, y_end=9.077, v=0.6)
-                self.map_xs, self.map_ys, self.map_yaws, self.cmd_vel =\
-                    p.generate_path(is_backward)
-                for i in range(len(self.map_xs)):
-                    print(f'x:{self.map_xs[i] :.3f},'
-                          f' y:{self.map_ys[i] :.3f},'
-                          f' theta(deg):{self.map_yaws[i]/np.pi*180 :.3f},'
-                          f' vel:{self.cmd_vel[i] :.2f}')
-                self.get_logger().info('path stamped has been loaded')
-            else:
-                self.get_logger().info('control algorithm is already running')
-                return
         elif msg.data == 'PATH' or msg.data == 'PATH_BACKWARD':
-            if self.control_timer is None:
+            if self.control_timer is not None:
+                self.get_logger().info('control algorithm is already running')
+                return
+
+            if msg.data == 'PATH':
                 x = self.roller_status.pose.x
                 y = self.roller_status.pose.y
                 is_backward = False
-                if msg.data == 'PATH_BACKWARD':
-                    is_backward = True
-                    x = self.roller_status.body_pose.x
-                    y = self.roller_status.body_pose.y
-                p = PathGenerator(x, y)
-                self.map_xs, self.map_ys, self.map_yaws, self.cmd_vel =\
-                    p.generate_path(is_backward)
-                for i in range(len(self.map_xs)):
-                    print(f'x:{self.map_xs[i] :.3f},'
-                          f' y:{self.map_ys[i] :.3f},'
-                          f' theta(deg):{self.map_yaws[i]/np.pi*180 :.3f},'
-                          f' vel:{self.cmd_vel[i] :.2f}')
-                self.get_logger().info('path stamped has been loaded')
-            else:
-                self.get_logger().info('control algorithm is already running')
-                return
+            elif msg.data == 'PATH_BACKWARD':
+                x = self.roller_status.body_pose.x
+                y = self.roller_status.body_pose.y
+                is_backward = True
+
+            p = PathGenerator(s_x=x, s_y=y, s_yaw=0, g_x=x+10, g_y=y, g_yaw=0, ref_v=1.25)
+            self.map_xs, self.map_ys, self.map_yaws, self.cmd_vel =\
+                p.plan_path()
+            for i in range(len(self.map_xs)):
+                print(f'x:{self.map_xs[i] :.3f},'
+                        f' y:{self.map_ys[i] :.3f},'
+                        f' theta(deg):{self.map_yaws[i]/np.pi*180 :.3f},'
+                        f' vel:{self.cmd_vel[i] :.2f}')
+            self.get_logger().info('path stamped has been loaded')
         elif msg.data == 'START':
             if self.map_xs is None:
                 self.get_logger().warn('path is empty')
