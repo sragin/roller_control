@@ -63,12 +63,8 @@ class PathGenerator:
         curvature = 1 / (MINIMUM_TURNING_RADIUS * 1.1)
 
         path_x, path_y, path_yaw, mode, lengths = \
-            plan_dubins_path(start_x,
-                             start_y,
-                             start_yaw,
-                             end_x,
-                             end_y,
-                             end_yaw,
+            plan_dubins_path(start_x, start_y, start_yaw,
+                             end_x, end_y, end_yaw,
                              curvature)
         cmd_vel = self.make_velocity_profile(self.s_v, self.ref_v, self.g_v, len(path_x))
 
