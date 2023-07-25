@@ -157,7 +157,7 @@ class RollerController(Node):
                 y = self.roller_status.body_pose.y
                 is_backward = True
 
-            p = PathGenerator(s_x=x, s_y=y, s_yaw=0, g_x=x+10, g_y=y, g_yaw=0, ref_v=1.25)
+            p = PathGenerator(s_x=x, s_y=y, s_yaw=0, g_x=x+10, g_y=y, g_yaw=0, ref_v=1.25, is_backward=is_backward)
             self.map_xs, self.map_ys, self.map_yaws, self.cmd_vel =\
                 p.plan_path()
             for i in range(len(self.map_xs)):

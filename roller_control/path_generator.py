@@ -10,7 +10,7 @@ import numpy as np
 
 class PathGenerator:
 
-    def __init__(self, s_x, s_y, s_yaw, g_x, g_y, g_yaw, s_v=0.25, ref_v=0.25, g_v=0.0):
+    def __init__(self, s_x, s_y, s_yaw, g_x, g_y, g_yaw, s_v=0.25, ref_v=0.25, g_v=0.0, is_backward=False):
         self.s_x = s_x
         self.s_y = s_y
         self.s_yaw = s_yaw
@@ -20,6 +20,7 @@ class PathGenerator:
         self.s_v = s_v
         self.ref_v = ref_v
         self.g_v = g_v
+        self.is_backward = is_backward
         # 롤러의 현재위치. 경로입력을 간단하게 하기 위해 사용
         self.x = 0
         self.y = 0
@@ -42,6 +43,8 @@ class PathGenerator:
         map_yaws = np.arctan2(np.gradient(map_ys), np.gradient(map_xs))
 
         cmd_vel = self.make_velocity_profile(self.s_v, self.ref_v, self.g_v, count)
+        if self.is_backward:
+            cmd_vel = [-v for v in cmd_vel]
 
         return map_xs, map_ys, map_yaws, cmd_vel
 
@@ -70,6 +73,9 @@ class PathGenerator:
                              curvature, 0.02)
         cmd_vel = self.make_velocity_profile(self.s_v, self.ref_v, self.g_v,
                                             path_x, path_y)
+        if self.is_backward:
+            cmd_vel = [-v for v in cmd_vel]
+        cmd_vel[0] = cmd_vel[1]
 
         return path_x, path_y, path_yaw, cmd_vel
 
