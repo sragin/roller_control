@@ -8,6 +8,7 @@
 import sys
 
 from geometry_msgs.msg import Twist
+import json
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
@@ -83,6 +84,7 @@ class RollerTeleopKeyPublisher(QDialog):
 
         self.rbtn_manual.clicked.connect(self.clickMode)
         self.rbtn_auto.clicked.connect(self.clickMode)
+        self.pushButtonLoadPathfile.clicked.connect(self.clickLoadJSON)
 
     def initROS(self):
         rclpy.init(args=None)
@@ -137,6 +139,12 @@ class RollerTeleopKeyPublisher(QDialog):
         elif self.rbtn_manual.isChecked():
             self.cmd_motion.data = 'MANUAL'
         self.publish_commands()
+
+    def clickLoadJSON(self):
+        filename = './install/roller_control/share/path1.json'
+        with open(filename, 'r') as path_json:
+            path = json.load(path_json)
+            # print(path['startPoint']['coordinate'])
 
     def publish_commands(self):
         self.teloopcmd_publisher.publish(self.cmd_vel)
