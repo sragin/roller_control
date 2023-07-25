@@ -8,42 +8,77 @@
 import sys
 
 from geometry_msgs.msg import Twist
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QKeyEvent
-from PyQt5.QtWidgets import QApplication, QLabel, QRadioButton, QWidget
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import String
 
 
-class RollerTeleopKeyPublisher(QWidget):
+class RollerTeleopKeyPublisher(QDialog):
 
     def __init__(self):
-        super(RollerTeleopKeyPublisher, self).__init__()
+        super().__init__()
         self.initUI()
         self.initROS()
         self.cmd_vel = Twist()
         self.cmd_motion = String()
 
-        # self.timer_ = QTimer(self)
-        # self.timer_.timeout.connect(self.publish_commands)
-        # self.timer_.start(50)
-
     def initUI(self):
         self.setWindowTitle('Roller Teleop Key')
+        self.setMinimumSize(450, 250)
         str_ = 'Use arrow keys to move the roller.\n' \
             'Use "P" to read path file & generate path.\n' \
             'Use ";" to generate backward path.\n' \
             'Use "O" to run.\n'\
             'Use "I" or "S" to stop.'
         label = QLabel(str_, self)
-        label.setGeometry(0, 0, 300, 150)
         label.setWordWrap(True)
+        font = QFont()
+        font.setPointSize(14)
+        label.setFont(font)
 
         self.rbtn_manual = QRadioButton('Manual', self)
         self.rbtn_manual.setChecked(True)
+        self.rbtn_manual.setStyleSheet(u"QRadioButton::indicator\n"
+"{\n"
+"	width : 30px;\n"
+"	height : 30px;\n"
+"}")
+        self.rbtn_manual.setFont(font)
         self.rbtn_auto = QRadioButton('Auto', self)
-        self.rbtn_auto.move(70, 0)
+        self.rbtn_auto.setStyleSheet(u"QRadioButton::indicator\n"
+"{\n"
+"	width : 30px;\n"
+"	height : 30px;\n"
+"}")
+        self.rbtn_auto.setFont(font)
+        self.pushButtonLoadPathfile = QPushButton('Load Pathfile', self)
+        self.pushButtonLoadPathfile.setMinimumHeight(40)
+        self.pushButtonLoadPathfile.setFont(font)
+        self.pushButtonPlanPath = QPushButton('Plan Path', self)
+        self.pushButtonPlanPath.setMaximumHeight(40)
+        self.pushButtonPlanPath.setFont(font)
+
+        layout2 = QHBoxLayout()
+        layout2.addWidget(self.rbtn_manual)
+        layout2.addWidget(self.rbtn_auto)
+        hspacer = QSpacerItem(20, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+        layout2.addSpacerItem(hspacer)
+
+        layout3 = QHBoxLayout()
+        layout3.addWidget(self.pushButtonLoadPathfile)
+        layout3.addWidget(self.pushButtonPlanPath)
+
+        layout1 = QVBoxLayout()
+        layout1.addLayout(layout2)
+        layout1.addLayout(layout3)
+        layout1.addWidget(label)
+        vspacer = QSpacerItem(20, 20, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+        layout1.addSpacerItem(vspacer)
+
+        self.setLayout(layout1)
         self.show()
 
         self.rbtn_manual.clicked.connect(self.clickMode)
