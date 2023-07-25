@@ -3,7 +3,7 @@ import numpy as np
 
 class PathGenerator:
 
-    def __init__(self, s_x, s_y, s_yaw, g_x, g_y, g_yaw, s_v=1.25, ref_v=1.25, g_v=1.25):
+    def __init__(self, s_x, s_y, s_yaw, g_x, g_y, g_yaw, s_v=0.25, ref_v=0.25, g_v=0.25):
         self.s_x = s_x
         self.s_y = s_y
         self.s_yaw = s_yaw
@@ -45,11 +45,29 @@ class PathGenerator:
         return vel_middle + cmd_dec
 
     def plan_dubins_path(self):
-        map_xs = [0]
-        map_ys = [0]
-        map_yaws = [0]
-        cmd_vel = [0]
-        return map_xs, map_ys, map_yaws, cmd_vel
+        from .dubins_path import plan_dubins_path
+        from .control_algorithm import MIN_TURNING_R
+        start_x = self.s_x
+        start_y = self.s_y
+        start_yaw = self.s_yaw
+
+        end_x = self.g_x
+        end_y = self.g_y
+        end_yaw = self.g_yaw
+
+        curvature = 1 / (MIN_TURNING_R * 1.1)
+
+        path_x, path_y, path_yaw, mode, lengths = \
+            plan_dubins_path(start_x,
+                            start_y,
+                            start_yaw,
+                            end_x,
+                            end_y,
+                            end_yaw,
+                            curvature)
+        cmd_vel = self.make_velocity_profile(self.s_v, self.ref_v, self.g_v, len(path_x))
+
+        return path_x, path_y, path_yaw, cmd_vel
 
     def make_trapezoidal_velocity_profile(self, s_v, ref_v, g_v, count):
         pass

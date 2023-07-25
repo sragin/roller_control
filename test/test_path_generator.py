@@ -24,8 +24,8 @@ def test_map_1(p: PathGenerator):
 def test_dubins(p: PathGenerator):
     p.plan_path = p.plan_dubins_path
     p.make_velocity_profile = p.make_trapezoidal_velocity_profile
-    map_xs, map_ys, map_yaws, cmd_vel = p.plan_path()
-    assert 0 == map_xs[0]
-    assert 0 == map_ys[0]
-    assert 0 == map_yaws[0]
-    assert 10 == map_xs[-1]
+    path_x, path_y, path_yaw, cmd_vel = p.plan_path()
+    assert 0 == path_x[0]
+    assert 0 == path_y[0]
+    assert 0 == path_yaw[0]
+    assert 10 == path_x[-1]
