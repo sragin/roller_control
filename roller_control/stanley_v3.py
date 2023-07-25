@@ -1,3 +1,10 @@
+# Copyright 2023 koceti_proprietary
+# All rights reserved.
+#
+# Unauthorized copying of this code base via any medium is strictly prohibited.
+# Proprietary and confidential.
+
+
 import matplotlib.pyplot as plt
 import numpy as np
 
