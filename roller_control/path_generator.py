@@ -10,7 +10,7 @@ import numpy as np
 
 class PathGenerator:
 
-    def __init__(self, s_x, s_y, s_yaw, g_x, g_y, g_yaw, s_v=0.25, ref_v=0.25, g_v=0.25):
+    def __init__(self, s_x, s_y, s_yaw, g_x, g_y, g_yaw, s_v=0.25, ref_v=0.25, g_v=0.0):
         self.s_x = s_x
         self.s_y = s_y
         self.s_yaw = s_yaw
@@ -66,9 +66,26 @@ class PathGenerator:
             plan_dubins_path(start_x, start_y, start_yaw,
                              end_x, end_y, end_yaw,
                              curvature)
-        cmd_vel = self.make_velocity_profile(self.s_v, self.ref_v, self.g_v, len(path_x))
+        cmd_vel = self.make_velocity_profile(self.s_v, self.ref_v, self.g_v,
+                                            path_x, path_y)
 
         return path_x, path_y, path_yaw, cmd_vel
 
-    def make_trapezoidal_velocity_profile(self, s_v, ref_v, g_v, count):
-        pass
+    def make_trapezoidal_velocity_profile(self, s_v, ref_v, g_v, path_x, path_y):
+        from .control_algorithm import ACCELERATION
+
+        dist_total = np.sqrt(pow(path_x[-1] - path_x[0], 2) + pow(path_y[-1] - path_y[0], 2))
+        dist_acc = ref_v**2 / ACCELERATION / 2
+        dist_dec = dist_total - dist_acc
+
+        cmd_vel = []
+        for i in range(len(path_x)):
+            pos = np.sqrt(pow(path_x[i] - path_x[0], 2) + pow(path_y[i] - path_y[0], 2))
+            if pos < dist_acc:
+                vel = np.sqrt(2 * ACCELERATION * pos)
+            elif pos < dist_dec:
+                vel = ref_v
+            else:
+                vel = np.sqrt(2 * ACCELERATION * np.abs(dist_total-pos))
+            cmd_vel.append(vel)
+        return cmd_vel

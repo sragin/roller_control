@@ -26,6 +26,11 @@ def test_dubins(p: PathGenerator):
     p.make_velocity_profile = p.make_trapezoidal_velocity_profile
     path_x, path_y, path_yaw, cmd_vel = p.plan_path()
     assert 0 == path_x[0]
+    # assert 0.1 == path_x[1]
     assert 0 == path_y[0]
     assert 0 == path_yaw[0]
     assert 10 == path_x[-1]
+    assert 0 == cmd_vel[0]
+    assert 0 == cmd_vel[-1]
+    assert 1.25 == max(cmd_vel)
+    # assert 1.0 == max(cmd_vel)
