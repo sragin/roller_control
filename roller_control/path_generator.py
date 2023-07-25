@@ -14,11 +14,9 @@ class PathGenerator:
         self.s_x = s_x
         self.s_y = s_y
         self.s_yaw = s_yaw
-        self.s_v = s_v
         self.g_x = g_x
         self.g_y = g_y
         self.g_yaw = g_yaw
-        self.g_v = g_v
         self.s_v = s_v
         self.ref_v = ref_v
         self.g_v = g_v
