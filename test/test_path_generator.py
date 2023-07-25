@@ -13,6 +13,8 @@ def test_success():
 
 
 def test_map_1(p: PathGenerator):
+    p.plan_path = p.plan_simple_path
+    p.make_velocity_profile = p.make_simple_velocity_profile
     p.x = 5.474
     p.y = 14.711
     map_xs, map_ys, map_yaws, cmd_vel = p.plan_path()
