@@ -24,6 +24,7 @@ setup(
             'roller_publisher = roller_control.roller_publisher:main',
             'roller_controller = roller_control.roller_controller:main',
             'base_controller = roller_control.base_controller:main',
+            'roller_gui = roller_control.roller_control_ui:main',
         ],
     },
 )
