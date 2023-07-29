@@ -22,16 +22,17 @@ class RollerControlUI(QDialog):
 
     def __init__(self):
         super().__init__()
-        self.ui = Ui_Dialog()
-        self.ui.setupUi(self)
-        # self.initUI()
+        self.initUI()
         self.initROS()
         self.cmd_vel = Twist()
         self.cmd_motion = String()
 
     def initUI(self):
-        # self.rbtn_manual.clicked.connect(self.clickMode)
-        # self.rbtn_auto.clicked.connect(self.clickMode)
+        self.ui = Ui_Dialog()
+        self.ui.setupUi(self)
+        self.show()
+        self.ui.radioButtonAuto.clicked.connect(self.clickMode)
+        self.ui.radioButtonManual.clicked.connect(self.clickMode)
         self.ui.pushButtonLoadPathfile.clicked.connect(self.clickLoadJSON)
 
     def initROS(self):
@@ -76,9 +77,9 @@ class RollerControlUI(QDialog):
     def clickMode(self):
         self.cmd_vel.linear.x = 0.0
         self.cmd_vel.angular.z = 0.0
-        if self.rbtn_auto.isChecked():
+        if self.ui.radioButtonAuto.isChecked():
             self.cmd_motion.data = 'AUTO'
-        elif self.rbtn_manual.isChecked():
+        elif self.ui.radioButtonManual.isChecked():
             self.cmd_motion.data = 'MANUAL'
         self.publish_commands()
 
