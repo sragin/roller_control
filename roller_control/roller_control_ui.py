@@ -34,6 +34,9 @@ class RollerControlUI(QDialog):
         self.ui.radioButtonAuto.clicked.connect(self.clickMode)
         self.ui.radioButtonManual.clicked.connect(self.clickMode)
         self.ui.pushButtonLoadPathfile.clicked.connect(self.clickLoadJSON)
+        self.ui.pushButtonStartTask.clicked.connect(self.clickTask)
+        self.ui.pushButtonStop.clicked.connect(self.clickTask)
+        self.ui.pushButtonEStop.clicked.connect(self.clickTask)
 
     def initROS(self):
         rclpy.init(args=None)
@@ -83,6 +86,20 @@ class RollerControlUI(QDialog):
             self.cmd_motion.data = 'MANUAL'
         self.publish_commands()
 
+    def clickTask(self):
+        button = self.sender()
+
+        if button == self.ui.pushButtonStartTask:
+            if self.ui.pushButtonRepeat.isChecked():
+                self.cmd_motion.data = 'START TASK'
+            else:
+                self.cmd_motion.data = 'START MOTION'
+        elif button == self.ui.pushButtonStop:
+            self.cmd_motion.data = 'STOP'
+        elif button == self.ui.pushButtonEStop:
+            self.cmd_motion.data = 'E-STOP'
+        self.publish_commands()
+
     def clickLoadJSON(self):
         filename = './install/roller_control/share/path1.json'
         with open(filename, 'r') as path_json:
@@ -93,7 +110,7 @@ class RollerControlUI(QDialog):
         self.teloopcmd_publisher.publish(self.cmd_vel)
         if self.cmd_motion.data != '':
             self.motioncmd_publisher.publish(self.cmd_motion)
-        # self.node.get_logger().info(f'Publishing: {msg}')
+        self.node.get_logger().info(f'Publishing: {self.cmd_motion.data}')
 
 
 def main():

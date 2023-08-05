@@ -134,7 +134,7 @@ class RollerController(Node):
         return cross >= 0
 
     def recieve_motioncmd(self, msg):
-        # self.get_logger().info(f'{msg}')
+        self.get_logger().info(f'{msg}')
         if msg.data == 'STOP':
             if self.control_timer is not None:
                 self.control_timer.cancel()

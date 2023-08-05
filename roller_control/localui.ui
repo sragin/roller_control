@@ -52,6 +52,9 @@
        <property name="text">
         <string>Manual</string>
        </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
       </widget>
      </item>
      <item>
@@ -169,7 +172,7 @@ Pathfile</string>
            </font>
           </property>
           <property name="text">
-           <string>Pan Task</string>
+           <string>Plan Task</string>
           </property>
          </widget>
         </item>
