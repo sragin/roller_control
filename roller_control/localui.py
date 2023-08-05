@@ -187,7 +187,7 @@ class Ui_Dialog(object):
         self.pushButtonLoadPathfile.setText(_translate("Dialog", "Load Json\n"
 "Pathfile"))
         self.pushButtonPlanPath.setText(_translate("Dialog", "Plan Path"))
-        self.pushButtonPlanTask.setText(_translate("Dialog", "Pan Task"))
+        self.pushButtonPlanTask.setText(_translate("Dialog", "Plan Task"))
         self.groupBox_2.setTitle(_translate("Dialog", "Controlling"))
         self.pushButtonRepeat.setText(_translate("Dialog", "Auto\n"
 "Repeat"))
