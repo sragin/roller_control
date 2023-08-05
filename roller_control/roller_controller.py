@@ -164,7 +164,7 @@ class RollerController(Node):
                         f' theta(deg):{self.map_yaws[i]/np.pi*180 :.3f},'
                         f' vel:{self.cmd_vel[i] :.2f}')
             self.get_logger().info('path stamped has been loaded')
-        elif msg.data == 'START':
+        elif msg.data == 'START TASK' or msg.data == 'START MOTION':
             if self.map_xs is None:
                 self.get_logger().warn('path is empty')
                 return

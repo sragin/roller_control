@@ -94,6 +94,7 @@ class RollerControlUI(QDialog):
         with open(filename, 'r') as pathfile:
             self.path_json = json.load(pathfile)
             # print(self.path_json['startPoint']['coordinate'])
+        self.node.get_logger().info('Json path file has been loaded')
 
     def clickPlanPath(self):
         pass
