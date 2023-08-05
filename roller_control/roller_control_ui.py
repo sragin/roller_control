@@ -7,6 +7,7 @@
 
 import sys
 
+from ament_index_python import get_package_share_directory
 from geometry_msgs.msg import Twist
 import json
 from PyQt5.QtCore import *
@@ -34,9 +35,11 @@ class RollerControlUI(QDialog):
         self.ui.radioButtonAuto.clicked.connect(self.clickMode)
         self.ui.radioButtonManual.clicked.connect(self.clickMode)
         self.ui.pushButtonLoadPathfile.clicked.connect(self.clickLoadJSON)
-        self.ui.pushButtonStartTask.clicked.connect(self.clickTask)
-        self.ui.pushButtonStop.clicked.connect(self.clickTask)
-        self.ui.pushButtonEStop.clicked.connect(self.clickTask)
+        self.ui.pushButtonPlanPath.clicked.connect(self.clickPlanPath)
+        self.ui.pushButtonPlanTask.clicked.connect(self.clickPlanTask)
+        self.ui.pushButtonStartTask.clicked.connect(self.clickControlling)
+        self.ui.pushButtonStop.clicked.connect(self.clickControlling)
+        self.ui.pushButtonEStop.clicked.connect(self.clickControlling)
 
     def initROS(self):
         rclpy.init(args=None)
@@ -86,7 +89,19 @@ class RollerControlUI(QDialog):
             self.cmd_motion.data = 'MANUAL'
         self.publish_commands()
 
-    def clickTask(self):
+    def clickLoadJSON(self):
+        filename = get_package_share_directory('roller_control') + '/path.json'
+        with open(filename, 'r') as pathfile:
+            self.path_json = json.load(pathfile)
+            # print(self.path_json['startPoint']['coordinate'])
+
+    def clickPlanPath(self):
+        pass
+
+    def clickPlanTask(self):
+        pass
+
+    def clickControlling(self):
         button = self.sender()
 
         if button == self.ui.pushButtonStartTask:
@@ -100,17 +115,11 @@ class RollerControlUI(QDialog):
             self.cmd_motion.data = 'E-STOP'
         self.publish_commands()
 
-    def clickLoadJSON(self):
-        filename = './install/roller_control/share/path1.json'
-        with open(filename, 'r') as path_json:
-            path = json.load(path_json)
-            # print(path['startPoint']['coordinate'])
-
     def publish_commands(self):
         self.teloopcmd_publisher.publish(self.cmd_vel)
         if self.cmd_motion.data != '':
             self.motioncmd_publisher.publish(self.cmd_motion)
-        self.node.get_logger().info(f'Publishing: {self.cmd_motion.data}')
+            self.node.get_logger().info(f'Publishing: {self.cmd_motion.data}')
 
 
 def main():
