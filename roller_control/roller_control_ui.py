@@ -5,15 +5,16 @@
 # Proprietary and confidential.
 
 
+import json
 import sys
 
+from .localui import *
+from .path_generator import PathGenerator
 from ament_index_python import get_package_share_directory
 from geometry_msgs.msg import Twist
-import json
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
-from .localui import *
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import String
@@ -97,7 +98,27 @@ class RollerControlUI(QDialog):
         self.node.get_logger().info('Json path file has been loaded')
 
     def clickPlanPath(self):
-        pass
+        ref_v = self.path_json['startPoint']['velocity']
+        is_backward = ref_v < 0
+        s_x = self.path_json['startPoint']['coordinate'][0]
+        s_y = self.path_json['startPoint']['coordinate'][1]
+        s_yaw = self.path_json['startPoint']['heading']
+        g_x = self.path_json['endPoint']['coordinate'][0]
+        g_y = self.path_json['endPoint']['coordinate'][1]
+        g_yaw = self.path_json['endPoint']['heading']
+        p = PathGenerator(s_x=s_x, s_y=s_y, s_yaw=s_yaw,
+                          g_x=g_x, g_y=g_y, g_yaw=g_yaw,
+                          ref_v=ref_v, is_backward=is_backward)
+        map_xs, map_ys, map_yaws, cmd_vel = p.plan_path()
+        self.node.get_logger().info(f'{ref_v} {is_backward}')
+
+        import numpy as np
+        for i in range(len(map_xs)):
+            print(f'x:{map_xs[i] :.3f},'
+                    f' y:{map_ys[i] :.3f},'
+                    f' theta(deg):{map_yaws[i]/np.pi*180 :.3f},'
+                    f' vel:{cmd_vel[i] :.2f}')
+        self.node.get_logger().info('path stamped has been loaded')
 
     def clickPlanTask(self):
         pass
