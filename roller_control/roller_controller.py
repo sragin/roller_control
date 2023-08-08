@@ -41,6 +41,7 @@ class RollerController(Node):
         self.cmd_vel_publisher = self.create_publisher(Twist, 'cmd_vel', qos_profile)
         self.control_timer = None
 
+        self.basepoint = [371262.716, 159079.566]
         self.path_json = None
         self.map_xs = None
         self.map_ys = None
@@ -152,11 +153,11 @@ class RollerController(Node):
         elif msg.data == 'PLAN PATH':
             ref_v = self.path_json['startPoint']['velocity']
             is_backward = ref_v < 0
-            s_x = self.path_json['startPoint']['coordinate'][0]
-            s_y = self.path_json['startPoint']['coordinate'][1]
+            s_x = self.path_json['startPoint']['coordinate'][0] - self.basepoint[1]
+            s_y = self.path_json['startPoint']['coordinate'][1] - self.basepoint[0]
             s_yaw = self.path_json['startPoint']['heading']
-            g_x = self.path_json['endPoint']['coordinate'][0]
-            g_y = self.path_json['endPoint']['coordinate'][1]
+            g_x = self.path_json['endPoint']['coordinate'][0] - self.basepoint[1]
+            g_y = self.path_json['endPoint']['coordinate'][1] - self.basepoint[0]
             g_yaw = self.path_json['endPoint']['heading']
             p = PathGenerator(s_x=s_x, s_y=s_y, s_yaw=s_yaw,
                             g_x=g_x, g_y=g_y, g_yaw=g_yaw,
