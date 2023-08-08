@@ -144,10 +144,33 @@ class RollerController(Node):
                 self.get_logger().info('control algorithm has been stopped')
                 return
         elif 'PATHFILE' in msg.data:
-            filename = msg.data.split(':')
+            _, filename = msg.data.split(':')
             with open(filename, 'r') as pathfile:
                 self.path_json = json.load(pathfile)
-            self.get_logger().info(f'Path file {filename} has been loaded')
+            self.get_logger().info(f'Path file \'{filename.split("/")[-1]}\' has been loaded')
+            self.get_logger().info(f'{self.path_json}')
+        elif msg.data == 'PLAN PATH':
+            ref_v = self.path_json['startPoint']['velocity']
+            is_backward = ref_v < 0
+            s_x = self.path_json['startPoint']['coordinate'][0]
+            s_y = self.path_json['startPoint']['coordinate'][1]
+            s_yaw = self.path_json['startPoint']['heading']
+            g_x = self.path_json['endPoint']['coordinate'][0]
+            g_y = self.path_json['endPoint']['coordinate'][1]
+            g_yaw = self.path_json['endPoint']['heading']
+            p = PathGenerator(s_x=s_x, s_y=s_y, s_yaw=s_yaw,
+                            g_x=g_x, g_y=g_y, g_yaw=g_yaw,
+                            ref_v=ref_v, is_backward=is_backward)
+            map_xs, map_ys, map_yaws, cmd_vel = p.plan_path()
+            self.get_logger().info(f'{ref_v} {is_backward}')
+
+            import numpy as np
+            for i in range(len(map_xs)):
+                print(f'x:{map_xs[i] :.3f},'
+                        f' y:{map_ys[i] :.3f},'
+                        f' theta(deg):{map_yaws[i]/np.pi*180 :.3f},'
+                        f' vel:{cmd_vel[i] :.2f}')
+            self.get_logger().info('path stamped has been loaded')
         elif msg.data == 'PATH' or msg.data == 'PATH_BACKWARD':
             if self.control_timer is not None:
                 self.get_logger().info('control algorithm is already running')
