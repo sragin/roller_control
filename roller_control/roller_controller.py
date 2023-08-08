@@ -151,6 +151,9 @@ class RollerController(Node):
             self.get_logger().info(f'Path file \'{filename.split("/")[-1]}\' has been loaded')
             self.get_logger().info(f'{self.path_json}')
         elif msg.data == 'PLAN PATH':
+            if self.path_json is None:
+                self.get_logger().warn('select path file first')
+                return
             ref_v = self.path_json['startPoint']['velocity']
             is_backward = ref_v < 0
             s_x = self.path_json['startPoint']['coordinate'][1] - self.basepoint[1]
@@ -162,18 +165,21 @@ class RollerController(Node):
             p = PathGenerator(s_x=s_x, s_y=s_y, s_yaw=s_yaw,
                             g_x=g_x, g_y=g_y, g_yaw=g_yaw,
                             ref_v=ref_v, is_backward=is_backward)
-            map_xs, map_ys, map_yaws, cmd_vel = p.plan_path()
+            self.map_xs, self.map_ys, self.map_yaws, self.cmd_vel = p.plan_path()
 
             import numpy as np
-            for i in range(len(map_xs)):
-                print(f'x:{map_xs[i] :.3f},'
-                        f' y:{map_ys[i] :.3f},'
-                        f' theta(deg):{map_yaws[i]/np.pi*180 :.3f},'
-                        f' vel:{cmd_vel[i] :.2f}')
+            for i in range(len(self.map_xs)):
+                print(f'x:{self.map_xs[i] :.3f},'
+                        f' y:{self.map_ys[i] :.3f},'
+                        f' theta(deg):{self.map_yaws[i]/np.pi*180 :.3f},'
+                        f' vel:{self.cmd_vel[i] :.2f}')
             self.get_logger().debug(f'{ref_v} {is_backward} {s_x :.3f} {s_y :.3f} {g_x :.3f} {g_y :.3f}')
             self.get_logger().info('path stamped has been loaded')
         elif msg.data == 'START MOTION':
-            if self.map_xs is None:
+            if self.map_xs is None\
+                or self.map_ys is None\
+                or self.map_yaws is None\
+                or self.cmd_vel is None:
                 self.get_logger().warn('path is empty')
                 return
 
