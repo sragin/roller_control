@@ -75,7 +75,8 @@ class PathGenerator:
                                             path_x, path_y)
         if self.is_backward:
             cmd_vel = [-v for v in cmd_vel]
-        cmd_vel[0] = cmd_vel[1]
+        cmd_vel[0] = cmd_vel[1] / 2
+        cmd_vel[-1] = cmd_vel[-2] / 2
 
         return path_x, path_y, path_yaw, cmd_vel
 
