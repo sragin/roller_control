@@ -5,6 +5,7 @@
 # Proprietary and confidential.
 
 
+from ament_index_python import get_package_share_directory
 from can_msgs.msg import Frame
 import cantools
 from msg_gps_interface.msg import GPSMsg
@@ -23,7 +24,8 @@ class RollerPublisher(Node):
         self.get_logger().info(f'{self.nodeName} started')
         qos_profile = QoSProfile(depth=10)
         self.candb_autobox_to_supervisor = \
-            cantools.db.load_file('./install/roller_control/share/ToSupervisor_210430.dbc')
+            cantools.db.load_file(
+                get_package_share_directory('roller_control') + '/ToSupervisor_210430.dbc')
         self.can_msg_response = self.candb_autobox_to_supervisor.get_message_by_name('Response')
         self.can_msg_drum_pos = \
             self.candb_autobox_to_supervisor.get_message_by_name('Drum_Position')

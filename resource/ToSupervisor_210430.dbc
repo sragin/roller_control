@@ -1,0 +1,80 @@
+VERSION ""
+
+NS_ : 
+	NS_DESC_
+	CM_
+	BA_DEF_
+	BA_
+	VAL_
+	CAT_DEF_
+	CAT_
+	FILTER
+	BA_DEF_DEF_
+	EV_DATA_
+	ENVVAR_DATA_
+	SGTYPE_
+	SGTYPE_VAL_
+	BA_DEF_SGTYPE_
+	BA_SGTYPE_
+	SIG_TYPE_REF_
+	VAL_TABLE_
+	SIG_GROUP_
+	SIG_VALTYPE_
+	SIGTYPE_VALTYPE_
+	BO_TX_BU_
+	BA_DEF_REL_
+	BA_REL_
+	BA_DEF_DEF_REL_
+	BU_SG_REL_
+	BU_EV_REL_
+	BU_BO_REL_
+
+BS_:
+
+BU_:
+
+BO_ 109 Command_SV: 3 Vector__XXX
+ SG_ MODE: 0|8@1- (1,0) [0|1] "#" Vector__XXX
+ SG_ AUTO_DRIVE: 8|8@1- (1,0) [0|1] "#" Vector__XXX
+ SG_ STOP_CMD: 16|8@1- (1,0) [0|1] "#" Vector__XXX
+
+BO_ 110 Response: 6 Vector__XXX
+ SG_ MODE: 0|8@1- (1,0) [0|1] "#" Vector__XXX
+ SG_ STATUS: 8|8@1- (1,0) [0|1] "#" Vector__XXX
+ SG_ PT_NUM: 16|8@1- (1,0) [0|1] "#" Vector__XXX
+ SG_ STEER_ANGLE: 24|16@1- (0.1,0) [-1800|1800] "#" Vector__XXX
+ SG_ FREQUENCY: 40|8@1- (1,0) [0|50] "Hz" Vector__XXX 
+
+BO_ 111 Design_Pt_X: 6 Vector__XXX
+ SG_ DGN_PT_X: 0|32@1- (1,0) [-9000000000|9000000000] "mm" Vector__XXX
+ SG_ DGN_PT_Index: 32|8@1- (1,0) [0|255] "#" Vector__XXX
+ SG_ DGN_PT_Size: 40|8@1- (1,0) [0|255] "#" Vector__XXX
+
+BO_ 112 Design_Pt_Y: 6 Vector__XXX
+ SG_ DGN_PT_Y: 0|32@1- (1,0) [-9000000000|9000000000] "mm" Vector__XXX
+ SG_ DGN_PT_Index: 32|8@1- (1,0) [0|255] "#" Vector__XXX
+ SG_ DGN_PT_Size: 40|8@1- (1,0) [0|255] "#" Vector__XXX
+
+BO_ 113 Design_Pt_V: 5 Vector__XXX
+ SG_ DGN_PT_V: 0|16@1- (1,0) [-30000|30000] "mm/s" Vector__XXX
+ SG_ DGN_PT_VIB: 16|8@1- (1,0) [-30000|30000] "Hz" Vector__XXX
+ SG_ DGN_PT_Index: 24|8@1- (1,0) [0|255] "#" Vector__XXX
+ SG_ DGN_PT_Size: 32|8@1- (1,0) [0|255] "#" Vector__XXX
+
+BO_ 114 Drum_Orientation: 6 Vector__XXX
+ SG_ DRUM_PITCH: 0|16@1- (0.1,0) [-1800|1800] "deg" Vector__XXX
+ SG_ DRUM_ROLL: 16|16@1- (0.1,0) [-1800|1800] "deg" Vector__XXX
+ SG_ DRUM_HEAD: 32|16@1- (0.1,0) [-1800|1800] "deg" Vector__XXX
+
+BO_ 115 Drum_VH: 6 Vector__XXX
+ SG_ DRUM_V: 0|16@1- (1,0) [-30000|30000] "mm/s" Vector__XXX
+ SG_ DRUM_H: 16|32@1- (1,0) [-10000000|10000000] "mm" Vector__XXX
+
+BO_ 127 Drum_Position: 8 Vector__XXX
+ SG_ DRUM_POS_X: 0|32@1- (1,0) [-9000000000|9000000000] "mm" Vector__XXX
+ SG_ DRUM_POS_Y: 32|32@1- (1,0) [-9000000000|9000000000] "mm" Vector__XXX
+
+ 
+ BA_DEF_ "BusType" STRING ;
+ BA_DEF_DEF_ "BusType" "";
+ BA_ "BusType" "CAN";

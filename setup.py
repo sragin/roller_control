@@ -14,7 +14,8 @@ setup(
             ['resource/' + package_name]),
         ('share/' + package_name,
             ['package.xml']\
-            + glob('resource/*.json')),
+            + glob('resource/*.json')\
+            + glob('resource/*.dbc')),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
