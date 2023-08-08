@@ -68,6 +68,8 @@ class RollerControlUI(QDialog):
         button = self.sender()
         if button == self.ui.pushButtonLoadPathfile:
             filename, _ = QFileDialog.getOpenFileName(self, 'Open File', get_package_share_directory('roller_control'), filter='*.json')
+            if filename == "":
+                return
             self.cmd_motion.data = f'PATHFILE:{filename}'
         if button == self.ui.pushButtonPlanPath:
             self.cmd_motion.data = 'PLAN PATH'
