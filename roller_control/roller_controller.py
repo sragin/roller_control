@@ -138,7 +138,7 @@ class RollerController(Node):
 
     def recieve_motioncmd(self, msg: String):
         self.get_logger().info(f'{msg}')
-        if msg.data == 'STOP':
+        if msg.data == 'STOP' or msg.data =='E-STOP':
             if self.control_timer is not None:
                 self.control_timer.cancel()
                 self.control_timer = None
