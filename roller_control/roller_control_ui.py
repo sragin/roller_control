@@ -34,9 +34,9 @@ class RollerControlUI(QDialog):
         self.show()
         self.ui.radioButtonAuto.clicked.connect(self.clickMode)
         self.ui.radioButtonManual.clicked.connect(self.clickMode)
-        self.ui.pushButtonLoadPathfile.clicked.connect(self.clickLoadJSON)
-        self.ui.pushButtonPlanPath.clicked.connect(self.clickPlanPath)
-        self.ui.pushButtonPlanTask.clicked.connect(self.clickPlanTask)
+        self.ui.pushButtonLoadPathfile.clicked.connect(self.clickPlanning)
+        self.ui.pushButtonPlanPath.clicked.connect(self.clickPlanning)
+        self.ui.pushButtonPlanTask.clicked.connect(self.clickPlanning)
         self.ui.pushButtonStartTask.clicked.connect(self.clickControlling)
         self.ui.pushButtonStop.clicked.connect(self.clickControlling)
         self.ui.pushButtonEStop.clicked.connect(self.clickControlling)
@@ -89,18 +89,16 @@ class RollerControlUI(QDialog):
             self.cmd_motion.data = 'MANUAL'
         self.publish_commands()
 
-    def clickLoadJSON(self):
-        filename = get_package_share_directory('roller_control') + '/path.json'
-        with open(filename, 'r') as pathfile:
-            self.path_json = json.load(pathfile)
-            # print(self.path_json['startPoint']['coordinate'])
-        self.node.get_logger().info('Json path file has been loaded')
-
-    def clickPlanPath(self):
-        pass
-
-    def clickPlanTask(self):
-        pass
+    def clickPlanning(self):
+        button = self.sender()
+        if button == self.ui.pushButtonLoadPathfile:
+            filename, _ = QFileDialog.getOpenFileName(self, 'Open File', get_package_share_directory('roller_control'), filter='*.json')
+            self.cmd_motion.data = f'PATHFILE:{filename}'
+        if button == self.ui.pushButtonPlanPath:
+            self.cmd_motion.data = 'PLAN PATH'
+        elif button == self.ui.pushButtonPlanTask:
+            self.cmd_motion.data = 'PLAN TASK'
+        self.publish_commands()
 
     def clickControlling(self):
         button = self.sender()
