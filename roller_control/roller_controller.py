@@ -153,17 +153,16 @@ class RollerController(Node):
         elif msg.data == 'PLAN PATH':
             ref_v = self.path_json['startPoint']['velocity']
             is_backward = ref_v < 0
-            s_x = self.path_json['startPoint']['coordinate'][0] - self.basepoint[1]
-            s_y = self.path_json['startPoint']['coordinate'][1] - self.basepoint[0]
+            s_x = self.path_json['startPoint']['coordinate'][1] - self.basepoint[1]
+            s_y = self.path_json['startPoint']['coordinate'][0] - self.basepoint[0]
             s_yaw = self.path_json['startPoint']['heading']
-            g_x = self.path_json['endPoint']['coordinate'][0] - self.basepoint[1]
-            g_y = self.path_json['endPoint']['coordinate'][1] - self.basepoint[0]
+            g_x = self.path_json['endPoint']['coordinate'][1] - self.basepoint[1]
+            g_y = self.path_json['endPoint']['coordinate'][0] - self.basepoint[0]
             g_yaw = self.path_json['endPoint']['heading']
             p = PathGenerator(s_x=s_x, s_y=s_y, s_yaw=s_yaw,
                             g_x=g_x, g_y=g_y, g_yaw=g_yaw,
                             ref_v=ref_v, is_backward=is_backward)
             map_xs, map_ys, map_yaws, cmd_vel = p.plan_path()
-            self.get_logger().info(f'{ref_v} {is_backward}')
 
             import numpy as np
             for i in range(len(map_xs)):
@@ -171,6 +170,7 @@ class RollerController(Node):
                         f' y:{map_ys[i] :.3f},'
                         f' theta(deg):{map_yaws[i]/np.pi*180 :.3f},'
                         f' vel:{cmd_vel[i] :.2f}')
+            self.get_logger().debug(f'{ref_v} {is_backward} {s_x :.3f} {s_y :.3f} {g_x :.3f} {g_y :.3f}')
             self.get_logger().info('path stamped has been loaded')
         elif msg.data == 'START MOTION':
             if self.map_xs is None:
