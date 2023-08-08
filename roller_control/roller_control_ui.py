@@ -55,31 +55,6 @@ class RollerControlUI(QDialog):
             10)
         rclpy.spin_once(self.node, timeout_sec=1)
 
-    def keyPressEvent(self, e: QKeyEvent) -> None:
-        # self.node.get_logger().info(f'{e.key()} key pressed')
-        self.cmd_vel.linear.x = 0.0
-        self.cmd_vel.angular.z = 0.0
-        self.cmd_motion.data = ''
-        if e.key() == Qt.Key.Key_Up:
-            self.cmd_vel.linear.x = 0.3
-        elif e.key() == Qt.Key.Key_Down:
-            self.cmd_vel.linear.x = -0.1
-        elif e.key() == Qt.Key.Key_Left:
-            self.cmd_vel.angular.z = 1.0
-        elif e.key() == Qt.Key.Key_Right:
-            self.cmd_vel.angular.z = -1.0
-        elif e.key() == Qt.Key.Key_I or e.key() == Qt.Key.Key_S:
-            self.cmd_motion.data = 'STOP'
-        self.publish_commands()
-        return super().keyPressEvent(e)
-
-    def keyReleaseEvent(self, a0: QKeyEvent) -> None:
-        self.cmd_vel.linear.x = 0.0
-        self.cmd_vel.angular.z = 0.0
-        self.cmd_motion.data = ''
-        self.publish_commands()
-        return super().keyReleaseEvent(a0)
-
     def clickMode(self):
         self.cmd_vel.linear.x = 0.0
         self.cmd_vel.angular.z = 0.0
