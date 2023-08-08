@@ -6,6 +6,7 @@
 
 
 from geometry_msgs.msg import Twist
+import json
 import numpy as np
 import rclpy
 from rclpy.node import Node
@@ -40,6 +41,7 @@ class RollerController(Node):
         self.cmd_vel_publisher = self.create_publisher(Twist, 'cmd_vel', qos_profile)
         self.control_timer = None
 
+        self.path_json = None
         self.map_xs = None
         self.map_ys = None
         self.map_yaws = None
@@ -133,7 +135,7 @@ class RollerController(Node):
         # print(f'[{x1:.2f}, {y1:.2f}] [{x2:.2f}, {y2:.2f}] [{x:.2f}, {y:.2f}] {cross:.2f}')
         return cross >= 0
 
-    def recieve_motioncmd(self, msg):
+    def recieve_motioncmd(self, msg: String):
         self.get_logger().info(f'{msg}')
         if msg.data == 'STOP':
             if self.control_timer is not None:
@@ -141,6 +143,11 @@ class RollerController(Node):
                 self.control_timer = None
                 self.get_logger().info('control algorithm has been stopped')
                 return
+        elif 'PATHFILE' in msg.data:
+            filename = msg.data.split(':')
+            with open(filename, 'r') as pathfile:
+                self.path_json = json.load(pathfile)
+            self.get_logger().info(f'Path file {filename} has been loaded')
         elif msg.data == 'PATH' or msg.data == 'PATH_BACKWARD':
             if self.control_timer is not None:
                 self.get_logger().info('control algorithm is already running')
