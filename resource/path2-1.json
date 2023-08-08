@@ -1,0 +1,35 @@
+{
+      "startPoint": {
+            "coordinate": [
+                  371409.796,
+                  159254.250
+            ],
+            "velocity": 1.25,
+            "heading": -1.570796327,
+            "vibration": true,
+            "workMode": "Working",
+            "altitude": 0.0
+      },
+      "wayPoint": {
+            "coordinate": [
+                  371409.796,
+                  159254.250
+            ],
+            "velocity": 1.25,
+            "heading": -1.570796327,
+            "vibration": true,
+            "workMode": "Working",
+            "altitude": 0.0
+      },
+      "endPoint": {
+            "coordinate": [
+                  371394.796,
+                  159254.250
+            ],
+            "velocity": 0.0,
+            "heading": -1.570796327,
+            "vibration": true,
+            "workMode": "Working",
+            "altitude": 0.0
+      }
+}
