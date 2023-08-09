@@ -75,17 +75,16 @@ class PathGenerator:
                                             path_x, path_y)
         if self.is_backward:
             cmd_vel = [-v for v in cmd_vel]
-        cmd_vel[0] = cmd_vel[1] / 2
-        cmd_vel[-1] = cmd_vel[-2] / 2
 
         return path_x, path_y, path_yaw, cmd_vel
 
     def make_trapezoidal_velocity_profile(self, s_v, ref_v, g_v, path_x, path_y):
         from .control_algorithm import ACCELERATION
+        from .control_algorithm import DECELERATION
 
         dist_total = np.sqrt(pow(path_x[-1] - path_x[0], 2) + pow(path_y[-1] - path_y[0], 2))
         dist_acc = ref_v**2 / ACCELERATION / 2
-        dist_dec = dist_total - dist_acc
+        dist_dec = dist_total - ref_v**2 / DECELERATION / 2
 
         cmd_vel = []
         for i in range(len(path_x)):
@@ -95,6 +94,8 @@ class PathGenerator:
             elif pos < dist_dec:
                 vel = ref_v
             else:
-                vel = np.sqrt(2 * ACCELERATION * np.abs(dist_total-pos))
+                vel = np.sqrt(2 * DECELERATION * np.abs(dist_total-pos))
+            if vel < 0.25:
+                vel = 0.25
             cmd_vel.append(vel)
         return cmd_vel
