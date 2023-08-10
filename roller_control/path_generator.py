@@ -5,22 +5,31 @@
 # Proprietary and confidential.
 
 
+from .control_algorithm import normalize_angle
 import numpy as np
 
 
 class PathGenerator:
 
     def __init__(self, s_x, s_y, s_yaw, g_x, g_y, g_yaw, s_v=0.25, ref_v=0.25, g_v=0.0, is_backward=False):
+
+        self.is_backward = is_backward
+        if is_backward:
+            self.s_yaw = normalize_angle(s_yaw + np.pi)
+            self.g_yaw = normalize_angle(g_yaw + np.pi)
+            self.s_v = -s_v
+            self.ref_v = -ref_v
+            self.g_v = -g_v
+        else:
+            self.s_yaw = s_yaw
+            self.g_yaw = g_yaw
+            self.s_v = s_v
+            self.ref_v = ref_v
+            self.g_v = g_v
         self.s_x = s_x
         self.s_y = s_y
-        self.s_yaw = s_yaw
         self.g_x = g_x
         self.g_y = g_y
-        self.g_yaw = g_yaw
-        self.s_v = s_v
-        self.ref_v = ref_v
-        self.g_v = g_v
-        self.is_backward = is_backward
         # 롤러의 현재위치. 경로입력을 간단하게 하기 위해 사용
         self.x = 0
         self.y = 0
@@ -75,6 +84,7 @@ class PathGenerator:
                                             path_x, path_y)
         if self.is_backward:
             cmd_vel = [-v for v in cmd_vel]
+            path_yaw = [normalize_angle(y - np.pi) for y in path_yaw]
 
         return path_x, path_y, path_yaw, cmd_vel
 
@@ -89,12 +99,7 @@ class PathGenerator:
         cmd_vel = []
         for i in range(len(path_x)):
             pos = np.sqrt(pow(path_x[i] - path_x[0], 2) + pow(path_y[i] - path_y[0], 2))
-            if pos < dist_acc:
-                vel = np.sqrt(2 * ACCELERATION * pos)
-            elif pos < dist_dec:
-                vel = ref_v
-            else:
-                vel = np.sqrt(2 * DECELERATION * np.abs(dist_total-pos))
+            vel = min(np.sqrt(2 * ACCELERATION * pos), ref_v, np.sqrt(2 * DECELERATION * np.abs(dist_total-pos)))
             if vel < 0.25:
                 vel = 0.25
             cmd_vel.append(vel)
