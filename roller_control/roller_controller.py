@@ -85,13 +85,6 @@ class RollerController(Node):
         cmd_vel_msg.linear.x = self.cmd_vel[min_index_]
         cmd_vel_msg.angular.z = steer_cmd
 
-        if self.check_goal(self.map_xs, self.map_ys, x, y, self.goal_check_error):
-            cmd_vel_msg.linear.x = 0.0
-            cmd_vel_msg.angular.z = 0.0
-            self.control_timer.cancel()
-            self.control_timer = None
-            self.get_logger().info('motion done')
-
         self.cmd_vel_publisher.publish(cmd_vel_msg)
         self.get_logger().info(
             f'Controller = steer_:{steer_ :.3f}, yaw_:{yaw_ :.3f}, cte_:{cte_ :.3f}, '
@@ -106,6 +99,13 @@ class RollerController(Node):
             f'steer_cmd:{steer_cmd * 180 / np.pi :.3f} '
             f'heading:{theta * 180 / np.pi :.3f} '
             f'cmd_vel:{self.cmd_vel[min_index_]}')
+
+        if self.check_goal(self.map_xs, self.map_ys, x, y, self.goal_check_error):
+            cmd_vel_msg.linear.x = 0.0
+            cmd_vel_msg.angular.z = 0.0
+            self.control_timer.cancel()
+            self.control_timer = None
+            self.get_logger().info('Motion is done')
 
     def check_goal(self, map_xs, map_ys, x, y, error):
         x1 = map_xs[-1]
@@ -188,6 +188,7 @@ class RollerController(Node):
             else:
                 self.get_logger().info('control algorithm is already running')
                 return
+            self.get_logger().info(f'Motion is started')
         elif msg.data == 'START TASK':
             pass
 
