@@ -6,17 +6,14 @@
 
 
 from geometry_msgs.msg import Twist
-import json
 import numpy as np
 import rclpy
 from rclpy.node import Node
 from rclpy.qos import QoSProfile
 from roller_interfaces.msg import RollerStatus
-from std_msgs.msg import String
 
 from .control_algorithm import MAX_STEER_LIMIT
 from .control_algorithm import stanley_control
-from .path_generator import PathGenerator
 
 CONTROL_PERIOD = 0.1
 

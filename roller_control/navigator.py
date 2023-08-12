@@ -32,14 +32,6 @@ class VibrationRollerStateMachine(StateMachine):
         self.navigator :Navigator = nav
         super(VibrationRollerStateMachine, self).__init__()
 
-    @property
-    def navigator(self):
-        return self._navigator
-
-    @navigator.setter
-    def navigator(self, nav):
-        self._navigator = nav
-
     def on_enter_idle(self):
         print('idle state')
 
@@ -136,13 +128,6 @@ class Navigator(Node):
     def go(self):
         self.get_logger().info('motion started')
         self.get_logger().info('motion done')
-        #     if self.map_xs is None\
-        #         or self.map_ys is None\
-        #         or self.map_yaws is None\
-        #         or self.cmd_vel is None:
-        #         self.get_logger().warn('path is empty')
-        #         return
-
         #     if self.control_timer is None:
         #         self.control_timer = self.create_timer(CONTROL_PERIOD, self.control)
         #     else:
@@ -153,7 +138,6 @@ class Navigator(Node):
     def stop(self):
         self.get_logger().info('motion stopping')
         self.get_logger().info('motion stoped')
-        # if msg.data == 'STOP' or msg.data =='E-STOP':
         #     if self.control_timer is not None:
         #         self.control_timer.cancel()
         #         self.control_timer = None
