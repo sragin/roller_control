@@ -33,11 +33,6 @@ class RollerController(Node):
             'roller_status',
             self.recieve_rollerstatus,
             qos_profile)
-        self.rollermotioncmd_subscriber = self.create_subscription(
-            String,
-            'roller_motion_cmd',
-            self.recieve_motioncmd,
-            qos_profile)
         self.cmd_vel_publisher = self.create_publisher(Twist, 'cmd_vel', qos_profile)
         self.control_timer = None
 
@@ -136,76 +131,16 @@ class RollerController(Node):
         # print(f'[{x1:.2f}, {y1:.2f}] [{x2:.2f}, {y2:.2f}] [{x:.2f}, {y:.2f}] {cross:.2f}')
         return cross >= 0
 
-    def recieve_motioncmd(self, msg: String):
-        self.get_logger().info(f'{msg}')
-        if msg.data == 'STOP' or msg.data =='E-STOP':
-            if self.control_timer is not None:
-                self.control_timer.cancel()
-                self.control_timer = None
-                self.get_logger().info('control algorithm has been stopped')
-                return
-        elif 'PATHFILE' in msg.data:
-            _, filename = msg.data.split(':')
-            with open(filename, 'r') as pathfile:
-                self.path_json = json.load(pathfile)
-            self.get_logger().info(f'Path file \'{filename.split("/")[-1]}\' has been loaded')
-            self.get_logger().info(f'{self.path_json}')
-        elif msg.data == 'PLAN PATH':
-            if self.path_json is None:
-                self.get_logger().warn('select path file first')
-                return
-            ref_v = self.path_json['startPoint']['velocity']
-            is_backward = ref_v < 0
-            s_x = self.path_json['startPoint']['coordinate'][1] - self.basepoint[1]
-            s_y = self.path_json['startPoint']['coordinate'][0] - self.basepoint[0]
-            s_yaw = self.path_json['startPoint']['heading']
-            g_x = self.path_json['endPoint']['coordinate'][1] - self.basepoint[1]
-            g_y = self.path_json['endPoint']['coordinate'][0] - self.basepoint[0]
-            g_yaw = self.path_json['endPoint']['heading']
-            p = PathGenerator(s_x=s_x, s_y=s_y, s_yaw=s_yaw,
-                            g_x=g_x, g_y=g_y, g_yaw=g_yaw,
-                            ref_v=ref_v, is_backward=is_backward)
-            self.map_xs, self.map_ys, self.map_yaws, self.cmd_vel = p.plan_path()
-
-            import numpy as np
-            for i in range(len(self.map_xs)):
-                print(f'x:{self.map_xs[i] :.3f},'
-                        f' y:{self.map_ys[i] :.3f},'
-                        f' theta(deg):{self.map_yaws[i]/np.pi*180 :.3f},'
-                        f' vel:{self.cmd_vel[i] :.2f}')
-            self.get_logger().debug(f'{ref_v} {is_backward} {s_x :.3f} {s_y :.3f} {g_x :.3f} {g_y :.3f}')
-            self.get_logger().info('path stamped has been loaded')
-        elif msg.data == 'START MOTION':
-            if self.map_xs is None\
-                or self.map_ys is None\
-                or self.map_yaws is None\
-                or self.cmd_vel is None:
-                self.get_logger().warn('path is empty')
-                return
-
-            if self.control_timer is None:
-                self.control_timer = self.create_timer(CONTROL_PERIOD, self.control)
-            else:
-                self.get_logger().info('control algorithm is already running')
-                return
-            self.get_logger().info(f'Motion is started')
-        elif msg.data == 'START TASK':
-            pass
-
     def recieve_rollerstatus(self, msg: RollerStatus):
         self.roller_status = msg
 
 
 def main(args=None):
     rclpy.init(args=args)
-    try:
-        roller_controller = RollerController()
-        rclpy.spin(roller_controller)
-    except KeyboardInterrupt:
-        roller_controller.get_logger().info('Keyboard interrrupt (SIGINT)')
-    finally:
-        roller_controller.destroy_node()
-        rclpy.shutdown()
+    roller_controller = RollerController()
+    rclpy.spin(roller_controller)
+    roller_controller.destroy_node()
+    rclpy.shutdown()
 
 
 if __name__ == '__main__':
