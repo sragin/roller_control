@@ -4,13 +4,20 @@
 # Unauthorized copying of this code base via any medium is strictly prohibited.
 # Proprietary and confidential.
 
-
+from action_msgs.msg import GoalStatus
 from geometry_msgs.msg import Twist
 import numpy as np
 import rclpy
+from rclpy.action import ActionServer
+from rclpy.action import CancelResponse
+from rclpy.action import GoalResponse
+from rclpy.action.server import ServerGoalHandle
+from rclpy.executors import MultiThreadedExecutor
 from rclpy.node import Node
 from rclpy.qos import QoSProfile
+from roller_interfaces.action import MoveToPosition
 from roller_interfaces.msg import RollerStatus
+import time
 
 from .control_algorithm import MAX_STEER_LIMIT
 from .control_algorithm import stanley_control
@@ -30,6 +37,14 @@ class RollerController(Node):
             'roller_status',
             self.recieve_rollerstatus,
             qos_profile)
+        self._action_server = ActionServer(
+            self,
+            MoveToPosition,
+            'move_to',
+            self.execute_callback,
+            goal_callback=self.goal_callback,
+            cancel_callback=self.cancel_callback,
+        )
         self.cmd_vel_publisher = self.create_publisher(Twist, 'cmd_vel', qos_profile)
         self.control_timer = None
 
@@ -45,6 +60,42 @@ class RollerController(Node):
 
         self.count = 0
         self.log_display_cnt = 50
+
+    def execute_callback(self, goal_handle: ServerGoalHandle):
+        self.get_logger().info('Executing goal')
+        feedback_msg = MoveToPosition.Feedback()
+        self.control_timer = self.create_timer(CONTROL_PERIOD, self.control)
+
+        while self.control_timer is not None:
+            if goal_handle.is_cancel_requested:
+                self.control_timer.cancel()
+                self.control_timer = None
+            time.sleep(0.1)
+
+        result = MoveToPosition.Result()
+        if goal_handle.is_cancel_requested:
+            goal_handle.canceled()
+            result.result = False
+            self.get_logger().info('Goal has been canceled')
+        else:
+            goal_handle.succeed()
+            result.result = True
+        return result
+
+    def goal_callback(self, goal: MoveToPosition.Goal):
+        self.map_xs = [p.x for p in goal.path_pose]
+        self.map_ys = [p.y for p in goal.path_pose]
+        self.map_yaws = [p.theta for p in goal.path_pose]
+        self.cmd_vel = [v.linear.x for v in goal.path_cmd_vel]
+        self.get_logger().info(f'{self.map_xs} {self.map_ys} {self.map_yaws} {self.cmd_vel}')
+        if len(self.map_xs) == len(self.map_ys) == len(self.map_yaws) == len(self.cmd_vel):
+            return GoalResponse.ACCEPT
+        else:
+            return GoalResponse.REJECT
+
+    def cancel_callback(self, goal):
+        self.get_logger().info('Received cancel request')
+        return CancelResponse.ACCEPT
 
     def control(self):
         """
@@ -77,6 +128,13 @@ class RollerController(Node):
         cmd_vel_msg.linear.x = self.cmd_vel[min_index_]
         cmd_vel_msg.angular.z = steer_cmd
 
+        if self.check_goal(self.map_xs, self.map_ys, x, y, self.goal_check_error):
+            cmd_vel_msg.linear.x = 0.0
+            cmd_vel_msg.angular.z = 0.0
+            self.control_timer.cancel()
+            self.control_timer = None
+            self.get_logger().info('Motion is done')
+
         self.cmd_vel_publisher.publish(cmd_vel_msg)
         self.get_logger().info(
             f'Controller = steer_:{steer_ :.3f}, yaw_:{yaw_ :.3f}, cte_:{cte_ :.3f}, '
@@ -91,13 +149,6 @@ class RollerController(Node):
             f'steer_cmd:{steer_cmd * 180 / np.pi :.3f} '
             f'heading:{theta * 180 / np.pi :.3f} '
             f'cmd_vel:{self.cmd_vel[min_index_]}')
-
-        if self.check_goal(self.map_xs, self.map_ys, x, y, self.goal_check_error):
-            cmd_vel_msg.linear.x = 0.0
-            cmd_vel_msg.angular.z = 0.0
-            self.control_timer.cancel()
-            self.control_timer = None
-            self.get_logger().info('Motion is done')
 
     def check_goal(self, map_xs, map_ys, x, y, error):
         x1 = map_xs[-1]
@@ -134,9 +185,13 @@ class RollerController(Node):
 
 def main(args=None):
     rclpy.init(args=args)
+
     roller_controller = RollerController()
-    rclpy.spin(roller_controller)
+    # Use a MultiThreadedExecutor to enable processing goals concurrently
+    executor = MultiThreadedExecutor()
+    rclpy.spin(roller_controller, executor=executor)
     roller_controller.destroy_node()
+
     rclpy.shutdown()
 
 

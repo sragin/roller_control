@@ -4,12 +4,17 @@
 # Unauthorized copying of this code base via any medium is strictly prohibited.
 # Proprietary and confidential.
 
+from geometry_msgs.msg import Pose2D
+from geometry_msgs.msg import Twist
 import json
 import numpy as np
 import rclpy
+from rclpy.action import ActionClient
 from rclpy.node import Node
 from rclpy.qos import QoSProfile
+from roller_interfaces.action import MoveToPosition
 from statemachine import StateMachine, State
+from statemachine.exceptions import TransitionNotAllowed
 from std_msgs.msg import String
 
 from .path_generator import PathGenerator
@@ -25,8 +30,11 @@ class VibrationRollerStateMachine(StateMachine):
         | preparing_goal.to(preparing_goal)
     )
     go = preparing_goal.to(navigating)
-    stop = navigating.to(idle)
-    # navigation_done = navigating.to(idle)
+    stop = (
+        idle.to(idle)
+        | navigating.to(idle)
+    )
+    navigation_done = navigating.to(idle)
 
     def __init__(self, nav):
         self.navigator :Navigator = nav
@@ -50,15 +58,9 @@ class VibrationRollerStateMachine(StateMachine):
         print('Navigating has been started')
         self.navigator.go()
 
-    def after_go(self):
-        print('Navigating has been done')
-
     def on_stop(self):
-        print('Stopping')
+        print('Stopping machine')
         self.navigator.stop()
-
-    def after_stop(self):
-        print('Vehicle stopped')
 
 
 class Navigator(Node):
@@ -76,6 +78,7 @@ class Navigator(Node):
         )
 
         self.sm = VibrationRollerStateMachine(self)
+        self._action_client = ActionClient(self, MoveToPosition, 'move_to')
 
         self.basepoint = [371262.716, 159079.566]
 
@@ -90,7 +93,7 @@ class Navigator(Node):
                 self.sm.plan_path()
             elif msg.data == 'START MOTION':
                 self.sm.go()
-        except Exception as e:
+        except TransitionNotAllowed as e:
             self.get_logger().warn(f'{e}')
 
     def load_pathfile(self, filenamecmd):
@@ -126,24 +129,61 @@ class Navigator(Node):
         self.get_logger().info('path stamped has been loaded')
 
     def go(self):
-        self.get_logger().info('motion started')
-        self.get_logger().info('motion done')
-        #     if self.control_timer is None:
-        #         self.control_timer = self.create_timer(CONTROL_PERIOD, self.control)
-        #     else:
-        #         self.get_logger().info('control algorithm is already running')
-        #         return
-        #     self.get_logger().info(f'Motion is started')
+        self.send_goal()
+        self.get_logger().info('Motion has been started')
 
     def stop(self):
-        self.get_logger().info('motion stopping')
-        self.get_logger().info('motion stoped')
-        #     if self.control_timer is not None:
-        #         self.control_timer.cancel()
-        #         self.control_timer = None
-        #         self.get_logger().info('control algorithm has been stopped')
-        #         return
+        self.get_logger().info('Motion stop requested')
+        future = self._goal_handle.cancel_goal_async()
+        future.add_done_callback(self.cancel_done)
         return
+
+    def send_goal(self):
+        self.get_logger().info('send goal')
+        goal_msg = MoveToPosition.Goal()
+        goal_msg.path_pose = []
+        for i in range(len(self.map_xs)):
+            pose = Pose2D()
+            pose.x = self.map_xs[i]
+            pose.y = self.map_ys[i]
+            pose.theta = self.map_yaws[i]
+            goal_msg.path_pose.append(pose)
+        goal_msg.path_cmd_vel = []
+        for v in self.cmd_vel:
+            twist = Twist()
+            twist.linear.x = v
+            goal_msg.path_cmd_vel.append(twist)
+
+        self.get_logger().info('Waiting for action server...')
+        self._action_client.wait_for_server()
+        self._send_goal_future = self._action_client.send_goal_async(goal_msg)
+        self._send_goal_future.add_done_callback(self.goal_response_callback)
+
+    def goal_response_callback(self, future):
+        goal_handle = future.result()
+        if not goal_handle.accepted:
+            self.get_logger().info('Goal rejected')
+            return
+        self._goal_handle = goal_handle
+        self.get_logger().info('Goal accepted')
+        self._get_result_future = goal_handle.get_result_async()
+        self._get_result_future.add_done_callback(self.get_result_callback)
+
+    def get_result_callback(self, future):
+        result = future.result().result
+        if result.result:
+            self.sm.navigation_done()
+            self.get_logger().info(f'Motion succeeded')
+        else:
+            self.get_logger().info(f'Motion failed')
+
+    def cancel_done(self, future):
+        cancel_response = future.result()
+        if len(cancel_response.goals_canceling) > 0:
+            self.get_logger().info('Motion stopped')
+        else:
+            self.get_logger().info('Motion failed to cancel')
+
 
 def main(args=None):
     rclpy.init(args=args)
