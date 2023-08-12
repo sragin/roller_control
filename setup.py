@@ -26,7 +26,6 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'teleop_key = roller_control.teleop_key:main',
             'roller_publisher = roller_control.roller_publisher:main',
             'roller_controller = roller_control.roller_controller:main',
             'base_controller = roller_control.base_controller:main',
