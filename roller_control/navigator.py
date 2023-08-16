@@ -10,7 +10,9 @@ import json
 import numpy as np
 import rclpy
 from rclpy.action import ActionClient
+from rclpy.action.client import ClientGoalHandle
 from rclpy.node import Node
+from rclpy.task import Future
 from rclpy.qos import QoSProfile
 from roller_interfaces.action import MoveToPosition
 from statemachine import StateMachine, State
@@ -159,8 +161,8 @@ class Navigator(Node):
         self._send_goal_future = self._action_client.send_goal_async(goal_msg)
         self._send_goal_future.add_done_callback(self.goal_response_callback)
 
-    def goal_response_callback(self, future):
-        goal_handle = future.result()
+    def goal_response_callback(self, future: Future):
+        goal_handle: ClientGoalHandle = future.result()
         if not goal_handle.accepted:
             self.get_logger().info('Goal rejected')
             return
@@ -169,15 +171,15 @@ class Navigator(Node):
         self._get_result_future = goal_handle.get_result_async()
         self._get_result_future.add_done_callback(self.get_result_callback)
 
-    def get_result_callback(self, future):
-        result = future.result().result
+    def get_result_callback(self, future: Future):
+        result: MoveToPosition.Result = future.result().result
         if result.result:
             self.sm.navigation_done()
             self.get_logger().info(f'Motion succeeded')
         else:
             self.get_logger().info(f'Motion failed')
 
-    def cancel_done(self, future):
+    def cancel_done(self, future: Future):
         cancel_response = future.result()
         if len(cancel_response.goals_canceling) > 0:
             self.get_logger().info('Motion stopped')
