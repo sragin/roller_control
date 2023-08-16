@@ -36,32 +36,36 @@ class VibrationRollerStateMachine(StateMachine):
         idle.to(idle)
         | navigating.to(idle)
     )
-    navigation_done = navigating.to(idle)
+    navigation_done = navigating.to(preparing_goal)
+    task_done = preparing_goal.to(idle)
 
     def __init__(self, nav):
         self.navigator :Navigator = nav
         super(VibrationRollerStateMachine, self).__init__()
 
     def on_enter_idle(self):
-        print('idle state')
+        self.navigator.get_logger().warn('idle state')
 
     def on_enter_preparing_goal(self):
-        print('preparing_goal state')
+        self.navigator.get_logger().warn('preparing_goal state')
+        if self.navigator.plan_path():
+            self.navigator.get_logger().warn('Path planning has been done')
+        else:
+            self.navigator.get_logger().warn('No more path left')
+            self.task_done()
 
     def on_enter_navigating(self):
-        print('navigating state')
-
-    def on_plan_path(self):
-        print('Path planning started')
-        self.navigator.plan_path()
-        print('Path planning has been done')
-
-    def on_go(self):
-        print('Navigating has been started')
+        self.navigator.get_logger().warn('navigating state')
         self.navigator.go()
 
+    def on_plan_path(self):
+        self.navigator.get_logger().warn('Path planning started')
+
+    # def on_go(self):
+    #     self.navigator.get_logger().warn('Navigating has been started')
+
     def on_stop(self):
-        print('Stopping machine')
+        self.navigator.get_logger().warn('Stopping machine')
         self.navigator.stop()
 
 
@@ -83,6 +87,10 @@ class Navigator(Node):
         self._action_client = ActionClient(self, MoveToPosition, 'move_to')
 
         self.basepoint = [371262.716, 159079.566]
+        self.is_first_planning = True
+        self.g = self.get_point_from_json()
+        self.repeat = False
+        self.path_json = None
 
     def recieve_motioncmd(self, msg: String):
         self.get_logger().info(f'{msg}')
@@ -94,6 +102,10 @@ class Navigator(Node):
             elif msg.data == 'PLAN PATH':
                 self.sm.plan_path()
             elif msg.data == 'START MOTION':
+                self.repeat = False
+                self.sm.go()
+            elif msg.data == 'START TASK':
+                self.repeat = True
                 self.sm.go()
         except TransitionNotAllowed as e:
             self.get_logger().warn(f'{e}')
@@ -104,19 +116,40 @@ class Navigator(Node):
             self.path_json = json.load(pathfile)
         self.get_logger().info(f'Path file \'{filename.split("/")[-1]}\' has been loaded')
         self.get_logger().info(f'{self.path_json}')
+        self.is_first_planning = True
+        self.g = self.get_point_from_json()
+
+    def get_point_from_json(self):
+        yield self.path_json['startPoint']
+        if 'wayPoint' in self.path_json:
+            for j in self.path_json['wayPoint']:
+                yield self.path_json['wayPoint'][j]
+        yield self.path_json['endPoint']
 
     def plan_path(self):
         if self.path_json is None:
-            self.get_logger().warn('select path file first')
-            return
-        ref_v = self.path_json['startPoint']['velocity']
+            self.get_logger().warn('Select path file first')
+            return False
+        try:
+            if self.is_first_planning:
+                self.start_point = next(self.g)
+                self.end_point = next(self.g)
+                self.is_first_planning = False
+            else:
+                self.start_point = self.end_point
+                self.end_point = next(self.g)
+        except StopIteration as e:
+            # print(f'{e} stop iteration')
+            return False
+        print(f'{self.start_point["coordinate"]} {self.end_point["coordinate"]}')
+        ref_v = self.start_point['velocity']
         is_backward = ref_v < 0
-        s_x = self.path_json['startPoint']['coordinate'][1] - self.basepoint[1]
-        s_y = self.path_json['startPoint']['coordinate'][0] - self.basepoint[0]
-        s_yaw = self.path_json['startPoint']['heading']
-        g_x = self.path_json['endPoint']['coordinate'][1] - self.basepoint[1]
-        g_y = self.path_json['endPoint']['coordinate'][0] - self.basepoint[0]
-        g_yaw = self.path_json['endPoint']['heading']
+        s_x = self.start_point['coordinate'][1] - self.basepoint[1]
+        s_y = self.start_point['coordinate'][0] - self.basepoint[0]
+        s_yaw = self.start_point['heading']
+        g_x = self.end_point['coordinate'][1] - self.basepoint[1]
+        g_y = self.end_point['coordinate'][0] - self.basepoint[0]
+        g_yaw = self.end_point['heading']
         p = PathGenerator(s_x=s_x, s_y=s_y, s_yaw=s_yaw,
                         g_x=g_x, g_y=g_y, g_yaw=g_yaw,
                         ref_v=ref_v, is_backward=is_backward)
@@ -128,7 +161,8 @@ class Navigator(Node):
                     f' theta(deg):{self.map_yaws[i]/np.pi*180 :.3f},'
                     f' vel:{self.cmd_vel[i] :.2f}')
         self.get_logger().debug(f'{ref_v} {is_backward} {s_x :.3f} {s_y :.3f} {g_x :.3f} {g_y :.3f}')
-        self.get_logger().info('path stamped has been loaded')
+        self.get_logger().info('Path has been loaded.')
+        return True
 
     def go(self):
         self.send_goal()
@@ -174,8 +208,8 @@ class Navigator(Node):
     def get_result_callback(self, future: Future):
         result: MoveToPosition.Result = future.result().result
         if result.result:
-            self.sm.navigation_done()
             self.get_logger().info(f'Motion succeeded')
+            self.sm.navigation_done()
         else:
             self.get_logger().info(f'Motion failed')
 
