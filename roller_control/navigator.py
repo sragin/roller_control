@@ -48,31 +48,29 @@ class VibrationRollerStateMachine(StateMachine):
 
     def on_enter_preparing_goal(self):
         self.navigator.get_logger().warn('preparing_goal state')
-        if self.navigator.plan_path():
-            self.navigator.get_logger().info('Path planning has been done')
-            if self.navigator.auto_repeat:
+        if self.navigator.auto_repeat:
+            if self.navigator.plan_path():
                 self.go()
-        else:
-            self.navigator.get_logger().warn('No more path left')
-            if self.navigator.auto_repeat:
+            else:
                 self.navigator.load_pathfile()
                 self.plan_path()
+        else:
+            if self.navigator.plan_path():
+                self.navigator.get_logger().info('Path planning has been done')
             else:
+                self.navigator.get_logger().warn('No more path left')
                 self.task_done()
 
     def on_enter_navigating(self):
         self.navigator.get_logger().warn('navigating state')
-        self.navigator.go()
-
-    # def on_plan_path(self):
-    #     self.navigator.get_logger().warn('Path planning started')
-
-    # def on_go(self):
-    #     self.navigator.get_logger().warn('Navigating has been started')
+        self.navigator.send_goal()
 
     def on_stop(self):
         self.navigator.get_logger().warn('stopping machine action')
-        self.navigator.stop()
+        if self.navigator.goal_handle is not None:
+            future = self.navigator.goal_handle.cancel_goal_async()
+            future.add_done_callback(self.navigator.cancel_done)
+        return
 
 
 class Navigator(Node):
@@ -179,19 +177,8 @@ class Navigator(Node):
         self.get_logger().info('Path has been loaded.')
         return True
 
-    def go(self):
-        self.send_goal()
-        self.get_logger().info('Motion has been started')
-
-    def stop(self):
-        self.get_logger().info('Motion stop requested')
-        if self.goal_handle is not None:
-            future = self.goal_handle.cancel_goal_async()
-            future.add_done_callback(self.cancel_done)
-        return
-
     def send_goal(self):
-        self.get_logger().info('send goal')
+        self.get_logger().info('Sending goal')
         goal_msg = MoveToPosition.Goal()
         goal_msg.path_pose = []
         for i in range(len(self.map_xs)):
