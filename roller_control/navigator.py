@@ -50,9 +50,15 @@ class VibrationRollerStateMachine(StateMachine):
         self.navigator.get_logger().warn('preparing_goal state')
         if self.navigator.plan_path():
             self.navigator.get_logger().warn('Path planning has been done')
+            if self.navigator.auto_repeat:
+                self.go()
         else:
             self.navigator.get_logger().warn('No more path left')
-            self.task_done()
+            if self.navigator.auto_repeat:
+                self.navigator.load_pathfile()
+                self.plan_path()
+            else:
+                self.task_done()
 
     def on_enter_navigating(self):
         self.navigator.get_logger().warn('navigating state')
@@ -89,8 +95,9 @@ class Navigator(Node):
         self.basepoint = [371262.716, 159079.566]
         self.is_first_planning = True
         self.g = self.get_point_from_json()
-        self.repeat = False
+        self.auto_repeat = False
         self.path_json = None
+        self.filename = None
 
     def recieve_motioncmd(self, msg: String):
         self.get_logger().info(f'{msg}')
@@ -102,19 +109,23 @@ class Navigator(Node):
             elif msg.data == 'PLAN PATH':
                 self.sm.plan_path()
             elif msg.data == 'START MOTION':
-                self.repeat = False
+                self.auto_repeat = False
                 self.sm.go()
             elif msg.data == 'START TASK':
-                self.repeat = True
-                self.sm.go()
+                self.auto_repeat = True
+                self.load_pathfile()
+                self.sm.plan_path()
         except TransitionNotAllowed as e:
             self.get_logger().warn(f'{e}')
 
-    def load_pathfile(self, filenamecmd):
-        _, filename = filenamecmd.split(':')
-        with open(filename, 'r') as pathfile:
+    def load_pathfile(self, filenamecmd=''):
+        if filenamecmd != '':
+            _, self.filename = filenamecmd.split(':')
+        if self.filename is None:
+            return
+        with open(self.filename, 'r') as pathfile:
             self.path_json = json.load(pathfile)
-        self.get_logger().info(f'Path file \'{filename.split("/")[-1]}\' has been loaded')
+        self.get_logger().info(f'Path file \'{self.filename.split("/")[-1]}\' has been loaded')
         self.get_logger().info(f'{self.path_json}')
         self.is_first_planning = True
         self.g = self.get_point_from_json()
@@ -209,7 +220,10 @@ class Navigator(Node):
         result: MoveToPosition.Result = future.result().result
         if result.result:
             self.get_logger().info(f'Motion succeeded')
-            self.sm.navigation_done()
+            try:
+                self.sm.navigation_done()
+            except TransitionNotAllowed as e:
+                self.get_logger().warn(f'{e}')
         else:
             self.get_logger().info(f'Motion failed')
 
