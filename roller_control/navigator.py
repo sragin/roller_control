@@ -49,7 +49,7 @@ class VibrationRollerStateMachine(StateMachine):
     def on_enter_preparing_goal(self):
         self.navigator.get_logger().warn('preparing_goal state')
         if self.navigator.plan_path():
-            self.navigator.get_logger().warn('Path planning has been done')
+            self.navigator.get_logger().info('Path planning has been done')
             if self.navigator.auto_repeat:
                 self.go()
         else:
@@ -64,14 +64,14 @@ class VibrationRollerStateMachine(StateMachine):
         self.navigator.get_logger().warn('navigating state')
         self.navigator.go()
 
-    def on_plan_path(self):
-        self.navigator.get_logger().warn('Path planning started')
+    # def on_plan_path(self):
+    #     self.navigator.get_logger().warn('Path planning started')
 
     # def on_go(self):
     #     self.navigator.get_logger().warn('Navigating has been started')
 
     def on_stop(self):
-        self.navigator.get_logger().warn('Stopping machine')
+        self.navigator.get_logger().warn('stopping machine action')
         self.navigator.stop()
 
 
@@ -98,6 +98,7 @@ class Navigator(Node):
         self.auto_repeat = False
         self.path_json = None
         self.filename = None
+        self.goal_handle = None
 
     def recieve_motioncmd(self, msg: String):
         self.get_logger().info(f'{msg}')
@@ -109,12 +110,15 @@ class Navigator(Node):
             elif msg.data == 'PLAN PATH':
                 self.sm.plan_path()
             elif msg.data == 'START MOTION':
-                self.auto_repeat = False
                 self.sm.go()
             elif msg.data == 'START TASK':
                 self.auto_repeat = True
                 self.load_pathfile()
                 self.sm.plan_path()
+            elif msg.data == 'REPEAT OFF':
+                self.auto_repeat = False
+            elif msg.data == 'REPEAT ON':
+                self.auto_repeat = True
         except TransitionNotAllowed as e:
             self.get_logger().warn(f'{e}')
 
@@ -181,8 +185,9 @@ class Navigator(Node):
 
     def stop(self):
         self.get_logger().info('Motion stop requested')
-        future = self._goal_handle.cancel_goal_async()
-        future.add_done_callback(self.cancel_done)
+        if self.goal_handle is not None:
+            future = self.goal_handle.cancel_goal_async()
+            future.add_done_callback(self.cancel_done)
         return
 
     def send_goal(self):
@@ -211,7 +216,7 @@ class Navigator(Node):
         if not goal_handle.accepted:
             self.get_logger().info('Goal rejected')
             return
-        self._goal_handle = goal_handle
+        self.goal_handle = goal_handle
         self.get_logger().info('Goal accepted')
         self._get_result_future = goal_handle.get_result_async()
         self._get_result_future.add_done_callback(self.get_result_callback)

@@ -40,6 +40,7 @@ class RollerControlUI(QDialog):
         self.ui.pushButtonStartTask.clicked.connect(self.clickControlling)
         self.ui.pushButtonStop.clicked.connect(self.clickControlling)
         self.ui.pushButtonEStop.clicked.connect(self.clickControlling)
+        self.ui.pushButtonRepeat.clicked.connect(self.clickControlling)
 
     def initROS(self):
         rclpy.init(args=None)
@@ -89,6 +90,11 @@ class RollerControlUI(QDialog):
             self.cmd_motion.data = 'STOP'
         elif button == self.ui.pushButtonEStop:
             self.cmd_motion.data = 'E-STOP'
+        elif button == self.ui.pushButtonRepeat:
+            if self.ui.pushButtonRepeat.isChecked():
+                self.cmd_motion.data = 'REPEAT ON'
+            else:
+                self.cmd_motion.data = 'REPEAT OFF'
         self.publish_commands()
 
     def publish_commands(self):

@@ -17,6 +17,7 @@ from rclpy.node import Node
 from rclpy.qos import QoSProfile
 from roller_interfaces.action import MoveToPosition
 from roller_interfaces.msg import RollerStatus
+from std_msgs.msg import String
 import time
 
 from .control_algorithm import MAX_STEER_LIMIT
@@ -32,6 +33,12 @@ class RollerController(Node):
         self.nodeName = self.get_name()
         self.get_logger().info(f'{self.nodeName} started')
         qos_profile = QoSProfile(depth=10)
+        self.rollermotioncmd_subscriber = self.create_subscription(
+            String,
+            'roller_motion_cmd',
+            self.recieve_motioncmd,
+            qos_profile
+        )
         self.rollerstatus_subscriber = self.create_subscription(
             RollerStatus,
             'roller_status',
@@ -60,6 +67,13 @@ class RollerController(Node):
 
         self.count = 0
         self.log_display_cnt = 50
+
+    def recieve_motioncmd(self, msg: String):
+        if msg.data =='E-STOP':
+            self.get_logger().info(f'{msg}')
+            if self.control_timer is not None:
+                self.control_timer.cancel()
+                self.control_timer = None
 
     def execute_callback(self, goal_handle: ServerGoalHandle):
         self.get_logger().info('Executing goal')
@@ -128,14 +142,6 @@ class RollerController(Node):
         cmd_vel_msg.linear.x = self.cmd_vel[min_index_]
         cmd_vel_msg.angular.z = steer_cmd
 
-        if self.check_goal(self.map_xs, self.map_ys, x, y, self.goal_check_error):
-            cmd_vel_msg.linear.x = 0.0
-            cmd_vel_msg.angular.z = 0.0
-            self.control_timer.cancel()
-            self.control_timer = None
-            self.get_logger().info('Motion is done')
-
-        self.cmd_vel_publisher.publish(cmd_vel_msg)
         self.get_logger().info(
             f'Controller = steer_:{steer_ :.3f}, yaw_:{yaw_ :.3f}, cte_:{cte_ :.3f}, '
             f'min_dist_:{min_dist_ :.3f} idx:{min_index_}\n'
@@ -149,6 +155,14 @@ class RollerController(Node):
             f'steer_cmd:{steer_cmd * 180 / np.pi :.3f} '
             f'heading:{theta * 180 / np.pi :.3f} '
             f'cmd_vel:{self.cmd_vel[min_index_]}')
+
+        if self.check_goal(self.map_xs, self.map_ys, x, y, self.goal_check_error):
+            cmd_vel_msg.linear.x = 0.0
+            cmd_vel_msg.angular.z = 0.0
+            self.control_timer.cancel()
+            self.control_timer = None
+            self.get_logger().info('Motion is done')
+        self.cmd_vel_publisher.publish(cmd_vel_msg)
 
     def check_goal(self, map_xs, map_ys, x, y, error):
         x1 = map_xs[-1]
