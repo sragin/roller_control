@@ -84,7 +84,6 @@ class PathGenerator:
                                             path_x, path_y)
         if self.is_backward:
             cmd_vel = [-v for v in cmd_vel]
-            path_yaw = [normalize_angle(y - np.pi) for y in path_yaw]
 
         return path_x, path_y, path_yaw, cmd_vel
 
