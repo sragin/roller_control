@@ -18,6 +18,7 @@ from roller_interfaces.action import MoveToPosition
 from statemachine import StateMachine, State
 from statemachine.exceptions import TransitionNotAllowed
 from std_msgs.msg import String
+import time
 
 from .path_generator import PathGenerator
 
@@ -72,6 +73,8 @@ class VibrationRollerStateMachine(StateMachine):
             future.add_done_callback(self.navigator.cancel_done)
         return
 
+    def on_navigation_done(self):
+        time.sleep(2)
 
 class Navigator(Node):
 
