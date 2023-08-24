@@ -16,6 +16,8 @@ setup(
             ['package.xml']\
             + glob('resource/*.json')\
             + glob('resource/*.dbc')),
+        # Include all launch files.
+        (os.path.join('share', package_name, 'launch'), glob(os.path.join('launch', '*launch.[pxy][yma]*')))
     ],
     install_requires=['setuptools'],
     zip_safe=True,
