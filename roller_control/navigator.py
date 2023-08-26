@@ -73,8 +73,6 @@ class VibrationRollerStateMachine(StateMachine):
             future.add_done_callback(self.navigator.cancel_done)
         return
 
-    def on_navigation_done(self):
-        time.sleep(2)
 
 class Navigator(Node):
 
