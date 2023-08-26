@@ -41,6 +41,16 @@ class RollerControlUI(QDialog):
         self.ui.pushButtonStop.clicked.connect(self.clickControlling)
         self.ui.pushButtonEStop.clicked.connect(self.clickControlling)
         self.ui.pushButtonRepeat.clicked.connect(self.clickControlling)
+        self.ui.radioButtonVibrationOff.clicked.connect(self.clickVibration)
+        self.ui.radioButtonVibrationHigh.clicked.connect(self.clickVibration)
+        self.ui.radioButtonVibrationLow.clicked.connect(self.clickVibration)
+        self.ui.radioButtonHornOff.clicked.connect(self.clickHorn)
+        self.ui.radioButtonHornOn.clicked.connect(self.clickHorn)
+        self.ui.radioButtonTravelForwardUphill.clicked.connect(self.clickTravel)
+        self.ui.radioButtonTravelRabbit.clicked.connect(self.clickTravel)
+        self.ui.radioButtonTravelRamp.clicked.connect(self.clickTravel)
+        self.ui.radioButtonTravelReverseUphill.clicked.connect(self.clickTravel)
+        self.ui.radioButtonTravelTurtle.clicked.connect(self.clickTravel)
 
     def initROS(self):
         rclpy.init(args=None)
@@ -95,6 +105,41 @@ class RollerControlUI(QDialog):
                 self.cmd_motion.data = 'REPEAT ON'
             else:
                 self.cmd_motion.data = 'REPEAT OFF'
+        self.publish_commands()
+
+    def clickVibration(self):
+        button = self.sender()
+
+        if button == self.ui.radioButtonVibrationHigh:
+            self.cmd_motion.data = 'VIBRATION HIGH'
+        elif button == self.ui.radioButtonVibrationLow:
+            self.cmd_motion.data = 'VIBRATION LOW'
+        else:
+            self.cmd_motion.data = 'VIBRATION OFF'
+        self.publish_commands()
+
+    def clickHorn(self):
+        button = self.sender()
+
+        if button == self.ui.radioButtonHornOn:
+            self.cmd_motion.data = 'HORN ON'
+        else:
+            self.cmd_motion.data = 'HORN OFF'
+        self.publish_commands()
+
+    def clickTravel(self):
+        button = self.sender()
+
+        if button == self.ui.radioButtonTravelRamp:
+            self.cmd_motion.data = 'TRAVEL RAMP'
+        elif button == self.ui.radioButtonTravelForwardUphill:
+            self.cmd_motion.data = 'TRAVEL F UPHILL'
+        elif button == self.ui.radioButtonTravelReverseUphill:
+            self.cmd_motion.data = 'TRAVEL R UPHILL'
+        elif button == self.ui.radioButtonTravelRabbit:
+            self.cmd_motion.data = 'TRAVEL RABBIT'
+        else:
+            self.cmd_motion.data = 'TRAVEL TURTLE'
         self.publish_commands()
 
     def publish_commands(self):

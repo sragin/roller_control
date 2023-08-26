@@ -286,6 +286,262 @@ Repeat</string>
      </item>
     </layout>
    </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_6">
+     <item>
+      <widget class="QGroupBox" name="groupBox_3">
+       <property name="font">
+        <font>
+         <family>DejaVu Sans Mono</family>
+         <pointsize>16</pointsize>
+        </font>
+       </property>
+       <property name="title">
+        <string>Vibration</string>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_7">
+        <item>
+         <widget class="QRadioButton" name="radioButtonVibrationOff">
+          <property name="font">
+           <font>
+            <family>DejaVu Sans Mono</family>
+            <pointsize>14</pointsize>
+           </font>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">QRadioButton::indicator
+{
+	width : 30px;
+	height : 30px;
+}</string>
+          </property>
+          <property name="text">
+           <string>Off</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="radioButtonVibrationLow">
+          <property name="font">
+           <font>
+            <family>DejaVu Sans Mono</family>
+            <pointsize>14</pointsize>
+           </font>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">QRadioButton::indicator
+{
+	width : 30px;
+	height : 30px;
+}</string>
+          </property>
+          <property name="text">
+           <string>Low</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="radioButtonVibrationHigh">
+          <property name="styleSheet">
+           <string notr="true">QRadioButton::indicator
+{
+	width : 30px;
+	height : 30px;
+}</string>
+          </property>
+          <property name="text">
+           <string>High</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <widget class="QGroupBox" name="groupBox_4">
+       <property name="font">
+        <font>
+         <family>DejaVu Sans Mono</family>
+         <pointsize>16</pointsize>
+        </font>
+       </property>
+       <property name="title">
+        <string>Horn</string>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_8">
+        <item>
+         <widget class="QRadioButton" name="radioButtonHornOff">
+          <property name="font">
+           <font>
+            <family>DejaVu Sans Mono</family>
+            <pointsize>14</pointsize>
+           </font>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">QRadioButton::indicator
+{
+	width : 30px;
+	height : 30px;
+}</string>
+          </property>
+          <property name="text">
+           <string>Off</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="radioButtonHornOn">
+          <property name="font">
+           <font>
+            <family>DejaVu Sans Mono</family>
+            <pointsize>14</pointsize>
+           </font>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">QRadioButton::indicator
+{
+	width : 30px;
+	height : 30px;
+}</string>
+          </property>
+          <property name="text">
+           <string>On</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_10">
+     <item>
+      <widget class="QGroupBox" name="groupBox_6">
+       <property name="font">
+        <font>
+         <family>DejaVu Sans Mono</family>
+         <pointsize>16</pointsize>
+        </font>
+       </property>
+       <property name="title">
+        <string>Travel Mode</string>
+       </property>
+       <layout class="QGridLayout" name="gridLayout">
+        <item row="0" column="0">
+         <widget class="QRadioButton" name="radioButtonTravelRamp">
+          <property name="font">
+           <font>
+            <family>DejaVu Sans Mono</family>
+            <pointsize>14</pointsize>
+           </font>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">QRadioButton::indicator
+{
+	width : 24px;
+	height : 24px;
+}</string>
+          </property>
+          <property name="text">
+           <string>Ramp</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QRadioButton" name="radioButtonTravelTurtle">
+          <property name="font">
+           <font>
+            <family>DejaVu Sans Mono</family>
+            <pointsize>14</pointsize>
+           </font>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">QRadioButton::indicator
+{
+	width : 24px;
+	height : 24px;
+}</string>
+          </property>
+          <property name="text">
+           <string>Turtle</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QRadioButton" name="radioButtonTravelForwardUphill">
+          <property name="font">
+           <font>
+            <family>DejaVu Sans Mono</family>
+            <pointsize>14</pointsize>
+           </font>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">QRadioButton::indicator
+{
+	width : 24px;
+	height : 24px;
+}</string>
+          </property>
+          <property name="text">
+           <string>Forward uphill</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QRadioButton" name="radioButtonTravelReverseUphill">
+          <property name="font">
+           <font>
+            <family>DejaVu Sans Mono</family>
+            <pointsize>14</pointsize>
+           </font>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">QRadioButton::indicator
+{
+	width : 24px;
+	height : 24px;
+}</string>
+          </property>
+          <property name="text">
+           <string>Reverse uphill</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QRadioButton" name="radioButtonTravelRabbit">
+          <property name="font">
+           <font>
+            <family>DejaVu Sans Mono</family>
+            <pointsize>14</pointsize>
+           </font>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">QRadioButton::indicator
+{
+	width : 24px;
+	height : 24px;
+}</string>
+          </property>
+          <property name="text">
+           <string>Rabbit</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+    </layout>
+   </item>
   </layout>
  </widget>
  <resources/>

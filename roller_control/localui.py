@@ -174,6 +174,158 @@ class Ui_Dialog(object):
         self.horizontalLayout_5.addWidget(self.pushButtonEStop)
         self.horizontalLayout_3.addWidget(self.groupBox_2)
         self.verticalLayout.addLayout(self.horizontalLayout_3)
+        self.horizontalLayout_6 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_6.setObjectName("horizontalLayout_6")
+        self.groupBox_3 = QtWidgets.QGroupBox(Dialog)
+        font = QtGui.QFont()
+        font.setFamily("DejaVu Sans Mono")
+        font.setPointSize(16)
+        self.groupBox_3.setFont(font)
+        self.groupBox_3.setObjectName("groupBox_3")
+        self.horizontalLayout_7 = QtWidgets.QHBoxLayout(self.groupBox_3)
+        self.horizontalLayout_7.setObjectName("horizontalLayout_7")
+        self.radioButtonVibrationOff = QtWidgets.QRadioButton(self.groupBox_3)
+        font = QtGui.QFont()
+        font.setFamily("DejaVu Sans Mono")
+        font.setPointSize(14)
+        self.radioButtonVibrationOff.setFont(font)
+        self.radioButtonVibrationOff.setStyleSheet("QRadioButton::indicator\n"
+"{\n"
+"    width : 30px;\n"
+"    height : 30px;\n"
+"}")
+        self.radioButtonVibrationOff.setChecked(True)
+        self.radioButtonVibrationOff.setObjectName("radioButtonVibrationOff")
+        self.horizontalLayout_7.addWidget(self.radioButtonVibrationOff)
+        self.radioButtonVibrationLow = QtWidgets.QRadioButton(self.groupBox_3)
+        font = QtGui.QFont()
+        font.setFamily("DejaVu Sans Mono")
+        font.setPointSize(14)
+        self.radioButtonVibrationLow.setFont(font)
+        self.radioButtonVibrationLow.setStyleSheet("QRadioButton::indicator\n"
+"{\n"
+"    width : 30px;\n"
+"    height : 30px;\n"
+"}")
+        self.radioButtonVibrationLow.setObjectName("radioButtonVibrationLow")
+        self.horizontalLayout_7.addWidget(self.radioButtonVibrationLow)
+        self.radioButtonVibrationHigh = QtWidgets.QRadioButton(self.groupBox_3)
+        self.radioButtonVibrationHigh.setStyleSheet("QRadioButton::indicator\n"
+"{\n"
+"    width : 30px;\n"
+"    height : 30px;\n"
+"}")
+        self.radioButtonVibrationHigh.setObjectName("radioButtonVibrationHigh")
+        self.horizontalLayout_7.addWidget(self.radioButtonVibrationHigh)
+        self.horizontalLayout_6.addWidget(self.groupBox_3)
+        self.groupBox_4 = QtWidgets.QGroupBox(Dialog)
+        font = QtGui.QFont()
+        font.setFamily("DejaVu Sans Mono")
+        font.setPointSize(16)
+        self.groupBox_4.setFont(font)
+        self.groupBox_4.setObjectName("groupBox_4")
+        self.horizontalLayout_8 = QtWidgets.QHBoxLayout(self.groupBox_4)
+        self.horizontalLayout_8.setObjectName("horizontalLayout_8")
+        self.radioButtonHornOff = QtWidgets.QRadioButton(self.groupBox_4)
+        font = QtGui.QFont()
+        font.setFamily("DejaVu Sans Mono")
+        font.setPointSize(14)
+        self.radioButtonHornOff.setFont(font)
+        self.radioButtonHornOff.setStyleSheet("QRadioButton::indicator\n"
+"{\n"
+"    width : 30px;\n"
+"    height : 30px;\n"
+"}")
+        self.radioButtonHornOff.setChecked(True)
+        self.radioButtonHornOff.setObjectName("radioButtonHornOff")
+        self.horizontalLayout_8.addWidget(self.radioButtonHornOff)
+        self.radioButtonHornOn = QtWidgets.QRadioButton(self.groupBox_4)
+        font = QtGui.QFont()
+        font.setFamily("DejaVu Sans Mono")
+        font.setPointSize(14)
+        self.radioButtonHornOn.setFont(font)
+        self.radioButtonHornOn.setStyleSheet("QRadioButton::indicator\n"
+"{\n"
+"    width : 30px;\n"
+"    height : 30px;\n"
+"}")
+        self.radioButtonHornOn.setObjectName("radioButtonHornOn")
+        self.horizontalLayout_8.addWidget(self.radioButtonHornOn)
+        self.horizontalLayout_6.addWidget(self.groupBox_4)
+        self.verticalLayout.addLayout(self.horizontalLayout_6)
+        self.horizontalLayout_10 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_10.setObjectName("horizontalLayout_10")
+        self.groupBox_6 = QtWidgets.QGroupBox(Dialog)
+        font = QtGui.QFont()
+        font.setFamily("DejaVu Sans Mono")
+        font.setPointSize(16)
+        self.groupBox_6.setFont(font)
+        self.groupBox_6.setObjectName("groupBox_6")
+        self.gridLayout = QtWidgets.QGridLayout(self.groupBox_6)
+        self.gridLayout.setObjectName("gridLayout")
+        self.radioButtonTravelRamp = QtWidgets.QRadioButton(self.groupBox_6)
+        font = QtGui.QFont()
+        font.setFamily("DejaVu Sans Mono")
+        font.setPointSize(14)
+        self.radioButtonTravelRamp.setFont(font)
+        self.radioButtonTravelRamp.setStyleSheet("QRadioButton::indicator\n"
+"{\n"
+"    width : 24px;\n"
+"    height : 24px;\n"
+"}")
+        self.radioButtonTravelRamp.setObjectName("radioButtonTravelRamp")
+        self.gridLayout.addWidget(self.radioButtonTravelRamp, 0, 0, 1, 1)
+        self.radioButtonTravelTurtle = QtWidgets.QRadioButton(self.groupBox_6)
+        font = QtGui.QFont()
+        font.setFamily("DejaVu Sans Mono")
+        font.setPointSize(14)
+        self.radioButtonTravelTurtle.setFont(font)
+        self.radioButtonTravelTurtle.setStyleSheet("QRadioButton::indicator\n"
+"{\n"
+"    width : 24px;\n"
+"    height : 24px;\n"
+"}")
+        self.radioButtonTravelTurtle.setChecked(True)
+        self.radioButtonTravelTurtle.setObjectName("radioButtonTravelTurtle")
+        self.gridLayout.addWidget(self.radioButtonTravelTurtle, 0, 1, 1, 1)
+        self.radioButtonTravelForwardUphill = QtWidgets.QRadioButton(self.groupBox_6)
+        font = QtGui.QFont()
+        font.setFamily("DejaVu Sans Mono")
+        font.setPointSize(14)
+        self.radioButtonTravelForwardUphill.setFont(font)
+        self.radioButtonTravelForwardUphill.setStyleSheet("QRadioButton::indicator\n"
+"{\n"
+"    width : 24px;\n"
+"    height : 24px;\n"
+"}")
+        self.radioButtonTravelForwardUphill.setObjectName("radioButtonTravelForwardUphill")
+        self.gridLayout.addWidget(self.radioButtonTravelForwardUphill, 1, 0, 1, 1)
+        self.radioButtonTravelReverseUphill = QtWidgets.QRadioButton(self.groupBox_6)
+        font = QtGui.QFont()
+        font.setFamily("DejaVu Sans Mono")
+        font.setPointSize(14)
+        self.radioButtonTravelReverseUphill.setFont(font)
+        self.radioButtonTravelReverseUphill.setStyleSheet("QRadioButton::indicator\n"
+"{\n"
+"    width : 24px;\n"
+"    height : 24px;\n"
+"}")
+        self.radioButtonTravelReverseUphill.setObjectName("radioButtonTravelReverseUphill")
+        self.gridLayout.addWidget(self.radioButtonTravelReverseUphill, 1, 1, 1, 1)
+        self.radioButtonTravelRabbit = QtWidgets.QRadioButton(self.groupBox_6)
+        font = QtGui.QFont()
+        font.setFamily("DejaVu Sans Mono")
+        font.setPointSize(14)
+        self.radioButtonTravelRabbit.setFont(font)
+        self.radioButtonTravelRabbit.setStyleSheet("QRadioButton::indicator\n"
+"{\n"
+"    width : 24px;\n"
+"    height : 24px;\n"
+"}")
+        self.radioButtonTravelRabbit.setObjectName("radioButtonTravelRabbit")
+        self.gridLayout.addWidget(self.radioButtonTravelRabbit, 2, 0, 1, 1)
+        self.horizontalLayout_10.addWidget(self.groupBox_6)
+        self.verticalLayout.addLayout(self.horizontalLayout_10)
 
         self.retranslateUi(Dialog)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
@@ -194,3 +346,16 @@ class Ui_Dialog(object):
         self.pushButtonStartTask.setText(_translate("Dialog", "Start"))
         self.pushButtonStop.setText(_translate("Dialog", "Stop"))
         self.pushButtonEStop.setText(_translate("Dialog", "E-STOP"))
+        self.groupBox_3.setTitle(_translate("Dialog", "Vibration"))
+        self.radioButtonVibrationOff.setText(_translate("Dialog", "Off"))
+        self.radioButtonVibrationLow.setText(_translate("Dialog", "Low"))
+        self.radioButtonVibrationHigh.setText(_translate("Dialog", "High"))
+        self.groupBox_4.setTitle(_translate("Dialog", "Horn"))
+        self.radioButtonHornOff.setText(_translate("Dialog", "Off"))
+        self.radioButtonHornOn.setText(_translate("Dialog", "On"))
+        self.groupBox_6.setTitle(_translate("Dialog", "Travel Mode"))
+        self.radioButtonTravelRamp.setText(_translate("Dialog", "Ramp"))
+        self.radioButtonTravelTurtle.setText(_translate("Dialog", "Turtle"))
+        self.radioButtonTravelForwardUphill.setText(_translate("Dialog", "Forward uphill"))
+        self.radioButtonTravelReverseUphill.setText(_translate("Dialog", "Reverse uphill"))
+        self.radioButtonTravelRabbit.setText(_translate("Dialog", "Rabbit"))
