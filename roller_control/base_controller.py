@@ -27,7 +27,7 @@ class BaseController(Node):
         self.get_logger().info(f'{self.nodeName} started')
 
         self.candb_controller = cantools.db.load_file(
-            get_package_share_directory('roller_control') + '/Controller_230518.dbc')
+            get_package_share_directory('roller_control') + '/Controller_230823.dbc')
         self.can_msg_control = self.candb_controller.get_message_by_name('CONTROLLER_COMM')
         self.candb_commandsv = cantools.db.load_file(
             get_package_share_directory('roller_control') + '/ToSupervisor_210430.dbc')
@@ -55,6 +55,7 @@ class BaseController(Node):
         self.create_timer(CONTROL_PERIOD, self.velocity_controller)
         self.create_timer(CONTROL_PERIOD, self.steering_controller)
         self.create_timer(CONTROL_PERIOD, self.send_cancommand)
+        self.vibration_timer = self.create_timer(1.0, self.vibration_control_off)
 
         self.cmd_drv_vel = 0.
         self.cmd_steer_pos = 0.
@@ -69,6 +70,10 @@ class BaseController(Node):
         self.steer_filter = LowPassFilter(1, CONTROL_PERIOD)
         self.vel_filter = LowPassFilter(0.2, CONTROL_PERIOD)
         self.mode = 0
+        self.horn = 0
+        self.vibration_mode = 0
+        self.vibration_control = 0
+        self.travel_mode = 0
 
         self.roller_status = RollerStatus()
         self.last_steer = 0.
@@ -110,12 +115,45 @@ class BaseController(Node):
         self.get_logger().info(
             f'Steer cmd: {self.cmd_steer_pos :.2f} cur: {cur_steer :.3f} valve out: {out :.2f}')
 
-    def recieve_motioncmd(self, msg):
+    def recieve_motioncmd(self, msg: String):
         self.get_logger().info(f'{msg}')
         if msg.data == 'MANUAL':
             self.mode = 0
         elif msg.data == 'AUTO':
             self.mode = 1
+        elif 'HORN' in msg.data:
+            if msg.data[len('HORN '):] == 'ON':
+                self.horn = 1
+            else:
+                self.horn = 0
+        elif msg.data == 'HORN OFF':
+            self.horn = 0
+        elif 'VIBRATION' in msg.data:
+            if msg.data[len('VIBRATION '):] == 'HIGH':
+                self.vibration_mode = 2
+                self.vibration_control = 1
+                if self.vibration_timer.is_canceled():
+                    self.vibration_timer.reset()
+            elif msg.data[len('VIBRATION '):] == 'LOW':
+                self.vibration_mode = 1
+                self.vibration_control = 1
+                if self.vibration_timer.is_canceled():
+                    self.vibration_timer.reset()
+            else:
+                self.vibration_mode = 0
+                self.vibration_control = 0
+                self.vibration_timer.cancel()
+        elif 'TRAVEL' in msg.data:
+            if msg.data[len('TRAVEL '):] == 'RAMP':
+                self.travel_mode = 1
+            elif msg.data[len('TRAVEL '):] == 'F UPHILL':
+                self.travel_mode = 2
+            elif msg.data[len('TRAVEL '):] == 'R UPHILL':
+                self.travel_mode = 3
+            elif msg.data[len('TRAVEL '):] == 'RABBIT':
+                self.travel_mode = 4
+            else:
+                self.travel_mode = 0
 
     def send_cancommand(self):
         commandsv = self.can_msg_commandsv.encode(
@@ -137,11 +175,15 @@ class BaseController(Node):
         else:
             left = 0.
             right = 0.
-        data = self.can_msg_control.encode(
-            {'LEFT_DUTY_CONTROL': left,
-             'RIGHT_DUTY_CONTROL': right,
-             'AUTO_SPD_CONTROL': self.out_velocity,
-             'UNUSED_CONTROL': 0})
+        data = self.can_msg_control.encode({
+            'LEFT_DUTY_CONTROL': left,
+            'RIGHT_DUTY_CONTROL': right,
+            'AUTO_SPD_CONTROL': self.out_velocity,
+            'VIB_MODE': self.vibration_mode,
+            'VIB_CONTROL': self.vibration_control,
+            'DRV_MODE': self.travel_mode,
+            'HORN': self.horn,
+            'RESERVED': 0})
         control_msg = Frame()
         control_msg.id = self.can_msg_control.frame_id
         for i in range(8):
@@ -150,16 +192,20 @@ class BaseController(Node):
         control_msg.dlc = self.can_msg_control.length
         self.publisher_.publish(control_msg)
 
-        if self.count == self.log_display_cnt:
-            # self.get_logger().warning(f'Controller Command id: {control_msg.id}'
-            #   ' data: {control_msg.data}')
+        # if self.count == self.log_display_cnt:
+        self.get_logger().warning(f'Controller Command id: {control_msg.id}'
+                                  f' data: {control_msg.data}')
             # self.get_logger().warning(f'Supervisor Command id: {cmdsv_msg.id}'
             #   f' data: {cmdsv_msg.data}')
             # self.get_logger().info(f'Velocity cmd: {self.cmd_drv_vel} out: {self.out_velocity}')
             # self.get_logger().info(f'Steering cmd: {self.cmd_steer_vel}'
             #   ' out: {self.out_steering}')
-            self.count = 0
-        self.count += 1
+        #     self.count = 0
+        # self.count += 1
+
+    def vibration_control_off(self):
+        self.vibration_control = 0
+        self.vibration_timer.cancel()
 
 
 class PID():
