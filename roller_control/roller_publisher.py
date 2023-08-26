@@ -9,6 +9,7 @@ from ament_index_python import get_package_share_directory
 from can_msgs.msg import Frame
 import cantools
 from msg_gps_interface.msg import GPSMsg
+from msg_gps_interface.msg import GPSMsgAtt
 import numpy as np
 import rclpy
 from rclpy.node import Node
@@ -27,16 +28,20 @@ class RollerPublisher(Node):
             cantools.db.load_file(
                 get_package_share_directory('roller_control') + '/ToSupervisor_210430.dbc')
         self.can_msg_response = self.candb_autobox_to_supervisor.get_message_by_name('Response')
-        self.can_msg_drum_pos = \
-            self.candb_autobox_to_supervisor.get_message_by_name('Drum_Position')
-        self.can_msg_drum_ori = \
-            self.candb_autobox_to_supervisor.get_message_by_name('Drum_Orientation')
-        self.can_msg_commandsv = self.candb_autobox_to_supervisor.get_message_by_name('Command_SV')
+        self.candb_remotestation_to_autobox = \
+            cantools.db.load_file(
+                get_package_share_directory('roller_control') + '/Remote_station_230823.dbc')
 
         self.can_msg_subscriber = self.create_subscription(
             Frame,
             'from_can_bus',
             self.recv_autobox_state,
+            qos_profile
+        )
+        self.can_msg_subscriber = self.create_subscription(
+            Frame,
+            'from_can_bus1',
+            self.recv_remotestation_cmd,
             qos_profile
         )
         self.gps_msg_subscriber = self.create_subscription(
@@ -45,7 +50,14 @@ class RollerPublisher(Node):
             self.recv_gpsmsg,
             qos_profile
         )
+        self.gps_msg_subscriber = self.create_subscription(
+            GPSMsgAtt,
+            'gps_msg',
+            self.recv_gpsmsgatt,
+            qos_profile
+        )
         self.canbus_publisher = self.create_publisher(Frame, 'to_can_bus', qos_profile)
+        self.canbus1_publisher = self.create_publisher(Frame, 'to_can_bus1', qos_profile)
         self.roller_status_publisher = \
             self.create_publisher(RollerStatus, 'roller_status', qos_profile)
 
@@ -56,6 +68,9 @@ class RollerPublisher(Node):
         self.position = [0., 0.]  # position X(N), Y(E)
         self.response = [0, 0]
         self.speed = 0.0
+        self.heading = 0.0
+        self.roll = 0.0
+        self.pitch = 0.0
 
         # 소부연 테스트베드 원점. 임의로 정한값임. 수준점 측량 후 변경해줘야 함)
         self.basepoint = [371262.716, 159079.566]
@@ -77,6 +92,14 @@ class RollerPublisher(Node):
         self.theta = (-msg.heading + 90) / 180 * np.pi  # 헤딩각과 조향각 방향 맞춤. East를 0도로 변경
         self.theta = normalize_angle(self.theta)
         self.speed = msg.speed * 1000 / 3600  # km/h - m/s 단위변환
+        self.heading = msg.heading
+
+    def recv_gpsmsgatt(self, msg: GPSMsgAtt):
+        self.roll = msg.roll
+        self.pitch = msg.pitch
+
+    def recv_remotestation_cmd(self, msg: Frame):
+        self.canbus_publisher.publish(msg)
 
     def publish_roller_geometry_msg(self):
         DRUM_LENGTH = 1.405  # 드럼이 BX992 기준점보다 앞서있는 거리. mm 단위
