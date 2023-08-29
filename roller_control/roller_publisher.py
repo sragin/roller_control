@@ -52,7 +52,7 @@ class RollerPublisher(Node):
         )
         self.gps_msg_subscriber = self.create_subscription(
             GPSMsgAtt,
-            'gps_msg',
+            'gps_att_msg',
             self.recv_gpsmsgatt,
             qos_profile
         )
