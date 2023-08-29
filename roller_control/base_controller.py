@@ -125,13 +125,11 @@ class BaseController(Node):
                 self.horn = 1
             else:
                 self.horn = 0
-        elif 'VIBRATION BTN PRESSED' == msg.data:
+        elif 'VIBRATION BTN' in msg.data:
             if msg.data == 'VIBRATION BTN PRESSED':
-                if self.vibration_control == 0:
-                    self.vibration_control = 1
-                else:
-                    self.vibration_control = 0
-            self.get_logger().info(f'vibration control: {self.vibration_control}')
+                self.vibration_control = 1
+            else:
+                self.vibration_control = 0
         elif 'VIBRATION' in msg.data:
             if msg.data[len('VIBRATION '):] == 'HIGH':
                 self.vibration_mode = 2

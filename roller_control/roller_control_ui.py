@@ -45,6 +45,7 @@ class RollerControlUI(QDialog):
         self.ui.radioButtonVibrationHigh.clicked.connect(self.clickVibrationMode)
         self.ui.radioButtonVibrationLow.clicked.connect(self.clickVibrationMode)
         self.ui.pushButtonVibrationON.pressed.connect(self.clickVibrationOn)
+        self.ui.pushButtonVibrationON.released.connect(self.clickVibrationOn)
         self.ui.pushButtonHornOn.pressed.connect(self.clickHorn)
         self.ui.pushButtonHornOn.released.connect(self.clickHorn)
         self.ui.radioButtonTravelForwardUphill.clicked.connect(self.clickTravel)
