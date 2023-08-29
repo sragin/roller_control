@@ -55,7 +55,6 @@ class BaseController(Node):
         self.create_timer(CONTROL_PERIOD, self.velocity_controller)
         self.create_timer(CONTROL_PERIOD, self.steering_controller)
         self.create_timer(CONTROL_PERIOD, self.send_cancommand)
-        self.vibration_timer = self.create_timer(1.0, self.vibration_control_off)
 
         self.cmd_drv_vel = 0.
         self.cmd_steer_pos = 0.
@@ -126,23 +125,20 @@ class BaseController(Node):
                 self.horn = 1
             else:
                 self.horn = 0
-        elif msg.data == 'HORN OFF':
-            self.horn = 0
+        elif 'VIBRATION BTN PRESSED' == msg.data:
+            if msg.data == 'VIBRATION BTN PRESSED':
+                if self.vibration_control == 0:
+                    self.vibration_control = 1
+                else:
+                    self.vibration_control = 0
+            self.get_logger().info(f'vibration control: {self.vibration_control}')
         elif 'VIBRATION' in msg.data:
             if msg.data[len('VIBRATION '):] == 'HIGH':
                 self.vibration_mode = 2
-                self.vibration_control = 1
-                if self.vibration_timer.is_canceled():
-                    self.vibration_timer.reset()
             elif msg.data[len('VIBRATION '):] == 'LOW':
                 self.vibration_mode = 1
-                self.vibration_control = 1
-                if self.vibration_timer.is_canceled():
-                    self.vibration_timer.reset()
             else:
                 self.vibration_mode = 0
-                self.vibration_control = 0
-                self.vibration_timer.cancel()
         elif 'TRAVEL' in msg.data:
             if msg.data[len('TRAVEL '):] == 'RAMP':
                 self.travel_mode = 1
@@ -175,6 +171,7 @@ class BaseController(Node):
         else:
             left = 0.
             right = 0.
+            
         data = self.can_msg_control.encode({
             'LEFT_DUTY_CONTROL': left,
             'RIGHT_DUTY_CONTROL': right,
@@ -202,10 +199,6 @@ class BaseController(Node):
             #   ' out: {self.out_steering}')
         #     self.count = 0
         # self.count += 1
-
-    def vibration_control_off(self):
-        self.vibration_control = 0
-        self.vibration_timer.cancel()
 
 
 class PID():

@@ -217,6 +217,9 @@ class Ui_Dialog(object):
 "}")
         self.radioButtonVibrationHigh.setObjectName("radioButtonVibrationHigh")
         self.horizontalLayout_7.addWidget(self.radioButtonVibrationHigh)
+        self.pushButtonVibrationON = QtWidgets.QPushButton(self.groupBox_3)
+        self.pushButtonVibrationON.setObjectName("pushButtonVibrationON")
+        self.horizontalLayout_7.addWidget(self.pushButtonVibrationON)
         self.horizontalLayout_6.addWidget(self.groupBox_3)
         self.groupBox_4 = QtWidgets.QGroupBox(Dialog)
         font = QtGui.QFont()
@@ -226,31 +229,9 @@ class Ui_Dialog(object):
         self.groupBox_4.setObjectName("groupBox_4")
         self.horizontalLayout_8 = QtWidgets.QHBoxLayout(self.groupBox_4)
         self.horizontalLayout_8.setObjectName("horizontalLayout_8")
-        self.radioButtonHornOff = QtWidgets.QRadioButton(self.groupBox_4)
-        font = QtGui.QFont()
-        font.setFamily("DejaVu Sans Mono")
-        font.setPointSize(14)
-        self.radioButtonHornOff.setFont(font)
-        self.radioButtonHornOff.setStyleSheet("QRadioButton::indicator\n"
-"{\n"
-"    width : 30px;\n"
-"    height : 30px;\n"
-"}")
-        self.radioButtonHornOff.setChecked(True)
-        self.radioButtonHornOff.setObjectName("radioButtonHornOff")
-        self.horizontalLayout_8.addWidget(self.radioButtonHornOff)
-        self.radioButtonHornOn = QtWidgets.QRadioButton(self.groupBox_4)
-        font = QtGui.QFont()
-        font.setFamily("DejaVu Sans Mono")
-        font.setPointSize(14)
-        self.radioButtonHornOn.setFont(font)
-        self.radioButtonHornOn.setStyleSheet("QRadioButton::indicator\n"
-"{\n"
-"    width : 30px;\n"
-"    height : 30px;\n"
-"}")
-        self.radioButtonHornOn.setObjectName("radioButtonHornOn")
-        self.horizontalLayout_8.addWidget(self.radioButtonHornOn)
+        self.pushButtonHornOn = QtWidgets.QPushButton(self.groupBox_4)
+        self.pushButtonHornOn.setObjectName("pushButtonHornOn")
+        self.horizontalLayout_8.addWidget(self.pushButtonHornOn)
         self.horizontalLayout_6.addWidget(self.groupBox_4)
         self.verticalLayout.addLayout(self.horizontalLayout_6)
         self.horizontalLayout_10 = QtWidgets.QHBoxLayout()
@@ -350,9 +331,9 @@ class Ui_Dialog(object):
         self.radioButtonVibrationOff.setText(_translate("Dialog", "Off"))
         self.radioButtonVibrationLow.setText(_translate("Dialog", "Low"))
         self.radioButtonVibrationHigh.setText(_translate("Dialog", "High"))
+        self.pushButtonVibrationON.setText(_translate("Dialog", "ON"))
         self.groupBox_4.setTitle(_translate("Dialog", "Horn"))
-        self.radioButtonHornOff.setText(_translate("Dialog", "Off"))
-        self.radioButtonHornOn.setText(_translate("Dialog", "On"))
+        self.pushButtonHornOn.setText(_translate("Dialog", "ON"))
         self.groupBox_6.setTitle(_translate("Dialog", "Travel Mode"))
         self.radioButtonTravelRamp.setText(_translate("Dialog", "Ramp"))
         self.radioButtonTravelTurtle.setText(_translate("Dialog", "Turtle"))

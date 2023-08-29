@@ -41,11 +41,12 @@ class RollerControlUI(QDialog):
         self.ui.pushButtonStop.clicked.connect(self.clickControlling)
         self.ui.pushButtonEStop.clicked.connect(self.clickControlling)
         self.ui.pushButtonRepeat.clicked.connect(self.clickControlling)
-        self.ui.radioButtonVibrationOff.clicked.connect(self.clickVibration)
-        self.ui.radioButtonVibrationHigh.clicked.connect(self.clickVibration)
-        self.ui.radioButtonVibrationLow.clicked.connect(self.clickVibration)
-        self.ui.radioButtonHornOff.clicked.connect(self.clickHorn)
-        self.ui.radioButtonHornOn.clicked.connect(self.clickHorn)
+        self.ui.radioButtonVibrationOff.clicked.connect(self.clickVibrationMode)
+        self.ui.radioButtonVibrationHigh.clicked.connect(self.clickVibrationMode)
+        self.ui.radioButtonVibrationLow.clicked.connect(self.clickVibrationMode)
+        self.ui.pushButtonVibrationON.pressed.connect(self.clickVibrationOn)
+        self.ui.pushButtonHornOn.pressed.connect(self.clickHorn)
+        self.ui.pushButtonHornOn.released.connect(self.clickHorn)
         self.ui.radioButtonTravelForwardUphill.clicked.connect(self.clickTravel)
         self.ui.radioButtonTravelRabbit.clicked.connect(self.clickTravel)
         self.ui.radioButtonTravelRamp.clicked.connect(self.clickTravel)
@@ -107,7 +108,7 @@ class RollerControlUI(QDialog):
                 self.cmd_motion.data = 'REPEAT OFF'
         self.publish_commands()
 
-    def clickVibration(self):
+    def clickVibrationMode(self):
         button = self.sender()
 
         if button == self.ui.radioButtonVibrationHigh:
@@ -118,10 +119,19 @@ class RollerControlUI(QDialog):
             self.cmd_motion.data = 'VIBRATION OFF'
         self.publish_commands()
 
+    def clickVibrationOn(self):
+        button = self.sender()
+
+        if button.isDown() == True:
+            self.cmd_motion.data = 'VIBRATION BTN PRESSED'
+        else:
+            self.cmd_motion.data = 'VIBRATION BTN RELEASED'
+        self.publish_commands()
+
     def clickHorn(self):
         button = self.sender()
 
-        if button == self.ui.radioButtonHornOn:
+        if button.isDown() == True:
             self.cmd_motion.data = 'HORN ON'
         else:
             self.cmd_motion.data = 'HORN OFF'
