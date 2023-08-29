@@ -33,26 +33,26 @@ NS_ :
 
 BS_:
 
-BU_: Autobox Controller
+BU_: Controller Remote
 
 
-BO_ 116 CONTROLLER_COMM: 8 Controller
- SG_ LEFT_DUTY_CONTROL : 0|8@1- (1,0) [0|100] "%"  Autobox
- SG_ RIGHT_DUTY_CONTROL : 8|8@1- (1,0) [0|100] "%"  Autobox
- SG_ AUTO_SPD_CONTROL : 16|16@1- (1,0) [-1000|1000] "#"  Autobox
- SG_ VIB_MODE : 32|4@1+ (1,0) [0|15] "#"  Autobox
- SG_ VIB_CONTROL : 36|4@1+ (1,0) [0|15] "#"  Autobox
- SG_ DRV_MODE : 40|4@1+ (1,0) [0|15] "#"  Autobox
- SG_ HORN : 44|4@1+ (1,0) [0|15] "#"  Autobox
- SG_ RESERVED : 48|16@1+ (1,0) [0|65535] "N/A"  Autobox
+BO_ 201 REMOTE_STATION_COMM: 8 Remote
+ SG_ LEFT_DUTY_CONTROL : 0|8@1- (1,0) [0|100] "%"  Controller
+ SG_ RIGHT_DUTY_CONTROL : 8|8@1- (1,0) [0|100] "%"  Controller
+ SG_ AUTO_SPD_CONTROL : 16|16@1- (1,0) [-1000|1000] "#"  Controller
+ SG_ VIB_MODE : 32|4@1+ (1,0) [0|15] "#"  Controller
+ SG_ VIB_CONTROL : 36|4@1+ (1,0) [0|15] "#"  Controller
+ SG_ DRV_MODE : 40|4@1+ (1,0) [0|15] "#"  Controller
+ SG_ HORN : 44|4@1+ (1,0) [0|15] "#"  Controller
+ SG_ RESERVED : 48|16@1+ (1,0) [0|65535] "N/A"  Controller
 
 
 
-CM_ SG_ 116 VIB_MODE "0: Áß¸³, 1: ÀúÁøµ¿, 2: °íÁøµ¿
+CM_ SG_ 201 VIB_MODE "0: ï¿½ß¸ï¿½, 1: ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½, 2: ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 ";
-CM_ SG_ 116 DRV_MODE "0: °ÅºÏÀÌ, 1:»óÂ÷, 2:°æ»çÀüÁø, 3:°æ»çÈÄÁø, 4:Åä³¢
+CM_ SG_ 201 DRV_MODE "0: ï¿½Åºï¿½ï¿½ï¿½, 1:ï¿½ï¿½ï¿½ï¿½, 2:ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½, 3:ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½, 4:ï¿½ä³¢
 ";
-CM_ SG_ 116 HORN "0: ²¨Áü, 1: ÄÑÁü
+CM_ SG_ 201 HORN "0: ï¿½ï¿½ï¿½ï¿½, 1: ï¿½ï¿½ï¿½ï¿½
 ";
 BA_DEF_  "BusType" STRING ;
 BA_DEF_DEF_  "BusType" "";
