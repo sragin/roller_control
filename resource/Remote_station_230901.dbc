@@ -37,12 +37,12 @@ BU_: Remote_station Supervisor
 
 
 BO_ 162 BODY_HEAD_YAW: 4 Supervisor
- SG_ YAW : 16|16@1- (0.1,0) [-180|180] "deg"  Remote_station
- SG_ HEAD : 0|16@1- (0.1,0) [-180|180] "вк"  Remote_station
+ SG_ YAW : 16|16@1- (0.1,0) [-360|360] "deg"  Remote_station
+ SG_ HEAD : 0|16@1- (0.1,0) [-360|360] "вк"  Remote_station
 
 BO_ 163 BODY_ROLL_PITCH: 4 Supervisor
- SG_ PITCH : 16|16@1- (0.1,0) [-180|180] "deg"  Remote_station
- SG_ ROLL : 0|16@1- (0.1,0) [-180|180] "deg"  Remote_station
+ SG_ PITCH : 16|16@1- (0.1,0) [-360|360] "deg"  Remote_station
+ SG_ ROLL : 0|16@1- (0.1,0) [-360|360] "deg"  Remote_station
 
 BO_ 161 BODY_GPS_ALT: 4 Supervisor
  SG_ ALTITUDE : 0|32@1- (0.001,0) [-2000000|2000000] "m"  Remote_station
