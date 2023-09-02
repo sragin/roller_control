@@ -28,9 +28,17 @@ class RollerPublisher(Node):
             cantools.db.load_file(
                 get_package_share_directory('roller_control') + '/ToSupervisor_210430.dbc')
         self.can_msg_response = self.candb_autobox_to_supervisor.get_message_by_name('Response')
-        self.candb_remotestation_to_autobox = \
+        self.candb_remotestation_supervisor = \
             cantools.db.load_file(
-                get_package_share_directory('roller_control') + '/Remote_station_230823.dbc')
+                get_package_share_directory('roller_control') + '/Remote_station_230901.dbc')
+        self.can_msg_bodygps_tostation = \
+            self.candb_remotestation_supervisor.get_message_by_name('BODY_GPS')
+        self.can_msg_bodygpsalt_tostation = \
+            self.candb_remotestation_supervisor.get_message_by_name('BODY_GPS_ALT')
+        self.can_msg_bodyheadyaw_tostation = \
+            self.candb_remotestation_supervisor.get_message_by_name('BODY_HEAD_YAW')
+        self.can_msg_bodyrollpitch_tostation = \
+            self.candb_remotestation_supervisor.get_message_by_name('BODY_ROLL_PITCH')
 
         self.can_msg_subscriber = self.create_subscription(
             Frame,
@@ -40,7 +48,7 @@ class RollerPublisher(Node):
         )
         self.can_msg_subscriber = self.create_subscription(
             Frame,
-            'from_can_bus1',
+            'from_can_bus3',
             self.recv_remotestation_cmd,
             qos_profile
         )
@@ -57,11 +65,12 @@ class RollerPublisher(Node):
             qos_profile
         )
         self.canbus_publisher = self.create_publisher(Frame, 'to_can_bus', qos_profile)
-        self.canbus1_publisher = self.create_publisher(Frame, 'to_can_bus1', qos_profile)
+        self.canbus3_publisher = self.create_publisher(Frame, 'to_can_bus3', qos_profile)
         self.roller_status_publisher = \
             self.create_publisher(RollerStatus, 'roller_status', qos_profile)
 
         self.timer_roller_geometry_msg = self.create_timer(1/50, self.publish_roller_geometry_msg)
+        self.timer_remotestation_response = self.create_timer(1/10, self.publish_remotestation_response)
 
         self.theta = 0.0  # radian. 바디의 헤딩각
         self.steer_angle = 0.0  # radian 스티어링 각도
@@ -93,10 +102,17 @@ class RollerPublisher(Node):
         self.theta = normalize_angle(self.theta)
         self.speed = msg.speed * 1000 / 3600  # km/h - m/s 단위변환
         self.heading = msg.heading
+        self.lat = msg.lat
+        self.lon = msg.lon
+        self.alt = msg.alt
+        self.geo = msg.geo
+        self.tm_x = msg.tm_x
+        self.tm_y = msg.tm_y
 
     def recv_gpsmsgatt(self, msg: GPSMsgAtt):
         self.roll = msg.roll
         self.pitch = msg.pitch
+        self.heading = msg.heading
 
     def recv_remotestation_cmd(self, msg: Frame):
         if msg.id == self.candb_remotestation_to_autobox.get_message_by_name('REMOTE_STATION_COMM').frame_id:
@@ -127,6 +143,54 @@ class RollerPublisher(Node):
                                    f' POS X:{self.position[0] :.3f}, Y:{self.position[1] :.3f}')
             self.count = 0
         self.count += 1
+
+    def publish_remotestation_response(self):
+        data = self.can_msg_bodygps_tostation.encode({
+            'LATITUDE': self.lat,
+            'LONGITUDE': self.lon
+        })
+        msg = Frame()
+        msg.id = self.can_msg_bodygps_tostation.frame_id
+        for i in range(8):
+            msg.data[i] = int(data[i])
+        msg.dlc = self.can_msg_bodygps_tostation.length
+        self.canbus3_publisher.publish(msg)
+        self.get_logger().info(f'BODY GPS {msg}')
+
+        data = self.can_msg_bodygpsalt_tostation.encode({
+            'ALTITUDE': self.alt
+        })
+        msg = Frame()
+        msg.id = self.can_msg_bodygpsalt_tostation.frame_id
+        for i in range(8):
+            msg.data[i] = int(data[i])
+        msg.dlc = self.can_msg_bodygpsalt_tostation.length
+        self.canbus3_publisher.publish(msg)
+        self.get_logger().info(f'BODY GPS ALT {msg}')
+
+        data = self.can_msg_bodyheadyaw_tostation.encode({
+            'HEAD': self.heading,
+            'YAW': self.heading,
+        })
+        msg = Frame()
+        msg.id = self.can_msg_bodyheadyaw_tostation.frame_id
+        for i in range(8):
+            msg.data[i] = int(data[i])
+        msg.dlc = self.can_msg_bodyheadyaw_tostation.length
+        self.canbus3_publisher.publish(msg)
+        self.get_logger().info(f'BODY HEAD YAW {msg}')
+
+        data = self.can_msg_bodyrollpitch_tostation.encode({
+            'ROLL': self.roll,
+            'PITCH': self.pitch,
+        })
+        msg = Frame()
+        msg.id = self.can_msg_bodyrollpitch_tostation.frame_id
+        for i in range(8):
+            msg.data[i] = int(data[i])
+        msg.dlc = self.can_msg_bodyrollpitch_tostation.length
+        self.canbus3_publisher.publish(msg)
+        self.get_logger().info(f'BODY ROLL PITCH {msg}')
 
 
 def normalize_angle(angle):
