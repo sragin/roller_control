@@ -80,6 +80,9 @@ class RollerPublisher(Node):
         self.heading = 0.0
         self.roll = 0.0
         self.pitch = 0.0
+        self.lat = 0.0
+        self.lon = 0.0
+        self.alt = 0.0
 
         # 소부연 테스트베드 원점. 임의로 정한값임. 수준점 측량 후 변경해줘야 함)
         self.basepoint = [371262.716, 159079.566]
