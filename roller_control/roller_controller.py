@@ -6,6 +6,7 @@
 
 from action_msgs.msg import GoalStatus
 from geometry_msgs.msg import Twist
+from math import dist
 import numpy as np
 import rclpy
 from rclpy.action import ActionServer
@@ -22,7 +23,7 @@ import time
 
 from .control_algorithm import MAX_STEER_LIMIT
 from .control_algorithm import stanley_control
-
+import roller_control.velocity_profile as velocity_profile
 CONTROL_PERIOD = 0.1
 
 
@@ -54,6 +55,7 @@ class RollerController(Node):
         )
         self.cmd_vel_publisher = self.create_publisher(Twist, 'cmd_vel', qos_profile)
         self.control_timer = None
+        self.velocity_profiler = None
 
         self.basepoint = [371262.716, 159079.566]
         self.path_json = None
@@ -78,6 +80,7 @@ class RollerController(Node):
     def execute_callback(self, goal_handle: ServerGoalHandle):
         self.get_logger().info('Executing goal')
         feedback_msg = MoveToPosition.Feedback()
+        self.velocity_profiler = velocity_profile.VelocityProfiler(self.cmd_vel)
         self.control_timer = self.create_timer(CONTROL_PERIOD, self.control)
 
         while self.control_timer is not None:
@@ -100,9 +103,9 @@ class RollerController(Node):
         self.map_xs = [p.x for p in goal.path_pose]
         self.map_ys = [p.y for p in goal.path_pose]
         self.map_yaws = [p.theta for p in goal.path_pose]
-        self.cmd_vel = [v.linear.x for v in goal.path_cmd_vel]
+        self.cmd_vel = goal.path_cmd_vel.linear.x
         self.get_logger().info(f'{self.map_xs} {self.map_ys} {self.map_yaws} {self.cmd_vel}')
-        if len(self.map_xs) == len(self.map_ys) == len(self.map_yaws) == len(self.cmd_vel):
+        if len(self.map_xs) == len(self.map_ys) == len(self.map_yaws):
             return GoalResponse.ACCEPT
         else:
             return GoalResponse.REJECT
@@ -119,7 +122,7 @@ class RollerController(Node):
         -X방향(후진주행방향)을 +X방향으로 변환
         왼손좌표계사용 (좌회전:음수, 우회전:양수)
         """
-        vel = self.cmd_vel[0]
+        vel = self.cmd_vel
         theta = self.roller_status.pose.theta
 
         if vel < 0:
@@ -139,7 +142,13 @@ class RollerController(Node):
         steer_cmd = np.clip(steer_, -MAX_STEER_LIMIT, MAX_STEER_LIMIT)
 
         cmd_vel_msg = Twist()
-        cmd_vel_msg.linear.x = self.cmd_vel[min_index_]
+        start_p = (self.map_xs[0], self.map_ys[0])
+        end_p = (self.map_xs[-1], self.map_ys[-1])
+        cur_p = (x, y)
+        dist_moved = dist(start_p, cur_p)
+        dist_togo = dist(cur_p, end_p)
+        vel = self.velocity_profiler.get_simple_trapezoidal_profile_velocity(distance_moved=dist_moved, distance_togo=dist_togo)
+        cmd_vel_msg.linear.x = vel
         cmd_vel_msg.angular.z = steer_cmd
 
         self.get_logger().info(
@@ -154,7 +163,7 @@ class RollerController(Node):
             f'Roller Status = steer angle:{steer_angle * 180 / np.pi :.3f} '
             f'steer_cmd:{steer_cmd * 180 / np.pi :.3f} '
             f'heading:{theta * 180 / np.pi :.3f} '
-            f'cmd_vel:{self.cmd_vel[min_index_]}')
+            f'cmd_vel:{vel}')
 
         if self.check_goal(self.map_xs, self.map_ys, x, y, self.goal_check_error):
             cmd_vel_msg.linear.x = 0.0
@@ -169,10 +178,8 @@ class RollerController(Node):
         y1 = map_ys[-1]
 
         # 거리가 error 보다 작으면 무조건 종료
-        dx = x1 - x
-        dy = y1 - y
-        dist = np.sqrt(dx*dx + dy*dy)
-        if dist < error:
+        dist_togo = dist((x1, y1), (x, y))
+        if dist_togo < error:
             # print('Distance to GOAL is less than error')
             return True
 
