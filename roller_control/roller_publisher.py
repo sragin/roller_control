@@ -48,7 +48,7 @@ class RollerPublisher(Node):
         )
         self.can_msg_subscriber = self.create_subscription(
             Frame,
-            'from_can_bus3',
+            'from_can_bus1',
             self.recv_remotestation_cmd,
             qos_profile
         )
@@ -65,7 +65,7 @@ class RollerPublisher(Node):
             qos_profile
         )
         self.canbus_publisher = self.create_publisher(Frame, 'to_can_bus', qos_profile)
-        self.canbus3_publisher = self.create_publisher(Frame, 'to_can_bus3', qos_profile)
+        self.canbus1_publisher = self.create_publisher(Frame, 'to_can_bus1', qos_profile)
         self.roller_status_publisher = \
             self.create_publisher(RollerStatus, 'roller_status', qos_profile)
 
@@ -157,7 +157,7 @@ class RollerPublisher(Node):
         for i in range(8):
             msg.data[i] = int(data[i])
         msg.dlc = self.can_msg_bodygps_tostation.length
-        self.canbus3_publisher.publish(msg)
+        self.canbus1_publisher.publish(msg)
         self.get_logger().info(f'BODY GPS {msg}')
 
         data = self.can_msg_bodygpsalt_tostation.encode({
@@ -168,7 +168,7 @@ class RollerPublisher(Node):
         msg.dlc = self.can_msg_bodygpsalt_tostation.length
         for i in range(msg.dlc):
             msg.data[i] = int(data[i])
-        self.canbus3_publisher.publish(msg)
+        self.canbus1_publisher.publish(msg)
         self.get_logger().info(f'BODY GPS ALT {msg}')
 
         data = self.can_msg_bodyheadyaw_tostation.encode({
@@ -180,7 +180,7 @@ class RollerPublisher(Node):
         msg.dlc = self.can_msg_bodyheadyaw_tostation.length
         for i in range(msg.dlc):
             msg.data[i] = int(data[i])
-        self.canbus3_publisher.publish(msg)
+        self.canbus1_publisher.publish(msg)
         self.get_logger().info(f'BODY HEAD YAW {msg}')
 
         data = self.can_msg_bodyrollpitch_tostation.encode({
@@ -192,7 +192,7 @@ class RollerPublisher(Node):
         msg.dlc = self.can_msg_bodyrollpitch_tostation.length
         for i in range(msg.dlc):
             msg.data[i] = int(data[i])
-        self.canbus3_publisher.publish(msg)
+        self.canbus1_publisher.publish(msg)
         self.get_logger().info(f'BODY ROLL PITCH {msg}')
 
 
