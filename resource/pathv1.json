@@ -1,0 +1,24 @@
+{
+    "startPoint": {
+          "coordinate": [
+            371395.000,
+            159296.000
+          ],
+          "velocity": 1.2,
+          "heading": -1.570796,
+          "vibration": false,
+          "workMode": "Working",
+          "altitude": 0.0
+    },
+    "endPoint": {
+          "coordinate": [
+            371363.000,
+            159296.000
+          ],
+          "velocity": 0.0,
+          "heading": -1.570796,
+          "vibration": false,
+          "workMode": "Working",
+          "altitude": 0.0
+    }
+}
