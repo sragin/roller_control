@@ -148,6 +148,8 @@ class RollerController(Node):
         dist_moved = dist(start_p, cur_p)
         dist_togo = dist(cur_p, end_p)
         vel = self.velocity_profiler.get_simple_trapezoidal_profile_velocity(distance_moved=dist_moved, distance_togo=dist_togo)
+        if self.cmd_vel < 0:
+            vel = -vel
         cmd_vel_msg.linear.x = vel
         cmd_vel_msg.angular.z = steer_cmd
 
@@ -163,7 +165,9 @@ class RollerController(Node):
             f'Roller Status = steer angle:{steer_angle * 180 / np.pi :.3f} '
             f'steer_cmd:{steer_cmd * 180 / np.pi :.3f} '
             f'heading:{theta * 180 / np.pi :.3f} '
-            f'cmd_vel:{vel}')
+            f'ref_vel: {self.cmd_vel}, cmd_vel:{vel}\n'
+            f'dist_moved: {dist_moved :.3f}, dist_togo:{dist_togo :.3f}'
+        )
 
         if self.check_goal(self.map_xs, self.map_ys, x, y, self.goal_check_error):
             cmd_vel_msg.linear.x = 0.0

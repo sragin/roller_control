@@ -5,21 +5,21 @@ class VelocityProfiler:
     def __init__(self, v_max):
         self.acc_time = 5.0  # sec
         self.dec_time = 5.0  # sec
-        self.v_min = 0.25  # m/s
+        self.v_min = 0.1  # m/s
         self.current_velocity = 0
-        self.v_max = v_max
-        self.acceleration = v_max / self.acc_time
-        self.deceleration = v_max / self.dec_time
-        power_vmax = v_max ** 2
+        self.v_max = abs(v_max)
+        self.acceleration = self.v_max / self.acc_time
+        self.deceleration = self.v_max / self.dec_time
+        power_vmax = self.v_max ** 2
         self.acc_dist = 0.5 * power_vmax / self.acceleration
         self.dec_dist = 0.5 * power_vmax / self.deceleration
 
     def set_maxvel(self, v_max):
         self.current_velocity = 0
-        self.v_max = v_max
-        self.acceleration = v_max / self.acc_time
-        self.deceleration = v_max / self.dec_time
-        power_vmax = v_max ** 2
+        self.v_max = abs(v_max)
+        self.acceleration = self.v_max / self.acc_time
+        self.deceleration = self.v_max / self.dec_time
+        power_vmax = self.v_max ** 2
         self.acc_dist = 0.5 * power_vmax / self.acceleration
         self.dec_dist = 0.5 * power_vmax / self.deceleration
 
