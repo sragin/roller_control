@@ -92,9 +92,7 @@ class Navigator(Node):
         self._action_client = ActionClient(self, MoveToPosition, 'move_to')
 
         self.basepoint = [371262.716, 159079.566]
-        self.is_first_planning = True
         self.planning_index = 0
-        # self.g = self.get_point_from_json()
         self.auto_repeat = False
         self.path_json = None
         self.filename = None
@@ -131,26 +129,19 @@ class Navigator(Node):
             self.path_json = json.load(pathfile)
         self.get_logger().info(f'Path file \'{self.filename.split("/")[-1]}\' has been loaded')
         self.get_logger().info(f'{self.path_json}')
-        self.is_first_planning = True
-        # self.g = self.get_point_from_json()
         self.path_tm_x = self.path_json['tm_x']
         self.path_tm_y = self.path_json['tm_y']
         self.path_vel = self.path_json['vel']
         self.path_heading = self.path_json['heading']
         self.path_dir = self.path_json['dir']
-
-    # def get_point_from_json(self):
-    #     yield self.path_json['startPoint']
-    #     if 'wayPoint' in self.path_json:
-    #         for j in self.path_json['wayPoint']:
-    #             yield self.path_json['wayPoint'][j]
-    #     yield self.path_json['endPoint']
+        self.planning_index = 0
 
     def plan_path(self):
         if self.path_json is None:
             self.get_logger().warn('Select path file first')
             return False
         if self.planning_index >= len(self.path_tm_x) - 1:
+            self.get_logger().warn('Planning done')
             return False
 
         self.map_xs, self.map_ys, self.map_yaws, self.cmd_vel = [], [], [], []
@@ -173,7 +164,7 @@ class Navigator(Node):
             self.map_xs.extend(xs)
             self.map_ys.extend(ys)
             self.map_yaws.extend(yaws)
-            self.cmd_vel.extend([ref_v] * len(self.map_xs))
+            self.cmd_vel.extend([ref_v] * len(xs))
 
             self.planning_index = i + 1
             if self.path_dir[i] != self.path_dir[i+1]:
@@ -184,7 +175,7 @@ class Navigator(Node):
                   f' theta(deg):{self.map_yaws[i]/np.pi*180 :.3f},'
                   f' vel:{self.cmd_vel[i] :.2f}'
             )
-        self.get_logger().info(f'{ref_v} {is_backward} {self.planning_index}')
+        self.get_logger().info(f'backward:{is_backward} point index:{self.planning_index}')
         self.get_logger().info('Path has been loaded.')
         return True
 
