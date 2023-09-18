@@ -56,6 +56,7 @@ class RollerController(Node):
         self.cmd_vel_publisher = self.create_publisher(Twist, 'cmd_vel', qos_profile)
         self.control_timer = None
         self.velocity_profiler = None
+        self.is_cancel_requested = False
 
         self.basepoint = [371262.716, 159079.566]
         self.path_json = None
@@ -74,20 +75,21 @@ class RollerController(Node):
         if msg.data =='E-STOP':
             self.get_logger().info(f'{msg}')
             if self.control_timer is not None:
-                self.control_timer.cancel()
-                self.control_timer = None
+                self.is_cancel_requested = True
+                # self.control_timer.cancel()
+                # self.control_timer = None
 
     def execute_callback(self, goal_handle: ServerGoalHandle):
         self.get_logger().info('Executing goal')
         feedback_msg = MoveToPosition.Feedback()
         self.velocity_profiler = velocity_profile.VelocityProfiler(self.cmd_vel[0])
+        self.is_cancel_requested = False
         self.control_timer = self.create_timer(CONTROL_PERIOD, self.control)
 
         while self.control_timer is not None:
             if goal_handle.is_cancel_requested:
-                self.control_timer.cancel()
-                self.control_timer = None
-            time.sleep(0.1)
+                self.is_cancel_requested = True
+            time.sleep(0.05)
 
         result = MoveToPosition.Result()
         if goal_handle.is_cancel_requested:
@@ -171,7 +173,9 @@ class RollerController(Node):
             f'dist_moved: {dist_moved :.3f}, dist_togo:{dist_togo :.3f}'
         )
 
-        if self.check_goal(self.map_xs, self.map_ys, x, y, self.goal_check_error):
+        done = self.check_goal(self.map_xs, self.map_ys, x, y, self.goal_check_error)
+        cancel_requested = self.is_cancel_requested
+        if done or cancel_requested:
             cmd_vel_msg.linear.x = 0.0
             cmd_vel_msg.angular.z = 0.0
             self.control_timer.cancel()
