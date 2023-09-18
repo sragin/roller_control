@@ -168,12 +168,13 @@ class Navigator(Node):
                         g_x=g_x, g_y=g_y, g_yaw=g_yaw,
                         is_backward=is_backward)
         self.map_xs, self.map_ys, self.map_yaws = p.plan_path()
-        self.cmd_vel = ref_v
+        self.cmd_vel = [ref_v] * len(self.map_xs)
 
-        print(f'v:{ref_v :.2f}')
         for i in range(len(self.map_xs)):
             print(f'x:{self.map_xs[i] :.3f}, y:{self.map_ys[i] :.3f},'
-                  f' theta(deg):{self.map_yaws[i]/np.pi*180 :.3f}')
+                  f' theta(deg):{self.map_yaws[i]/np.pi*180 :.3f},'
+                  f' vel:{self.cmd_vel[i] :.2f}'
+            )
         self.get_logger().debug(f'{ref_v} {is_backward} {s_x :.3f} {s_y :.3f} {g_x :.3f} {g_y :.3f}')
         self.get_logger().info('Path has been loaded.')
         return True
@@ -181,16 +182,18 @@ class Navigator(Node):
     def send_goal(self):
         self.get_logger().info('Sending goal')
         goal_msg = MoveToPosition.Goal()
-        goal_msg.path_pose = []
+        # goal_msg.path_pose = []
         for i in range(len(self.map_xs)):
             pose = Pose2D()
             pose.x = self.map_xs[i]
             pose.y = self.map_ys[i]
             pose.theta = self.map_yaws[i]
             goal_msg.path_pose.append(pose)
-        twist = Twist()
-        twist.linear.x = self.cmd_vel
-        goal_msg.path_cmd_vel = twist
+        # goal_msg.path_cmd_vel = []
+        for v in self.cmd_vel:
+            twist = Twist()
+            twist.linear.x = v
+            goal_msg.path_cmd_vel.append(twist)
 
         self.get_logger().info('Waiting for action server...')
         self._action_client.wait_for_server()

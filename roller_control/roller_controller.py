@@ -80,7 +80,7 @@ class RollerController(Node):
     def execute_callback(self, goal_handle: ServerGoalHandle):
         self.get_logger().info('Executing goal')
         feedback_msg = MoveToPosition.Feedback()
-        self.velocity_profiler = velocity_profile.VelocityProfiler(self.cmd_vel)
+        self.velocity_profiler = velocity_profile.VelocityProfiler(self.cmd_vel[0])
         self.control_timer = self.create_timer(CONTROL_PERIOD, self.control)
 
         while self.control_timer is not None:
@@ -100,12 +100,13 @@ class RollerController(Node):
         return result
 
     def goal_callback(self, goal: MoveToPosition.Goal):
+        self.get_logger().info('Received goal')
         self.map_xs = [p.x for p in goal.path_pose]
         self.map_ys = [p.y for p in goal.path_pose]
         self.map_yaws = [p.theta for p in goal.path_pose]
-        self.cmd_vel = goal.path_cmd_vel.linear.x
+        self.cmd_vel = [v.linear.x for v in goal.path_cmd_vel]
         self.get_logger().info(f'{self.map_xs} {self.map_ys} {self.map_yaws} {self.cmd_vel}')
-        if len(self.map_xs) == len(self.map_ys) == len(self.map_yaws):
+        if len(self.map_xs) == len(self.map_ys) == len(self.map_yaws) == len(self.cmd_vel):
             return GoalResponse.ACCEPT
         else:
             return GoalResponse.REJECT
@@ -122,7 +123,7 @@ class RollerController(Node):
         -X방향(후진주행방향)을 +X방향으로 변환
         왼손좌표계사용 (좌회전:음수, 우회전:양수)
         """
-        vel = self.cmd_vel
+        vel = self.cmd_vel[0]
         theta = self.roller_status.pose.theta
 
         if vel < 0:
@@ -147,10 +148,11 @@ class RollerController(Node):
         cur_p = (x, y)
         dist_moved = dist(start_p, cur_p)
         dist_togo = dist(cur_p, end_p)
-        vel = self.velocity_profiler.get_simple_trapezoidal_profile_velocity(distance_moved=dist_moved, distance_togo=dist_togo)
-        if self.cmd_vel < 0:
-            vel = -vel
-        cmd_vel_msg.linear.x = vel
+        self.velocity_profiler.set_maxvel(abs(self.cmd_vel[min_index_]))
+        vel_cmd = self.velocity_profiler.get_simple_trapezoidal_profile_velocity(dist_moved, dist_togo)
+        if vel < 0:
+            vel_cmd = -vel_cmd
+        cmd_vel_msg.linear.x = vel_cmd
         cmd_vel_msg.angular.z = steer_cmd
 
         self.get_logger().info(
@@ -165,7 +167,7 @@ class RollerController(Node):
             f'Roller Status = steer angle:{steer_angle * 180 / np.pi :.3f} '
             f'steer_cmd:{steer_cmd * 180 / np.pi :.3f} '
             f'heading:{theta * 180 / np.pi :.3f} '
-            f'ref_vel: {self.cmd_vel}, cmd_vel:{vel}\n'
+            f'ref_vel: {self.cmd_vel[min_index_]}, cmd_vel:{vel_cmd :.2f}\n'
             f'dist_moved: {dist_moved :.3f}, dist_togo:{dist_togo :.3f}'
         )
 
