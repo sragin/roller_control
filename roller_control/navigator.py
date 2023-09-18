@@ -93,7 +93,8 @@ class Navigator(Node):
 
         self.basepoint = [371262.716, 159079.566]
         self.is_first_planning = True
-        self.g = self.get_point_from_json()
+        self.planning_index = 0
+        # self.g = self.get_point_from_json()
         self.auto_repeat = False
         self.path_json = None
         self.filename = None
@@ -131,51 +132,59 @@ class Navigator(Node):
         self.get_logger().info(f'Path file \'{self.filename.split("/")[-1]}\' has been loaded')
         self.get_logger().info(f'{self.path_json}')
         self.is_first_planning = True
-        self.g = self.get_point_from_json()
+        # self.g = self.get_point_from_json()
+        self.path_tm_x = self.path_json['tm_x']
+        self.path_tm_y = self.path_json['tm_y']
+        self.path_vel = self.path_json['vel']
+        self.path_heading = self.path_json['heading']
+        self.path_dir = self.path_json['dir']
 
-    def get_point_from_json(self):
-        yield self.path_json['startPoint']
-        if 'wayPoint' in self.path_json:
-            for j in self.path_json['wayPoint']:
-                yield self.path_json['wayPoint'][j]
-        yield self.path_json['endPoint']
+    # def get_point_from_json(self):
+    #     yield self.path_json['startPoint']
+    #     if 'wayPoint' in self.path_json:
+    #         for j in self.path_json['wayPoint']:
+    #             yield self.path_json['wayPoint'][j]
+    #     yield self.path_json['endPoint']
 
     def plan_path(self):
         if self.path_json is None:
             self.get_logger().warn('Select path file first')
             return False
-        try:
-            if self.is_first_planning:
-                self.start_point = next(self.g)
-                self.end_point = next(self.g)
-                self.is_first_planning = False
-            else:
-                self.start_point = self.end_point
-                self.end_point = next(self.g)
-        except StopIteration as e:
-            # print(f'{e} stop iteration')
+        if self.planning_index >= len(self.path_tm_x) - 1:
             return False
-        print(f'{self.start_point["coordinate"]} {self.end_point["coordinate"]}')
-        ref_v = self.start_point['velocity']
-        is_backward = ref_v < 0
-        s_x = self.start_point['coordinate'][1] - self.basepoint[1]
-        s_y = self.start_point['coordinate'][0] - self.basepoint[0]
-        s_yaw = self.start_point['heading']
-        g_x = self.end_point['coordinate'][1] - self.basepoint[1]
-        g_y = self.end_point['coordinate'][0] - self.basepoint[0]
-        g_yaw = self.end_point['heading']
-        p = PathGenerator(s_x=s_x, s_y=s_y, s_yaw=s_yaw,
-                        g_x=g_x, g_y=g_y, g_yaw=g_yaw,
-                        is_backward=is_backward)
-        self.map_xs, self.map_ys, self.map_yaws = p.plan_path()
-        self.cmd_vel = [ref_v] * len(self.map_xs)
+
+        self.map_xs, self.map_ys, self.map_yaws, self.cmd_vel = [], [], [], []
+        while True:
+            i = self.planning_index
+            s_x = self.path_tm_y[i] - self.basepoint[1]
+            s_y = self.path_tm_x[i] - self.basepoint[0]
+            s_yaw = self.path_heading[i]
+            ref_v = self.path_vel[i]
+            is_backward = (self.path_dir[i] == 3)
+            g_x = self.path_tm_y[i+1] - self.basepoint[1]
+            g_y = self.path_tm_x[i+1] - self.basepoint[0]
+            g_yaw = self.path_heading[i+1]
+            print(f'{s_x :.3f},{s_y :.3f} {g_x :.3f},{g_y :.3f}')
+
+            p = PathGenerator(s_x=s_x, s_y=s_y, s_yaw=s_yaw,
+                            g_x=g_x, g_y=g_y, g_yaw=g_yaw,
+                            is_backward=is_backward)
+            xs, ys, yaws = p.plan_path()
+            self.map_xs.extend(xs)
+            self.map_ys.extend(ys)
+            self.map_yaws.extend(yaws)
+            self.cmd_vel.extend([ref_v] * len(self.map_xs))
+
+            self.planning_index = i + 1
+            if self.path_dir[i] != self.path_dir[i+1]:
+                break
 
         for i in range(len(self.map_xs)):
             print(f'x:{self.map_xs[i] :.3f}, y:{self.map_ys[i] :.3f},'
                   f' theta(deg):{self.map_yaws[i]/np.pi*180 :.3f},'
                   f' vel:{self.cmd_vel[i] :.2f}'
             )
-        self.get_logger().debug(f'{ref_v} {is_backward} {s_x :.3f} {s_y :.3f} {g_x :.3f} {g_y :.3f}')
+        self.get_logger().info(f'{ref_v} {is_backward} {self.planning_index}')
         self.get_logger().info('Path has been loaded.')
         return True
 
