@@ -190,8 +190,8 @@ class BaseController(Node):
         # if self.count == self.log_display_cnt:
         self.get_logger().warning(f'Controller Command id: {control_msg.id}'
                                   f' data: {control_msg.data}')
-            # self.get_logger().warning(f'Supervisor Command id: {cmdsv_msg.id}'
-            #   f' data: {cmdsv_msg.data}')
+        self.get_logger().warning(f'Supervisor Command id: {cmdsv_msg.id}' 
+                                  f' data: {cmdsv_msg.data}')
             # self.get_logger().info(f'Velocity cmd: {self.cmd_drv_vel} out: {self.out_velocity}')
             # self.get_logger().info(f'Steering cmd: {self.cmd_steer_vel}'
             #   ' out: {self.out_steering}')
