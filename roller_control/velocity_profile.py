@@ -34,10 +34,10 @@ class VelocityProfiler:
                 vel = self.v_max
         elif self.current_velocity > self.v_max:
             vel = self.current_velocity - self.deceleration * 0.1
-            if vel < self.v_min:
-                vel = self.v_min
         else:
             vel = self.v_max
 
+        if vel < self.v_min:
+            vel = self.v_min
         self.current_velocity = vel
         return vel
