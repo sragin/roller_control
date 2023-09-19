@@ -101,7 +101,7 @@ class Navigator(Node):
     def recieve_motioncmd(self, msg: String):
         self.get_logger().info(f'{msg}')
         try:
-            if msg.data == 'STOP' or msg.data =='E-STOP':
+            if msg.data == 'STOP' or msg.data =='E-STOP' or msg.data == 'MANUAL':
                 self.sm.stop()
             elif 'PATHFILE' in msg.data:
                 self.load_pathfile(msg.data)
