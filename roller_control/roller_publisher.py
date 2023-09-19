@@ -88,7 +88,7 @@ class RollerPublisher(Node):
         self.basepoint = [371262.716, 159079.566]
 
         self.count = 0
-        self.log_display_cnt = 50
+        self.log_display_cnt = 10
 
     def recv_autobox_state(self, msg):
         if msg.id == self.can_msg_response.frame_id:
@@ -158,7 +158,7 @@ class RollerPublisher(Node):
             msg.data[i] = int(data[i])
         msg.dlc = self.can_msg_bodygps_tostation.length
         self.canbus1_publisher.publish(msg)
-        self.get_logger().info(f'BODY GPS {msg}')
+        # self.get_logger().info(f'BODY GPS {msg}')
 
         data = self.can_msg_bodygpsalt_tostation.encode({
             'ALTITUDE': self.alt
@@ -169,7 +169,7 @@ class RollerPublisher(Node):
         for i in range(msg.dlc):
             msg.data[i] = int(data[i])
         self.canbus1_publisher.publish(msg)
-        self.get_logger().info(f'BODY GPS ALT {msg}')
+        # self.get_logger().info(f'BODY GPS ALT {msg}')
 
         data = self.can_msg_bodyheadyaw_tostation.encode({
             'HEAD': self.heading,
@@ -181,7 +181,7 @@ class RollerPublisher(Node):
         for i in range(msg.dlc):
             msg.data[i] = int(data[i])
         self.canbus1_publisher.publish(msg)
-        self.get_logger().info(f'BODY HEAD YAW {msg}')
+        # self.get_logger().info(f'BODY HEAD YAW {msg}')
 
         data = self.can_msg_bodyrollpitch_tostation.encode({
             'ROLL': self.roll,
@@ -193,7 +193,7 @@ class RollerPublisher(Node):
         for i in range(msg.dlc):
             msg.data[i] = int(data[i])
         self.canbus1_publisher.publish(msg)
-        self.get_logger().info(f'BODY ROLL PITCH {msg}')
+        # self.get_logger().info(f'BODY ROLL PITCH {msg}')
 
 
 def normalize_angle(angle):
