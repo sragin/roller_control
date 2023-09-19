@@ -62,7 +62,7 @@ class RollerControlUI(QDialog):
             String,
             'roller_motion_cmd',
             10)
-        self.teloopcmd_publisher = self.node.create_publisher(
+        self.velocitycmd_publisher = self.node.create_publisher(
             Twist,
             'cmd_vel',
             10)
@@ -76,6 +76,7 @@ class RollerControlUI(QDialog):
         elif self.ui.radioButtonManual.isChecked():
             self.cmd_motion.data = 'MANUAL'
         self.publish_commands()
+        self.velocitycmd_publisher.publish(self.cmd_vel)
 
     def clickPlanning(self):
         button = self.sender()
@@ -154,11 +155,8 @@ class RollerControlUI(QDialog):
         self.publish_commands()
 
     def publish_commands(self):
-        self.teloopcmd_publisher.publish(self.cmd_vel)
-        if self.cmd_motion.data != '':
-            self.motioncmd_publisher.publish(self.cmd_motion)
-            self.node.get_logger().info(f'Publishing: {self.cmd_motion.data}')
-
+        self.motioncmd_publisher.publish(self.cmd_motion)
+        self.node.get_logger().info(f'Publishing: {self.cmd_motion.data}')
 
 def main():
     app = QApplication(sys.argv)
