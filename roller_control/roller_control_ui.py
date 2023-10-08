@@ -54,19 +54,17 @@ class RollerControlUI(Node):
     def initUI(self):
         self.tiles = "http://mt0.google.com/vt/lyrs=y&hl=ko&x={x}&y={y}&z={z}"
         self.attr = "Google"
-        latitude = 35.939219  # 위도
-        longitude = 126.548906  # 경도
+        self.lat = 35.939219  # 위도
+        self.lng = 126.548906  # 경도
         self.map = folium.Map(
-            location=[latitude, longitude],
+            location=[self.lat, self.lng],
             max_zoom=30, zoom_start=20,
             tiles=self.tiles, attr=self.attr,
             width=800, height=600
         )
-        folium.Circle(location=[latitude, longitude], radius=1).add_to(self.map)
+        folium.Circle(location=[self.lat, self.lng], radius=1).add_to(self.map)
         self.w = self.ui.webEngineView
         self.w.setHtml(self.map.get_root().render())
-        self.flag_webview_finished = False
-        self.webview_timer = self.create_timer(1, self.update_webview)
 
         self.ui.radioButtonAuto.clicked.connect(self.clickMode)
         self.ui.radioButtonManual.clicked.connect(self.clickMode)
@@ -89,7 +87,15 @@ class RollerControlUI(Node):
         self.ui.radioButtonTravelRamp.clicked.connect(self.clickTravel)
         self.ui.radioButtonTravelReverseUphill.clicked.connect(self.clickTravel)
         self.ui.radioButtonTravelTurtle.clicked.connect(self.clickTravel)
-        self.ui.webEngineView.loadFinished.connect(self.webview_loadFinished)
+
+        # ROS 타이머를 실행시키면 프로그램이 죽음
+        # 다른 쓰레드(ROS 쓰레드)에서 GUI 쓰레드를 변경해서 죽는것 값음
+        # 다행히 QTimer는 GUI 쓰레드에서 돌아가는 것 같음
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.update_webview)
+        self.page = self.ui.webEngineView.page()
+        # self.page.loadFinished.connect(lambda: self.timer.start(2000))
+        self.w.loadFinished.connect(lambda: self.timer.start(2000))
 
     def clickMode(self):
         self.cmd_vel.linear.x = 0.0
@@ -187,26 +193,21 @@ class RollerControlUI(Node):
         self.webview_timer = self.create_timer(1, self.update_webview)
 
     def update_webview(self):
-        print(self.flag_webview_finished, self.lat, self.lon)
-        if self.flag_webview_finished:
-            self.flag_webview_finished = False
-            map = folium.Map(
-                location=[self.lat, self.lon],
-                max_zoom=30, zoom_start=20,
-                tiles=self.tiles, attr=self.attr,
-                width=800, height=600
-            )
-            folium.Circle(location=[self.lat, self.lon], radius=1).add_to(map)
-            self.w.setHtml(map.get_root().render())
-            # page = self.w.page()
-            # page.runJavaScript(f"document.body.innerHTML = '{map.get_root().render()}'")
-        self.webview_timer.cancel()
-
+        self.flag_webview_finished = False
+        map = folium.Map(
+            location=[self.lat, self.lng],
+            max_zoom=30, zoom_start=20,
+            tiles=self.tiles, attr=self.attr,
+            width=800, height=600
+        )
+        folium.Circle(location=[self.lat, self.lng], radius=1).add_to(map)
+        # self.page.setHtml(map.get_root().render())
+        self.w.setHtml(map.get_root().render())
+        self.get_logger().info(f'lat:{self.lat:.6f} lng:{self.lng:.6f}')
 
     def recv_gpsmsg(self, msg: GPSMsg):
         self.lat = msg.lat
-        self.lon = msg.lon
-        # self.get_logger().info(f'lat:{msg.lat:.6f} lng:{msg.lon:.6f}')
+        self.lng = msg.lon
 
 def main():
     rclpy.init(args=None)
@@ -225,7 +226,7 @@ def main():
 
     try:
         HMI.show()
-        sys.exit(app.exec_())
+        sys.exit(app.exec())
     finally:
         hmi_node.get_logger().info('Shutting down GUI node ...')
         hmi_node.destroy_node()

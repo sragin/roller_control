@@ -24,13 +24,13 @@ class Ui_Dialog(object):
     def setupUi(self, Dialog):
         if not Dialog.objectName():
             Dialog.setObjectName(u"Dialog")
-        Dialog.resize(1293, 620)
+        Dialog.resize(1300, 620)
         sizePolicy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(Dialog.sizePolicy().hasHeightForWidth())
         Dialog.setSizePolicy(sizePolicy)
-        Dialog.setMinimumSize(QSize(800, 620))
+        Dialog.setMinimumSize(QSize(1300, 620))
         self.horizontalLayout_10 = QHBoxLayout(Dialog)
         self.horizontalLayout_10.setObjectName(u"horizontalLayout_10")
         self.webEngineView = QWebEngineView(Dialog)
@@ -40,8 +40,13 @@ class Ui_Dialog(object):
 
         self.horizontalLayout_10.addWidget(self.webEngineView)
 
+        self.horizontalSpacer_2 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.horizontalLayout_10.addItem(self.horizontalSpacer_2)
+
         self.verticalLayout_3 = QVBoxLayout()
         self.verticalLayout_3.setObjectName(u"verticalLayout_3")
+        self.verticalLayout_3.setContentsMargins(20, -1, -1, -1)
         self.horizontalLayout = QHBoxLayout()
         self.horizontalLayout.setObjectName(u"horizontalLayout")
         self.radioButtonManual = QRadioButton(Dialog)
