@@ -4,34 +4,70 @@
 # Unauthorized copying of this code base via any medium is strictly prohibited.
 # Proprietary and confidential.
 
-
-import sys
-
 from ament_index_python import get_package_share_directory
+import folium
 from geometry_msgs.msg import Twist
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
+from msg_gps_interface.msg import GPSMsg
+from PySide6.QtCore import *
+from PySide6.QtGui import *
+from PySide6.QtWidgets import *
 import rclpy
+from rclpy.executors import MultiThreadedExecutor
 from rclpy.node import Node
+from rclpy.qos import QoSProfile
 from std_msgs.msg import String
+import sys
+from threading import Thread
 
 from .localui import *
 
 
-class RollerControlUI(QDialog):
+class RollerControlUI(Node):
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, ui:Ui_Dialog):
+        super().__init__('roller_gui')
+        self.nodeName = self.get_name()
+        self.get_logger().info(f'{self.nodeName} started')
+
+        self.ui = ui
         self.initUI()
-        self.initROS()
         self.cmd_vel = Twist()
         self.cmd_motion = String()
 
+        # self.motioncmd_publisher = self.create_publisher(
+        #     String,
+        #     'roller_motion_cmd',
+        #     QoSProfile(depth=10)
+        # )
+        # self.velocitycmd_publisher = self.create_publisher(
+        #     Twist,
+        #     'cmd_vel',
+        #     QoSProfile(depth=10)
+        # )
+        self.gps_msg_subscriber = self.create_subscription(
+            GPSMsg,
+            'gps_msg',
+            self.recv_gpsmsg,
+            QoSProfile(depth=10)
+        )
+
     def initUI(self):
-        self.ui = Ui_Dialog()
-        self.ui.setupUi(self)
-        self.show()
+        self.tiles = "http://mt0.google.com/vt/lyrs=y&hl=ko&x={x}&y={y}&z={z}"
+        self.attr = "Google"
+        latitude = 35.939219  # 위도
+        longitude = 126.548906  # 경도
+        self.map = folium.Map(
+            location=[latitude, longitude],
+            max_zoom=30, zoom_start=20,
+            tiles=self.tiles, attr=self.attr,
+            width=800, height=600
+        )
+        folium.Circle(location=[latitude, longitude], radius=1).add_to(self.map)
+        self.w = self.ui.webEngineView
+        self.w.setHtml(self.map.get_root().render())
+        self.flag_webview_finished = False
+        self.webview_timer = self.create_timer(1, self.update_webview)
+
         self.ui.radioButtonAuto.clicked.connect(self.clickMode)
         self.ui.radioButtonManual.clicked.connect(self.clickMode)
         self.ui.pushButtonLoadPathfile.clicked.connect(self.clickPlanning)
@@ -53,20 +89,7 @@ class RollerControlUI(QDialog):
         self.ui.radioButtonTravelRamp.clicked.connect(self.clickTravel)
         self.ui.radioButtonTravelReverseUphill.clicked.connect(self.clickTravel)
         self.ui.radioButtonTravelTurtle.clicked.connect(self.clickTravel)
-
-    def initROS(self):
-        rclpy.init(args=None)
-        self.node = Node('roller_teleop_key')
-        self.nodeName = self.node.get_name()
-        self.motioncmd_publisher = self.node.create_publisher(
-            String,
-            'roller_motion_cmd',
-            10)
-        self.velocitycmd_publisher = self.node.create_publisher(
-            Twist,
-            'cmd_vel',
-            10)
-        rclpy.spin_once(self.node, timeout_sec=1)
+        self.ui.webEngineView.loadFinished.connect(self.webview_loadFinished)
 
     def clickMode(self):
         self.cmd_vel.linear.x = 0.0
@@ -156,18 +179,57 @@ class RollerControlUI(QDialog):
 
     def publish_commands(self):
         self.motioncmd_publisher.publish(self.cmd_motion)
-        self.node.get_logger().info(f'Publishing: {self.cmd_motion.data}')
+        self.get_logger().info(f'Publishing: {self.cmd_motion.data}')
+
+    def webview_loadFinished(self, ok):
+        self.flag_webview_finished = ok
+        # self.update_webview()
+        self.webview_timer = self.create_timer(1, self.update_webview)
+
+    def update_webview(self):
+        print(self.flag_webview_finished, self.lat, self.lon)
+        if self.flag_webview_finished:
+            self.flag_webview_finished = False
+            map = folium.Map(
+                location=[self.lat, self.lon],
+                max_zoom=30, zoom_start=20,
+                tiles=self.tiles, attr=self.attr,
+                width=800, height=600
+            )
+            folium.Circle(location=[self.lat, self.lon], radius=1).add_to(map)
+            self.w.setHtml(map.get_root().render())
+            # page = self.w.page()
+            # page.runJavaScript(f"document.body.innerHTML = '{map.get_root().render()}'")
+        self.webview_timer.cancel()
+
+
+    def recv_gpsmsg(self, msg: GPSMsg):
+        self.lat = msg.lat
+        self.lon = msg.lon
+        # self.get_logger().info(f'lat:{msg.lat:.6f} lng:{msg.lon:.6f}')
 
 def main():
+    rclpy.init(args=None)
     app = QApplication(sys.argv)
+    HMI = QDialog()
+    ui = Ui_Dialog()
+    ui.setupUi(HMI)
+
+    hmi_node = RollerControlUI(ui)
+    executer = MultiThreadedExecutor()
+    executer.add_node(hmi_node)
+
+    thread = Thread(target=executer.spin)
+    thread.start()
+    hmi_node.get_logger().info("Spinned GUI node . . .")
+
     try:
-        roller = RollerControlUI()
-    except Exception as e:
-        roller.node.get_logger().info(f'{e}')
-        roller.node.get_logger().info('Set all commands to zero')
-        roller.node.destroy_node()
-        rclpy.shutdown()
-    sys.exit(app.exec_())
+        HMI.show()
+        sys.exit(app.exec_())
+    finally:
+        hmi_node.get_logger().info('Shutting down GUI node ...')
+        hmi_node.destroy_node()
+        executer.shutdown()
 
 
 if __name__ == '__main__':

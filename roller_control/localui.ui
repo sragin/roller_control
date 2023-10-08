@@ -6,515 +6,542 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>600</width>
-    <height>500</height>
+    <width>1293</width>
+    <height>620</height>
    </rect>
   </property>
   <property name="sizePolicy">
-   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
   </property>
   <property name="minimumSize">
    <size>
-    <width>600</width>
-    <height>500</height>
+    <width>800</width>
+    <height>620</height>
    </size>
   </property>
   <property name="windowTitle">
    <string>Roller Control GUI</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
+  <layout class="QHBoxLayout" name="horizontalLayout_10">
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout">
+    <widget class="QWebEngineView" name="webEngineView">
+     <property name="minimumSize">
+      <size>
+       <width>800</width>
+       <height>600</height>
+      </size>
+     </property>
+     <property name="url">
+      <url>
+       <string>about:blank</string>
+      </url>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QVBoxLayout" name="verticalLayout_3">
      <item>
-      <widget class="QRadioButton" name="radioButtonManual">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="font">
-        <font>
-         <family>DejaVu Sans Mono</family>
-         <pointsize>14</pointsize>
-        </font>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">QRadioButton::indicator
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <widget class="QRadioButton" name="radioButtonManual">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="font">
+          <font>
+           <family>DejaVu Sans Mono</family>
+           <pointsize>14</pointsize>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">QRadioButton::indicator
 {
 	width : 30px;
 	height : 30px;
 }</string>
-       </property>
-       <property name="text">
-        <string>Manual</string>
-       </property>
-       <property name="checked">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QRadioButton" name="radioButtonAuto">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="font">
-        <font>
-         <family>DejaVu Sans Mono</family>
-         <pointsize>14</pointsize>
-        </font>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">QRadioButton::indicator
+         </property>
+         <property name="text">
+          <string>Manual</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="radioButtonAuto">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="font">
+          <font>
+           <family>DejaVu Sans Mono</family>
+           <pointsize>14</pointsize>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">QRadioButton::indicator
 {
 	width : 30px;
 	height : 30px;
 }</string>
-       </property>
-       <property name="text">
-        <string>Automatic</string>
-       </property>
-      </widget>
+         </property>
+         <property name="text">
+          <string>Automatic</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
      </item>
      <item>
-      <spacer name="horizontalSpacer">
+      <layout class="QHBoxLayout" name="horizontalLayout_11">
+       <item>
+        <widget class="QGroupBox" name="groupBox">
+         <property name="font">
+          <font>
+           <family>DejaVu Sans Mono</family>
+           <pointsize>16</pointsize>
+          </font>
+         </property>
+         <property name="title">
+          <string>Planning</string>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_4">
+          <item>
+           <widget class="QPushButton" name="pushButtonLoadPathfile">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="font">
+             <font>
+              <family>DejaVu Sans Mono</family>
+              <pointsize>14</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>Load Json
+Pathfile</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pushButtonPlanPath">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="font">
+             <font>
+              <family>DejaVu Sans Mono</family>
+              <pointsize>14</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>Plan Path</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pushButtonPlanTask">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="font">
+             <font>
+              <family>DejaVu Sans Mono</family>
+              <pointsize>14</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>Plan Task</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <item>
+        <widget class="QGroupBox" name="groupBox_2">
+         <property name="font">
+          <font>
+           <family>DejaVu Sans Mono</family>
+           <pointsize>16</pointsize>
+          </font>
+         </property>
+         <property name="title">
+          <string>Controlling</string>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_5">
+          <item>
+           <widget class="QPushButton" name="pushButtonRepeat">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="font">
+             <font>
+              <family>DejaVu Sans Mono</family>
+              <pointsize>14</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>Auto
+Repeat</string>
+            </property>
+            <property name="checkable">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pushButtonStartTask">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="font">
+             <font>
+              <family>DejaVu Sans Mono</family>
+              <pointsize>14</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>Start</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pushButtonStop">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="font">
+             <font>
+              <family>DejaVu Sans Mono</family>
+              <pointsize>14</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>Stop</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pushButtonEStop">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="font">
+             <font>
+              <family>DejaVu Sans Mono</family>
+              <pointsize>14</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>E-STOP</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_3">
+       <item>
+        <widget class="QGroupBox" name="groupBox_6">
+         <property name="font">
+          <font>
+           <family>DejaVu Sans Mono</family>
+           <pointsize>16</pointsize>
+          </font>
+         </property>
+         <property name="title">
+          <string>Travel Mode</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout">
+          <item row="0" column="0">
+           <widget class="QRadioButton" name="radioButtonTravelRamp">
+            <property name="font">
+             <font>
+              <family>DejaVu Sans Mono</family>
+              <pointsize>14</pointsize>
+             </font>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">QRadioButton::indicator
+{
+	width : 24px;
+	height : 24px;
+}</string>
+            </property>
+            <property name="text">
+             <string>Ramp</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QRadioButton" name="radioButtonTravelTurtle">
+            <property name="font">
+             <font>
+              <family>DejaVu Sans Mono</family>
+              <pointsize>14</pointsize>
+             </font>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">QRadioButton::indicator
+{
+	width : 24px;
+	height : 24px;
+}</string>
+            </property>
+            <property name="text">
+             <string>Turtle</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QRadioButton" name="radioButtonTravelForwardUphill">
+            <property name="font">
+             <font>
+              <family>DejaVu Sans Mono</family>
+              <pointsize>14</pointsize>
+             </font>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">QRadioButton::indicator
+{
+	width : 24px;
+	height : 24px;
+}</string>
+            </property>
+            <property name="text">
+             <string>Forward uphill</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QRadioButton" name="radioButtonTravelReverseUphill">
+            <property name="font">
+             <font>
+              <family>DejaVu Sans Mono</family>
+              <pointsize>14</pointsize>
+             </font>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">QRadioButton::indicator
+{
+	width : 24px;
+	height : 24px;
+}</string>
+            </property>
+            <property name="text">
+             <string>Reverse uphill</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QRadioButton" name="radioButtonTravelRabbit">
+            <property name="font">
+             <font>
+              <family>DejaVu Sans Mono</family>
+              <pointsize>14</pointsize>
+             </font>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">QRadioButton::indicator
+{
+	width : 24px;
+	height : 24px;
+}</string>
+            </property>
+            <property name="text">
+             <string>Rabbit</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_6">
+       <item>
+        <widget class="QGroupBox" name="groupBox_3">
+         <property name="font">
+          <font>
+           <family>DejaVu Sans Mono</family>
+           <pointsize>16</pointsize>
+          </font>
+         </property>
+         <property name="title">
+          <string>Vibration</string>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_7">
+          <item>
+           <widget class="QRadioButton" name="radioButtonVibrationOff">
+            <property name="font">
+             <font>
+              <family>DejaVu Sans Mono</family>
+              <pointsize>14</pointsize>
+             </font>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">QRadioButton::indicator
+{
+	width : 30px;
+	height : 30px;
+}</string>
+            </property>
+            <property name="text">
+             <string>Off</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="radioButtonVibrationLow">
+            <property name="font">
+             <font>
+              <family>DejaVu Sans Mono</family>
+              <pointsize>14</pointsize>
+             </font>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">QRadioButton::indicator
+{
+	width : 30px;
+	height : 30px;
+}</string>
+            </property>
+            <property name="text">
+             <string>Low</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="radioButtonVibrationHigh">
+            <property name="styleSheet">
+             <string notr="true">QRadioButton::indicator
+{
+	width : 30px;
+	height : 30px;
+}</string>
+            </property>
+            <property name="text">
+             <string>High</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pushButtonVibrationON">
+            <property name="text">
+             <string>ON</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBox_4">
+         <property name="font">
+          <font>
+           <family>DejaVu Sans Mono</family>
+           <pointsize>16</pointsize>
+          </font>
+         </property>
+         <property name="title">
+          <string>Horn</string>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_8">
+          <item>
+           <widget class="QPushButton" name="pushButtonHornOn">
+            <property name="text">
+             <string>ON</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <spacer name="verticalSpacer">
        <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+        <enum>Qt::Vertical</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>
-         <width>40</width>
-         <height>20</height>
+         <width>20</width>
+         <height>40</height>
         </size>
        </property>
       </spacer>
      </item>
     </layout>
    </item>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_2">
-     <item>
-      <widget class="QGroupBox" name="groupBox">
-       <property name="font">
-        <font>
-         <family>DejaVu Sans Mono</family>
-         <pointsize>16</pointsize>
-        </font>
-       </property>
-       <property name="title">
-        <string>Planning</string>
-       </property>
-       <layout class="QHBoxLayout" name="horizontalLayout_4">
-        <item>
-         <widget class="QPushButton" name="pushButtonLoadPathfile">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>40</height>
-           </size>
-          </property>
-          <property name="font">
-           <font>
-            <family>DejaVu Sans Mono</family>
-            <pointsize>14</pointsize>
-           </font>
-          </property>
-          <property name="text">
-           <string>Load Json
-Pathfile</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="pushButtonPlanPath">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="font">
-           <font>
-            <family>DejaVu Sans Mono</family>
-            <pointsize>14</pointsize>
-           </font>
-          </property>
-          <property name="text">
-           <string>Plan Path</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="pushButtonPlanTask">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="font">
-           <font>
-            <family>DejaVu Sans Mono</family>
-            <pointsize>14</pointsize>
-           </font>
-          </property>
-          <property name="text">
-           <string>Plan Task</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_3">
-     <item>
-      <widget class="QGroupBox" name="groupBox_2">
-       <property name="font">
-        <font>
-         <family>DejaVu Sans Mono</family>
-         <pointsize>16</pointsize>
-        </font>
-       </property>
-       <property name="title">
-        <string>Controlling</string>
-       </property>
-       <layout class="QHBoxLayout" name="horizontalLayout_5">
-        <item>
-         <widget class="QPushButton" name="pushButtonRepeat">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="font">
-           <font>
-            <family>DejaVu Sans Mono</family>
-            <pointsize>14</pointsize>
-           </font>
-          </property>
-          <property name="text">
-           <string>Auto
-Repeat</string>
-          </property>
-          <property name="checkable">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="pushButtonStartTask">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>40</height>
-           </size>
-          </property>
-          <property name="font">
-           <font>
-            <family>DejaVu Sans Mono</family>
-            <pointsize>14</pointsize>
-           </font>
-          </property>
-          <property name="text">
-           <string>Start</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="pushButtonStop">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="font">
-           <font>
-            <family>DejaVu Sans Mono</family>
-            <pointsize>14</pointsize>
-           </font>
-          </property>
-          <property name="text">
-           <string>Stop</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="pushButtonEStop">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="font">
-           <font>
-            <family>DejaVu Sans Mono</family>
-            <pointsize>14</pointsize>
-           </font>
-          </property>
-          <property name="text">
-           <string>E-STOP</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_6">
-     <item>
-      <widget class="QGroupBox" name="groupBox_3">
-       <property name="font">
-        <font>
-         <family>DejaVu Sans Mono</family>
-         <pointsize>16</pointsize>
-        </font>
-       </property>
-       <property name="title">
-        <string>Vibration</string>
-       </property>
-       <layout class="QHBoxLayout" name="horizontalLayout_7">
-        <item>
-         <widget class="QRadioButton" name="radioButtonVibrationOff">
-          <property name="font">
-           <font>
-            <family>DejaVu Sans Mono</family>
-            <pointsize>14</pointsize>
-           </font>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">QRadioButton::indicator
-{
-	width : 30px;
-	height : 30px;
-}</string>
-          </property>
-          <property name="text">
-           <string>Off</string>
-          </property>
-          <property name="checked">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QRadioButton" name="radioButtonVibrationLow">
-          <property name="font">
-           <font>
-            <family>DejaVu Sans Mono</family>
-            <pointsize>14</pointsize>
-           </font>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">QRadioButton::indicator
-{
-	width : 30px;
-	height : 30px;
-}</string>
-          </property>
-          <property name="text">
-           <string>Low</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QRadioButton" name="radioButtonVibrationHigh">
-          <property name="styleSheet">
-           <string notr="true">QRadioButton::indicator
-{
-	width : 30px;
-	height : 30px;
-}</string>
-          </property>
-          <property name="text">
-           <string>High</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="pushButtonVibrationON">
-          <property name="text">
-           <string>ON</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-     </item>
-     <item>
-      <widget class="QGroupBox" name="groupBox_4">
-       <property name="font">
-        <font>
-         <family>DejaVu Sans Mono</family>
-         <pointsize>16</pointsize>
-        </font>
-       </property>
-       <property name="title">
-        <string>Horn</string>
-       </property>
-       <layout class="QHBoxLayout" name="horizontalLayout_8">
-        <item>
-         <widget class="QPushButton" name="pushButtonHornOn">
-          <property name="text">
-           <string>ON</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_10">
-     <item>
-      <widget class="QGroupBox" name="groupBox_6">
-       <property name="font">
-        <font>
-         <family>DejaVu Sans Mono</family>
-         <pointsize>16</pointsize>
-        </font>
-       </property>
-       <property name="title">
-        <string>Travel Mode</string>
-       </property>
-       <layout class="QGridLayout" name="gridLayout">
-        <item row="0" column="0">
-         <widget class="QRadioButton" name="radioButtonTravelRamp">
-          <property name="font">
-           <font>
-            <family>DejaVu Sans Mono</family>
-            <pointsize>14</pointsize>
-           </font>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">QRadioButton::indicator
-{
-	width : 24px;
-	height : 24px;
-}</string>
-          </property>
-          <property name="text">
-           <string>Ramp</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1">
-         <widget class="QRadioButton" name="radioButtonTravelTurtle">
-          <property name="font">
-           <font>
-            <family>DejaVu Sans Mono</family>
-            <pointsize>14</pointsize>
-           </font>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">QRadioButton::indicator
-{
-	width : 24px;
-	height : 24px;
-}</string>
-          </property>
-          <property name="text">
-           <string>Turtle</string>
-          </property>
-          <property name="checked">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QRadioButton" name="radioButtonTravelForwardUphill">
-          <property name="font">
-           <font>
-            <family>DejaVu Sans Mono</family>
-            <pointsize>14</pointsize>
-           </font>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">QRadioButton::indicator
-{
-	width : 24px;
-	height : 24px;
-}</string>
-          </property>
-          <property name="text">
-           <string>Forward uphill</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="QRadioButton" name="radioButtonTravelReverseUphill">
-          <property name="font">
-           <font>
-            <family>DejaVu Sans Mono</family>
-            <pointsize>14</pointsize>
-           </font>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">QRadioButton::indicator
-{
-	width : 24px;
-	height : 24px;
-}</string>
-          </property>
-          <property name="text">
-           <string>Reverse uphill</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0">
-         <widget class="QRadioButton" name="radioButtonTravelRabbit">
-          <property name="font">
-           <font>
-            <family>DejaVu Sans Mono</family>
-            <pointsize>14</pointsize>
-           </font>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">QRadioButton::indicator
-{
-	width : 24px;
-	height : 24px;
-}</string>
-          </property>
-          <property name="text">
-           <string>Rabbit</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-     </item>
-    </layout>
-   </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QWebEngineView</class>
+   <extends>QWidget</extends>
+   <header location="global">QtWebEngineWidgets/QWebEngineView</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>
