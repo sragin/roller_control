@@ -42,10 +42,11 @@ class MyUI_Dialog(Ui_Dialog):
         self.dialog: MyQDialog = None
 
 
-class RollerControlUI(Node):
+class RollerControlUI(Node, QObject):
 
     def __init__(self, ui:MyUI_Dialog):
-        super().__init__('roller_gui')
+        QObject.__init__(self)
+        Node.__init__(self, 'roller_gui')
         self.nodeName = self.get_name()
         self.get_logger().info(f'{self.nodeName} started')
 
@@ -54,16 +55,16 @@ class RollerControlUI(Node):
         self.cmd_vel = Twist()
         self.cmd_motion = String()
 
-        # self.motioncmd_publisher = self.create_publisher(
-        #     String,
-        #     'roller_motion_cmd',
-        #     QoSProfile(depth=10)
-        # )
-        # self.velocitycmd_publisher = self.create_publisher(
-        #     Twist,
-        #     'cmd_vel',
-        #     QoSProfile(depth=10)
-        # )
+        self.motioncmd_publisher = self.create_publisher(
+            String,
+            'roller_motion_cmd',
+            QoSProfile(depth=10)
+        )
+        self.velocitycmd_publisher = self.create_publisher(
+            Twist,
+            'cmd_vel',
+            QoSProfile(depth=10)
+        )
         self.gps_msg_subscriber = self.create_subscription(
             GPSMsg,
             'gps_msg',
@@ -120,6 +121,7 @@ class RollerControlUI(Node):
         self.timer.timeout.connect(self.update_webview)
         self.ui.w.loadFinished.connect(lambda: self.timer.start(500))
 
+    @Slot()
     def clickMode(self):
         self.cmd_vel.linear.x = 0.0
         self.cmd_vel.angular.z = 0.0
@@ -130,6 +132,7 @@ class RollerControlUI(Node):
         self.publish_commands()
         self.velocitycmd_publisher.publish(self.cmd_vel)
 
+    @Slot()
     def clickPlanning(self):
         button = self.sender()
         if button == self.ui.pushButtonLoadPathfile:
@@ -143,6 +146,7 @@ class RollerControlUI(Node):
             self.cmd_motion.data = 'PLAN TASK'
         self.publish_commands()
 
+    @Slot()
     def clickControlling(self):
         button = self.sender()
 
@@ -162,6 +166,7 @@ class RollerControlUI(Node):
                 self.cmd_motion.data = 'REPEAT OFF'
         self.publish_commands()
 
+    @Slot()
     def clickVibrationMode(self):
         button = self.sender()
 
@@ -173,6 +178,7 @@ class RollerControlUI(Node):
             self.cmd_motion.data = 'VIBRATION OFF'
         self.publish_commands()
 
+    @Slot()
     def clickVibrationOn(self):
         button = self.sender()
 
@@ -182,6 +188,7 @@ class RollerControlUI(Node):
             self.cmd_motion.data = 'VIBRATION BTN RELEASED'
         self.publish_commands()
 
+    @Slot()
     def clickHorn(self):
         button = self.sender()
 
@@ -191,6 +198,7 @@ class RollerControlUI(Node):
             self.cmd_motion.data = 'HORN OFF'
         self.publish_commands()
 
+    @Slot()
     def clickTravel(self):
         button = self.sender()
 
@@ -206,6 +214,7 @@ class RollerControlUI(Node):
             self.cmd_motion.data = 'TRAVEL TURTLE'
         self.publish_commands()
 
+    @Slot()
     def publish_commands(self):
         self.motioncmd_publisher.publish(self.cmd_motion)
         self.get_logger().info(f'Publishing: {self.cmd_motion.data}')
@@ -215,6 +224,7 @@ class RollerControlUI(Node):
         browser.render(img)
         return img
 
+    @Slot()
     def update_webview(self):
         img = self.capture(self.ui.w)
         self.ui.label.setPixmap(img)
