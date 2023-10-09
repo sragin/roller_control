@@ -27,17 +27,15 @@
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout_10">
    <item>
-    <widget class="QWebEngineView" name="webEngineView">
+    <widget class="QLabel" name="label">
      <property name="minimumSize">
       <size>
        <width>800</width>
        <height>600</height>
       </size>
      </property>
-     <property name="url">
-      <url>
-       <string>about:blank</string>
-      </url>
+     <property name="text">
+      <string/>
      </property>
     </widget>
    </item>
@@ -551,13 +549,6 @@ Repeat</string>
    </item>
   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>QWebEngineView</class>
-   <extends>QWidget</extends>
-   <header location="global">QtWebEngineWidgets/QWebEngineView</header>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections/>
 </ui>

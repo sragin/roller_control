@@ -8,23 +8,43 @@ from ament_index_python import get_package_share_directory
 import folium
 from geometry_msgs.msg import Twist
 from msg_gps_interface.msg import GPSMsg
+import os
 from PySide6.QtCore import *
 from PySide6.QtGui import *
+from PySide6.QtWebEngineWidgets import QWebEngineView
 from PySide6.QtWidgets import *
 import rclpy
 from rclpy.executors import MultiThreadedExecutor
 from rclpy.node import Node
 from rclpy.qos import QoSProfile
 from std_msgs.msg import String
+import signal
 import sys
 from threading import Thread
 
 from .localui import *
 
 
+class MyQDialog(QDialog):
+    def __init__(self):
+        super().__init__()
+        self.w = None
+
+    def closeEvent(self, event):
+        print(f'close event')
+        self.w.close()
+
+
+class MyUI_Dialog(Ui_Dialog):
+    def __init__(self):
+        super().__init__()
+        self.w = None
+        self.dialog: MyQDialog = None
+
+
 class RollerControlUI(Node):
 
-    def __init__(self, ui:Ui_Dialog):
+    def __init__(self, ui:MyUI_Dialog):
         super().__init__('roller_gui')
         self.nodeName = self.get_name()
         self.get_logger().info(f'{self.nodeName} started')
@@ -63,8 +83,12 @@ class RollerControlUI(Node):
             width=800, height=600
         )
         folium.Circle(location=[self.lat, self.lng], radius=1).add_to(self.map)
-        self.w = self.ui.webEngineView
-        self.w.setHtml(self.map.get_root().render())
+        self.ui.w = QWebEngineView()
+        self.ui.dialog.w = self.ui.w
+        self.ui.w.resize(QSize(800, 600))
+        self.ui.w.setHtml(self.map.get_root().render())
+        # self.ui.w.setAttribute(Qt.WA_DontShowOnScreen)
+        self.ui.w.showMinimized()
 
         self.ui.radioButtonAuto.clicked.connect(self.clickMode)
         self.ui.radioButtonManual.clicked.connect(self.clickMode)
@@ -92,10 +116,9 @@ class RollerControlUI(Node):
         # 다른 쓰레드(ROS 쓰레드)에서 GUI 쓰레드를 변경해서 죽는것 값음
         # 다행히 QTimer는 GUI 쓰레드에서 돌아가는 것 같음
         self.timer = QTimer()
+        self.timer.setSingleShot(True)
         self.timer.timeout.connect(self.update_webview)
-        self.page = self.ui.webEngineView.page()
-        # self.page.loadFinished.connect(lambda: self.timer.start(2000))
-        self.w.loadFinished.connect(lambda: self.timer.start(2000))
+        self.ui.w.loadFinished.connect(lambda: self.timer.start(500))
 
     def clickMode(self):
         self.cmd_vel.linear.x = 0.0
@@ -187,13 +210,14 @@ class RollerControlUI(Node):
         self.motioncmd_publisher.publish(self.cmd_motion)
         self.get_logger().info(f'Publishing: {self.cmd_motion.data}')
 
-    def webview_loadFinished(self, ok):
-        self.flag_webview_finished = ok
-        # self.update_webview()
-        self.webview_timer = self.create_timer(1, self.update_webview)
+    def capture(self, browser: QWebEngineView):
+        img = QPixmap(QSize(800, 600))
+        browser.render(img)
+        return img
 
     def update_webview(self):
-        self.flag_webview_finished = False
+        img = self.capture(self.ui.w)
+        self.ui.label.setPixmap(img)
         map = folium.Map(
             location=[self.lat, self.lng],
             max_zoom=30, zoom_start=20,
@@ -201,20 +225,21 @@ class RollerControlUI(Node):
             width=800, height=600
         )
         folium.Circle(location=[self.lat, self.lng], radius=1).add_to(map)
-        # self.page.setHtml(map.get_root().render())
-        self.w.setHtml(map.get_root().render())
+        self.ui.w.setHtml(map.get_root().render())
         self.get_logger().info(f'lat:{self.lat:.6f} lng:{self.lng:.6f}')
 
     def recv_gpsmsg(self, msg: GPSMsg):
         self.lat = msg.lat
         self.lng = msg.lon
 
+
 def main():
     rclpy.init(args=None)
     app = QApplication(sys.argv)
-    HMI = QDialog()
-    ui = Ui_Dialog()
+    HMI = MyQDialog()
+    ui = MyUI_Dialog()
     ui.setupUi(HMI)
+    ui.dialog = HMI
 
     hmi_node = RollerControlUI(ui)
     executer = MultiThreadedExecutor()

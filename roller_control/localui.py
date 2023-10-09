@@ -15,10 +15,9 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWebEngineWidgets import QWebEngineView
 from PySide6.QtWidgets import (QApplication, QDialog, QGridLayout, QGroupBox,
-    QHBoxLayout, QPushButton, QRadioButton, QSizePolicy,
-    QSpacerItem, QVBoxLayout, QWidget)
+    QHBoxLayout, QLabel, QPushButton, QRadioButton,
+    QSizePolicy, QSpacerItem, QVBoxLayout, QWidget)
 
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
@@ -33,12 +32,11 @@ class Ui_Dialog(object):
         Dialog.setMinimumSize(QSize(1300, 620))
         self.horizontalLayout_10 = QHBoxLayout(Dialog)
         self.horizontalLayout_10.setObjectName(u"horizontalLayout_10")
-        self.webEngineView = QWebEngineView(Dialog)
-        self.webEngineView.setObjectName(u"webEngineView")
-        self.webEngineView.setMinimumSize(QSize(800, 600))
-        self.webEngineView.setUrl(QUrl(u"about:blank"))
+        self.label = QLabel(Dialog)
+        self.label.setObjectName(u"label")
+        self.label.setMinimumSize(QSize(800, 600))
 
-        self.horizontalLayout_10.addWidget(self.webEngineView)
+        self.horizontalLayout_10.addWidget(self.label)
 
         self.horizontalSpacer_2 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
@@ -320,6 +318,7 @@ class Ui_Dialog(object):
 
     def retranslateUi(self, Dialog):
         Dialog.setWindowTitle(QCoreApplication.translate("Dialog", u"Roller Control GUI", None))
+        self.label.setText("")
         self.radioButtonManual.setText(QCoreApplication.translate("Dialog", u"Manual", None))
         self.radioButtonAuto.setText(QCoreApplication.translate("Dialog", u"Automatic", None))
         self.groupBox.setTitle(QCoreApplication.translate("Dialog", u"Planning", None))
