@@ -28,7 +28,7 @@ from .localui import *
 class MyQDialog(QDialog):
     def __init__(self):
         super().__init__()
-        self.w = None
+        self.w: QWebEngineView = None
 
     def closeEvent(self, event):
         print(f'close event')
@@ -38,7 +38,7 @@ class MyQDialog(QDialog):
 class MyUI_Dialog(Ui_Dialog):
     def __init__(self):
         super().__init__()
-        self.w = None
+        self.w: QWebEngineView = None
         self.dialog: MyQDialog = None
 
 
@@ -77,6 +77,7 @@ class RollerControlUI(Node, QObject):
         self.attr = "Google"
         self.lat = 35.939219  # 위도
         self.lng = 126.548906  # 경도
+        self.loc = []
         self.map = folium.Map(
             location=[self.lat, self.lng],
             max_zoom=30, zoom_start=20,
@@ -87,7 +88,7 @@ class RollerControlUI(Node, QObject):
         self.ui.w = QWebEngineView()
         self.ui.dialog.w = self.ui.w
         self.ui.w.resize(QSize(800, 600))
-        self.ui.w.setHtml(self.map.get_root().render())
+        self.ui.w.setHtml('')
         # self.ui.w.setAttribute(Qt.WA_DontShowOnScreen)
         self.ui.w.showMinimized()
 
@@ -190,7 +191,7 @@ class RollerControlUI(Node, QObject):
 
     @Slot()
     def clickHorn(self):
-        button = self.sender()
+        button: QPushButton = self.sender()
 
         if button.isDown() == True:
             self.cmd_motion.data = 'HORN ON'
@@ -226,17 +227,22 @@ class RollerControlUI(Node, QObject):
 
     @Slot()
     def update_webview(self):
+        self.loc.append([self.lat, self.lng])
+        if len(self.loc) >= 600:
+            self.loc.pop(0)
+
         img = self.capture(self.ui.w)
         self.ui.label.setPixmap(img)
         map = folium.Map(
-            location=[self.lat, self.lng],
-            max_zoom=30, zoom_start=20,
+            location=self.loc[-1],
+            max_zoom=30, zoom_start=20, zoom_control=False,
             tiles=self.tiles, attr=self.attr,
             width=800, height=600
         )
-        folium.Circle(location=[self.lat, self.lng], radius=1).add_to(map)
+        folium.Circle(location=self.loc[-1], radius=1).add_to(map)
+        folium.PolyLine(locations=self.loc).add_to(map)
         self.ui.w.setHtml(map.get_root().render())
-        self.get_logger().info(f'lat:{self.lat:.6f} lng:{self.lng:.6f}')
+        self.get_logger().info(f'lat:{self.lat:.6f} lng:{self.lng:.6f} len:{len(self.loc)}')
 
     def recv_gpsmsg(self, msg: GPSMsg):
         self.lat = msg.lat
