@@ -137,7 +137,7 @@ class RollerControlUI(Node, QObject):
     def clickPlanning(self):
         button = self.sender()
         if button == self.ui.pushButtonLoadPathfile:
-            filename, _ = QFileDialog.getOpenFileName(self, 'Open File', get_package_share_directory('roller_control'), filter='*.json')
+            filename, _ = QFileDialog.getOpenFileName(self.ui.dialog, 'Open File', get_package_share_directory('roller_control'), filter='*.json')
             if filename == "":
                 return
             self.cmd_motion.data = f'PATHFILE:{filename}'
@@ -228,7 +228,7 @@ class RollerControlUI(Node, QObject):
     @Slot()
     def update_webview(self):
         self.loc.append([self.lat, self.lng])
-        if len(self.loc) >= 600:
+        if len(self.loc) >= 1200:
             self.loc.pop(0)
 
         img = self.capture(self.ui.w)
