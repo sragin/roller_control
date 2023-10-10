@@ -58,7 +58,7 @@ class RollerController(Node):
         self.velocity_profiler = None
         self.is_cancel_requested = False
 
-        self.basepoint = [371262.716, 159079.566]
+        self.basepoint = [563934.933, 167308.103]
         self.path_json = None
         self.map_xs = None
         self.map_ys = None

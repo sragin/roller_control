@@ -91,7 +91,7 @@ class Navigator(Node):
         self.sm = VibrationRollerStateMachine(self)
         self._action_client = ActionClient(self, MoveToPosition, 'move_to')
 
-        self.basepoint = [371262.716, 159079.566]
+        self.basepoint = [563934.933, 167308.103]
         self.planning_index = 0
         self.auto_repeat = False
         self.path_json = None
@@ -168,6 +168,8 @@ class Navigator(Node):
 
             self.planning_index = i + 1
             if self.path_dir[i] != self.path_dir[i+1]:
+                break
+            if self.planning_index >= len(self.path_tm_x) - 1:
                 break
 
         for i in range(len(self.map_xs)):
