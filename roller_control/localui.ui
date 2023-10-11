@@ -219,6 +219,32 @@ Repeat</string>
          </widget>
         </item>
         <item>
+         <widget class="QPushButton" name="pushButtonStartMotion">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>40</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <family>DejaVu Sans Mono</family>
+            <pointsize>14</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string>Start
+Motion</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QPushButton" name="pushButtonStartTask">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
@@ -239,7 +265,8 @@ Repeat</string>
            </font>
           </property>
           <property name="text">
-           <string>Start</string>
+           <string>Start
+Task</string>
           </property>
          </widget>
         </item>

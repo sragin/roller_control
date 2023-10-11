@@ -55,6 +55,12 @@ class VibrationRollerStateMachine(StateMachine):
             else:
                 self.navigator.load_pathfile()
                 self.plan_path()
+        elif self.navigator.auto_task:
+            if self.navigator.plan_path():
+                self.go()
+            else:
+                self.navigator.get_logger().warn('No more path left')
+                self.task_done()
         else:
             if self.navigator.plan_path():
                 self.navigator.get_logger().info('Path planning has been done')
@@ -94,6 +100,7 @@ class Navigator(Node):
         self.basepoint = [563934.933, 167308.103]
         self.planning_index = 0
         self.auto_repeat = False
+        self.auto_task = False
         self.path_json = None
         self.filename = None
         self.goal_handle = None
@@ -108,11 +115,11 @@ class Navigator(Node):
             elif msg.data == 'PLAN PATH':
                 self.sm.plan_path()
             elif msg.data == 'START MOTION':
+                self.auto_task = False
                 self.sm.go()
             elif msg.data == 'START TASK':
-                self.auto_repeat = True
-                self.load_pathfile()
-                self.sm.plan_path()
+                self.auto_task = True
+                self.sm.go()
             elif msg.data == 'REPEAT OFF':
                 self.auto_repeat = False
             elif msg.data == 'REPEAT ON':

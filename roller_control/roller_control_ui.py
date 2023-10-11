@@ -37,6 +37,7 @@ class RollerControlUI(QDialog):
         self.ui.pushButtonLoadPathfile.clicked.connect(self.clickPlanning)
         self.ui.pushButtonPlanPath.clicked.connect(self.clickPlanning)
         self.ui.pushButtonPlanTask.clicked.connect(self.clickPlanning)
+        self.ui.pushButtonStartMotion.clicked.connect(self.clickControlling)
         self.ui.pushButtonStartTask.clicked.connect(self.clickControlling)
         self.ui.pushButtonStop.clicked.connect(self.clickControlling)
         self.ui.pushButtonEStop.clicked.connect(self.clickControlling)
@@ -94,11 +95,10 @@ class RollerControlUI(QDialog):
     def clickControlling(self):
         button = self.sender()
 
-        if button == self.ui.pushButtonStartTask:
-            if self.ui.pushButtonRepeat.isChecked():
-                self.cmd_motion.data = 'START TASK'
-            else:
-                self.cmd_motion.data = 'START MOTION'
+        if button == self.ui.pushButtonStartMotion:
+            self.cmd_motion.data = 'START MOTION'
+        elif button == self.ui.pushButtonStartTask:
+            self.cmd_motion.data = 'START TASK'
         elif button == self.ui.pushButtonStop:
             self.cmd_motion.data = 'STOP'
         elif button == self.ui.pushButtonEStop:
