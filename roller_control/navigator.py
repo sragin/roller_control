@@ -234,6 +234,7 @@ class Navigator(Node):
         cancel_response = future.result()
         if len(cancel_response.goals_canceling) > 0:
             self.get_logger().info('Motion stopped')
+            self.planning_index = len(self.path_tm_x)
         else:
             self.get_logger().info('Motion failed to cancel')
 
