@@ -9,9 +9,9 @@ import sys
 
 from ament_index_python import get_package_share_directory
 from geometry_msgs.msg import Twist
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
+from PySide6.QtCore import *
+from PySide6.QtGui import *
+from PySide6.QtWidgets import *
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import String
