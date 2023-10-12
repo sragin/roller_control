@@ -16,11 +16,11 @@ def generate_launch_description():
             package='gps_rclpy_pkg',
             executable='tcpgps_pub',
             parameters=[
-                {'gps_ip': '192.168.150.116'}
+                {'gps_ip': '192.168.0.152'}
             ]
         ),
-        Node(
-            package='roller_control',
-            executable='roller_publisher',
-        ),
+        # Node(
+        #     package='roller_control',
+        #     executable='roller_publisher',
+        # ),
     ])
