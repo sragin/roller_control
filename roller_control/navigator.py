@@ -113,6 +113,7 @@ class Navigator(Node):
             elif 'PATHFILE' in msg.data:
                 self.load_pathfile(msg.data)
             elif msg.data == 'PLAN PATH':
+                self.auto_task = False
                 self.sm.plan_path()
             elif msg.data == 'START MOTION':
                 self.auto_task = False
