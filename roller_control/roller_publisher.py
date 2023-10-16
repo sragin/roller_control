@@ -119,8 +119,9 @@ class RollerPublisher(Node):
 
     def recv_remotestation_cmd(self, msg: Frame):
         if msg.id == self.candb_remotestation_supervisor.get_message_by_name('CONTROL_COMMAND').frame_id:
-            self.get_logger().info('recv_remotestation_cmd')
-            # self.canbus_publisher.publish(msg)
+            msg.id = 116
+            self.canbus_publisher.publish(msg)
+            self.get_logger().info(f'send_remotestation_cmd: {msg}')
 
     def publish_roller_geometry_msg(self):
         DRUM_LENGTH = 1.405  # 드럼이 BX992 기준점보다 앞서있는 거리. mm 단위
