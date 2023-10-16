@@ -38,6 +38,11 @@ def generate_launch_description():
             package='makesurface_rclpy_pkg',
             executable='calc_pts',
         ),
+        # Drum point 정보 - 1세부용
+        # Node(
+        #     package = 'makesurface_rclpy_pkg',
+        #     executable = 'calcdrum_pts',
+        # ),
         # 1세부 한양대 정보 보내기
         Node(
             package='emulate_iotedge_pkg',
