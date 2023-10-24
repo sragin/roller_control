@@ -21,7 +21,7 @@ from roller_interfaces.msg import RollerStatus
 from std_msgs.msg import String
 import time
 
-from .control_algorithm import MAX_STEER_LIMIT
+from .control_algorithm import MAX_STEER_LIMIT, GNSSTOWHEEL
 from .control_algorithm import stanley_control
 import roller_control.velocity_profile as velocity_profile
 CONTROL_PERIOD = 0.1
@@ -129,10 +129,12 @@ class RollerController(Node):
         theta = self.roller_status.pose.theta
 
         if vel < 0:
-            x = self.roller_status.body_pose.x
-            y = self.roller_status.body_pose.y
+            # BX992좌표를 기준으로 뒷바퀴좌표를 계산
             theta_ = theta + np.pi
+            x = self.roller_status.body_pose.x + GNSSTOWHEEL * np.cos(theta_)
+            y = self.roller_status.body_pose.y + GNSSTOWHEEL * np.sin(theta_)
             steer_angle = self.roller_status.steer_angle
+            self.get_logger().info(f'theta:{theta_} x:{self.roller_status.body_pose.x} {x} y:{self.roller_status.body_pose.y} {y}')
         else:
             x = self.roller_status.pose.x
             y = self.roller_status.pose.y

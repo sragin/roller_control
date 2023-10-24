@@ -19,6 +19,7 @@ WHEEL_WIDTH_REAR = 0.5  # [m]
 TREAD_FRONT = 0  # [m]
 TREAD_REAR = 0.85  # [m]
 BACKTOWHEEL = LENGTH - WHEEL_LEN - 0.25  # from back to front wheel
+GNSSTOWHEEL = 1.9  # [m] from BX992 to rear wheel
 INNER_TRACK_RADIUS = 3.677  # [m]
 MINIMUM_TURNING_RADIUS = INNER_TRACK_RADIUS + WIDTH/2  # [m] minimum turning radius
 MAX_STEER_VEL = 10.0 / 180 * np.pi
