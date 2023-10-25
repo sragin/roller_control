@@ -7,6 +7,7 @@
 from action_msgs.msg import GoalStatus
 from geometry_msgs.msg import Twist
 from math import dist
+from msg_gps_interface.msg import GPSMsg
 import numpy as np
 import rclpy
 from rclpy.action import ActionServer
@@ -45,6 +46,12 @@ class RollerController(Node):
             'roller_status',
             self.recieve_rollerstatus,
             qos_profile)
+        self.gps_msg_subscriber = self.create_subscription(
+            GPSMsg,
+            'gps_msg',
+            self.recv_gpsmsg,
+            qos_profile
+        )
         self._action_server = ActionServer(
             self,
             MoveToPosition,
@@ -67,6 +74,7 @@ class RollerController(Node):
         self.goal_check_error = 0.05
 
         self.roller_status = RollerStatus()
+        self.gps_quality = 0
 
         self.count = 0
         self.log_display_cnt = 50
@@ -127,6 +135,8 @@ class RollerController(Node):
         """
         vel = self.cmd_vel[0]
         theta = self.roller_status.pose.theta
+        if self.gps_quality != 4:
+            self.get_logger().fatal(f"GPS failed. Quality is {self.gps_quality}")
 
         if vel < 0:
             # BX992좌표를 기준으로 뒷바퀴좌표를 계산
@@ -215,6 +225,8 @@ class RollerController(Node):
     def recieve_rollerstatus(self, msg: RollerStatus):
         self.roller_status = msg
 
+    def recv_gpsmsg(self, msg: GPSMsg):
+        self.gps_quality = msg.quality
 
 def main(args=None):
     rclpy.init(args=args)

@@ -7,6 +7,7 @@
 from geometry_msgs.msg import Pose2D
 from geometry_msgs.msg import Twist
 import json
+from msg_gps_interface.msg import GPSMsg
 import numpy as np
 import rclpy
 from rclpy.action import ActionClient
@@ -93,6 +94,12 @@ class Navigator(Node):
             self.recieve_motioncmd,
             qos_profile
         )
+        self.gps_msg_subscriber = self.create_subscription(
+            GPSMsg,
+            'gps_msg',
+            self.recv_gpsmsg,
+            qos_profile
+        )
 
         self.sm = VibrationRollerStateMachine(self)
         self._action_client = ActionClient(self, MoveToPosition, 'move_to')
@@ -104,6 +111,7 @@ class Navigator(Node):
         self.path_json = None
         self.filename = None
         self.goal_handle = None
+        self.gps_quality = 0
 
     def recieve_motioncmd(self, msg: String):
         self.get_logger().info(f'{msg}')
@@ -116,9 +124,15 @@ class Navigator(Node):
                 self.auto_task = False
                 self.sm.plan_path()
             elif msg.data == 'START MOTION':
+                if self.gps_quality != 4:
+                    self.get_logger().error(f"Can't start. GPS quality is {self.gps_quality}")
+                    return
                 self.auto_task = False
                 self.sm.go()
             elif msg.data == 'START TASK':
+                if self.gps_quality != 4:
+                    self.get_logger().error(f"Can't start. GPS quality is {self.gps_quality}")
+                    return
                 self.auto_task = True
                 self.sm.go()
             elif msg.data == 'REPEAT OFF':
@@ -127,6 +141,9 @@ class Navigator(Node):
                 self.auto_repeat = True
         except TransitionNotAllowed as e:
             self.get_logger().warn(f'{e}')
+
+    def recv_gpsmsg(self, msg: GPSMsg):
+        self.gps_quality = msg.quality
 
     def load_pathfile(self, filenamecmd=''):
         if filenamecmd != '':
