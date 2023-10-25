@@ -14,10 +14,10 @@ def generate_launch_description():
         ),
         Node(
             package='roller_control',
-            executable='roller_gui',
-        ),
-        Node(
-            package='roller_control',
             executable='navigator',
         ),
+        # Node(
+        #     package='roller_control',
+        #     executable='roller_gui',
+        # ),
     ])
