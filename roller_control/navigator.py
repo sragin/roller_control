@@ -54,8 +54,8 @@ class VibrationRollerStateMachine(StateMachine):
             if self.navigator.plan_path():
                 self.go()
             else:
-                self.navigator.load_pathfile()
-                self.plan_path(self.navigator.filenamecmd)
+                self.navigator.load_pathfile(self.navigator.filenamecmd)
+                self.plan_path()
         elif self.navigator.auto_task:
             if self.navigator.plan_path():
                 self.go()
