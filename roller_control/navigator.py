@@ -150,7 +150,7 @@ class Navigator(Node):
         json_string = ''
         if filenamecmd != '':
             _, json_string = filenamecmd.split(':', maxsplit=1)
-        if json_string is '':
+        if json_string == '':
             return
         self.filenamecmd = filenamecmd
         # with open(self.filename, 'r') as pathfile:
