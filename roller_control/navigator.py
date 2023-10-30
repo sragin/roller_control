@@ -244,6 +244,7 @@ class Navigator(Node):
         result: MoveToPosition.Result = future.result().result
         if result.result:
             self.get_logger().info(f'Motion succeeded')
+            self.planning_index = 0
             try:
                 self.sm.navigation_done()
             except TransitionNotAllowed as e:
