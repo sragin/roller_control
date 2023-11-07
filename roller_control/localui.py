@@ -16,41 +16,31 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QDialog, QGridLayout, QGroupBox,
-    QHBoxLayout, QLabel, QPushButton, QRadioButton,
-    QSizePolicy, QSpacerItem, QVBoxLayout, QWidget)
+    QHBoxLayout, QPushButton, QRadioButton, QSizePolicy,
+    QSpacerItem, QVBoxLayout, QWidget)
 
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         if not Dialog.objectName():
             Dialog.setObjectName(u"Dialog")
-        Dialog.resize(1300, 620)
-        sizePolicy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+        Dialog.resize(600, 500)
+        sizePolicy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(Dialog.sizePolicy().hasHeightForWidth())
         Dialog.setSizePolicy(sizePolicy)
-        Dialog.setMinimumSize(QSize(1300, 620))
-        self.horizontalLayout_10 = QHBoxLayout(Dialog)
-        self.horizontalLayout_10.setObjectName(u"horizontalLayout_10")
-        self.label = QLabel(Dialog)
-        self.label.setObjectName(u"label")
-        self.label.setMinimumSize(QSize(800, 600))
-
-        self.horizontalLayout_10.addWidget(self.label)
-
-        self.horizontalSpacer_2 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.horizontalLayout_10.addItem(self.horizontalSpacer_2)
-
-        self.verticalLayout_3 = QVBoxLayout()
-        self.verticalLayout_3.setObjectName(u"verticalLayout_3")
-        self.verticalLayout_3.setContentsMargins(20, -1, -1, -1)
+        Dialog.setMinimumSize(QSize(600, 500))
+        self.verticalLayout = QVBoxLayout(Dialog)
+        self.verticalLayout.setObjectName(u"verticalLayout")
         self.horizontalLayout = QHBoxLayout()
         self.horizontalLayout.setObjectName(u"horizontalLayout")
         self.radioButtonManual = QRadioButton(Dialog)
         self.radioButtonManual.setObjectName(u"radioButtonManual")
-        sizePolicy.setHeightForWidth(self.radioButtonManual.sizePolicy().hasHeightForWidth())
-        self.radioButtonManual.setSizePolicy(sizePolicy)
+        sizePolicy1 = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.MinimumExpanding)
+        sizePolicy1.setHorizontalStretch(0)
+        sizePolicy1.setVerticalStretch(0)
+        sizePolicy1.setHeightForWidth(self.radioButtonManual.sizePolicy().hasHeightForWidth())
+        self.radioButtonManual.setSizePolicy(sizePolicy1)
         font = QFont()
         font.setFamilies([u"DejaVu Sans Mono"])
         font.setPointSize(14)
@@ -66,8 +56,8 @@ class Ui_Dialog(object):
 
         self.radioButtonAuto = QRadioButton(Dialog)
         self.radioButtonAuto.setObjectName(u"radioButtonAuto")
-        sizePolicy.setHeightForWidth(self.radioButtonAuto.sizePolicy().hasHeightForWidth())
-        self.radioButtonAuto.setSizePolicy(sizePolicy)
+        sizePolicy1.setHeightForWidth(self.radioButtonAuto.sizePolicy().hasHeightForWidth())
+        self.radioButtonAuto.setSizePolicy(sizePolicy1)
         self.radioButtonAuto.setFont(font)
         self.radioButtonAuto.setStyleSheet(u"QRadioButton::indicator\n"
 "{\n"
@@ -82,10 +72,10 @@ class Ui_Dialog(object):
         self.horizontalLayout.addItem(self.horizontalSpacer)
 
 
-        self.verticalLayout_3.addLayout(self.horizontalLayout)
+        self.verticalLayout.addLayout(self.horizontalLayout)
 
-        self.horizontalLayout_11 = QHBoxLayout()
-        self.horizontalLayout_11.setObjectName(u"horizontalLayout_11")
+        self.horizontalLayout_2 = QHBoxLayout()
+        self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
         self.groupBox = QGroupBox(Dialog)
         self.groupBox.setObjectName(u"groupBox")
         font1 = QFont()
@@ -96,36 +86,37 @@ class Ui_Dialog(object):
         self.horizontalLayout_4.setObjectName(u"horizontalLayout_4")
         self.pushButtonLoadPathfile = QPushButton(self.groupBox)
         self.pushButtonLoadPathfile.setObjectName(u"pushButtonLoadPathfile")
-        sizePolicy.setHeightForWidth(self.pushButtonLoadPathfile.sizePolicy().hasHeightForWidth())
-        self.pushButtonLoadPathfile.setSizePolicy(sizePolicy)
+        sizePolicy1.setHeightForWidth(self.pushButtonLoadPathfile.sizePolicy().hasHeightForWidth())
+        self.pushButtonLoadPathfile.setSizePolicy(sizePolicy1)
+        self.pushButtonLoadPathfile.setMinimumSize(QSize(0, 40))
         self.pushButtonLoadPathfile.setFont(font)
 
         self.horizontalLayout_4.addWidget(self.pushButtonLoadPathfile)
 
         self.pushButtonPlanPath = QPushButton(self.groupBox)
         self.pushButtonPlanPath.setObjectName(u"pushButtonPlanPath")
-        sizePolicy.setHeightForWidth(self.pushButtonPlanPath.sizePolicy().hasHeightForWidth())
-        self.pushButtonPlanPath.setSizePolicy(sizePolicy)
+        sizePolicy1.setHeightForWidth(self.pushButtonPlanPath.sizePolicy().hasHeightForWidth())
+        self.pushButtonPlanPath.setSizePolicy(sizePolicy1)
         self.pushButtonPlanPath.setFont(font)
 
         self.horizontalLayout_4.addWidget(self.pushButtonPlanPath)
 
         self.pushButtonPlanTask = QPushButton(self.groupBox)
         self.pushButtonPlanTask.setObjectName(u"pushButtonPlanTask")
-        sizePolicy.setHeightForWidth(self.pushButtonPlanTask.sizePolicy().hasHeightForWidth())
-        self.pushButtonPlanTask.setSizePolicy(sizePolicy)
+        sizePolicy1.setHeightForWidth(self.pushButtonPlanTask.sizePolicy().hasHeightForWidth())
+        self.pushButtonPlanTask.setSizePolicy(sizePolicy1)
         self.pushButtonPlanTask.setFont(font)
 
         self.horizontalLayout_4.addWidget(self.pushButtonPlanTask)
 
 
-        self.horizontalLayout_11.addWidget(self.groupBox)
+        self.horizontalLayout_2.addWidget(self.groupBox)
 
 
-        self.verticalLayout_3.addLayout(self.horizontalLayout_11)
+        self.verticalLayout.addLayout(self.horizontalLayout_2)
 
-        self.horizontalLayout_2 = QHBoxLayout()
-        self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
+        self.horizontalLayout_3 = QHBoxLayout()
+        self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
         self.groupBox_2 = QGroupBox(Dialog)
         self.groupBox_2.setObjectName(u"groupBox_2")
         self.groupBox_2.setFont(font1)
@@ -133,111 +124,52 @@ class Ui_Dialog(object):
         self.horizontalLayout_5.setObjectName(u"horizontalLayout_5")
         self.pushButtonRepeat = QPushButton(self.groupBox_2)
         self.pushButtonRepeat.setObjectName(u"pushButtonRepeat")
-        sizePolicy.setHeightForWidth(self.pushButtonRepeat.sizePolicy().hasHeightForWidth())
-        self.pushButtonRepeat.setSizePolicy(sizePolicy)
+        sizePolicy1.setHeightForWidth(self.pushButtonRepeat.sizePolicy().hasHeightForWidth())
+        self.pushButtonRepeat.setSizePolicy(sizePolicy1)
         self.pushButtonRepeat.setFont(font)
         self.pushButtonRepeat.setCheckable(True)
 
         self.horizontalLayout_5.addWidget(self.pushButtonRepeat)
 
+        self.pushButtonStartMotion = QPushButton(self.groupBox_2)
+        self.pushButtonStartMotion.setObjectName(u"pushButtonStartMotion")
+        sizePolicy1.setHeightForWidth(self.pushButtonStartMotion.sizePolicy().hasHeightForWidth())
+        self.pushButtonStartMotion.setSizePolicy(sizePolicy1)
+        self.pushButtonStartMotion.setMinimumSize(QSize(0, 40))
+        self.pushButtonStartMotion.setFont(font)
+
+        self.horizontalLayout_5.addWidget(self.pushButtonStartMotion)
+
         self.pushButtonStartTask = QPushButton(self.groupBox_2)
         self.pushButtonStartTask.setObjectName(u"pushButtonStartTask")
-        sizePolicy.setHeightForWidth(self.pushButtonStartTask.sizePolicy().hasHeightForWidth())
-        self.pushButtonStartTask.setSizePolicy(sizePolicy)
+        sizePolicy1.setHeightForWidth(self.pushButtonStartTask.sizePolicy().hasHeightForWidth())
+        self.pushButtonStartTask.setSizePolicy(sizePolicy1)
+        self.pushButtonStartTask.setMinimumSize(QSize(0, 40))
         self.pushButtonStartTask.setFont(font)
 
         self.horizontalLayout_5.addWidget(self.pushButtonStartTask)
 
         self.pushButtonStop = QPushButton(self.groupBox_2)
         self.pushButtonStop.setObjectName(u"pushButtonStop")
-        sizePolicy.setHeightForWidth(self.pushButtonStop.sizePolicy().hasHeightForWidth())
-        self.pushButtonStop.setSizePolicy(sizePolicy)
+        sizePolicy1.setHeightForWidth(self.pushButtonStop.sizePolicy().hasHeightForWidth())
+        self.pushButtonStop.setSizePolicy(sizePolicy1)
         self.pushButtonStop.setFont(font)
 
         self.horizontalLayout_5.addWidget(self.pushButtonStop)
 
         self.pushButtonEStop = QPushButton(self.groupBox_2)
         self.pushButtonEStop.setObjectName(u"pushButtonEStop")
-        sizePolicy.setHeightForWidth(self.pushButtonEStop.sizePolicy().hasHeightForWidth())
-        self.pushButtonEStop.setSizePolicy(sizePolicy)
+        sizePolicy1.setHeightForWidth(self.pushButtonEStop.sizePolicy().hasHeightForWidth())
+        self.pushButtonEStop.setSizePolicy(sizePolicy1)
         self.pushButtonEStop.setFont(font)
 
         self.horizontalLayout_5.addWidget(self.pushButtonEStop)
 
 
-        self.horizontalLayout_2.addWidget(self.groupBox_2)
+        self.horizontalLayout_3.addWidget(self.groupBox_2)
 
 
-        self.verticalLayout_3.addLayout(self.horizontalLayout_2)
-
-        self.horizontalLayout_3 = QHBoxLayout()
-        self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
-        self.groupBox_6 = QGroupBox(Dialog)
-        self.groupBox_6.setObjectName(u"groupBox_6")
-        self.groupBox_6.setFont(font1)
-        self.gridLayout = QGridLayout(self.groupBox_6)
-        self.gridLayout.setObjectName(u"gridLayout")
-        self.radioButtonTravelRamp = QRadioButton(self.groupBox_6)
-        self.radioButtonTravelRamp.setObjectName(u"radioButtonTravelRamp")
-        self.radioButtonTravelRamp.setFont(font)
-        self.radioButtonTravelRamp.setStyleSheet(u"QRadioButton::indicator\n"
-"{\n"
-"	width : 24px;\n"
-"	height : 24px;\n"
-"}")
-
-        self.gridLayout.addWidget(self.radioButtonTravelRamp, 0, 0, 1, 1)
-
-        self.radioButtonTravelTurtle = QRadioButton(self.groupBox_6)
-        self.radioButtonTravelTurtle.setObjectName(u"radioButtonTravelTurtle")
-        self.radioButtonTravelTurtle.setFont(font)
-        self.radioButtonTravelTurtle.setStyleSheet(u"QRadioButton::indicator\n"
-"{\n"
-"	width : 24px;\n"
-"	height : 24px;\n"
-"}")
-        self.radioButtonTravelTurtle.setChecked(True)
-
-        self.gridLayout.addWidget(self.radioButtonTravelTurtle, 0, 1, 1, 1)
-
-        self.radioButtonTravelForwardUphill = QRadioButton(self.groupBox_6)
-        self.radioButtonTravelForwardUphill.setObjectName(u"radioButtonTravelForwardUphill")
-        self.radioButtonTravelForwardUphill.setFont(font)
-        self.radioButtonTravelForwardUphill.setStyleSheet(u"QRadioButton::indicator\n"
-"{\n"
-"	width : 24px;\n"
-"	height : 24px;\n"
-"}")
-
-        self.gridLayout.addWidget(self.radioButtonTravelForwardUphill, 1, 0, 1, 1)
-
-        self.radioButtonTravelReverseUphill = QRadioButton(self.groupBox_6)
-        self.radioButtonTravelReverseUphill.setObjectName(u"radioButtonTravelReverseUphill")
-        self.radioButtonTravelReverseUphill.setFont(font)
-        self.radioButtonTravelReverseUphill.setStyleSheet(u"QRadioButton::indicator\n"
-"{\n"
-"	width : 24px;\n"
-"	height : 24px;\n"
-"}")
-
-        self.gridLayout.addWidget(self.radioButtonTravelReverseUphill, 1, 1, 1, 1)
-
-        self.radioButtonTravelRabbit = QRadioButton(self.groupBox_6)
-        self.radioButtonTravelRabbit.setObjectName(u"radioButtonTravelRabbit")
-        self.radioButtonTravelRabbit.setFont(font)
-        self.radioButtonTravelRabbit.setStyleSheet(u"QRadioButton::indicator\n"
-"{\n"
-"	width : 24px;\n"
-"	height : 24px;\n"
-"}")
-
-        self.gridLayout.addWidget(self.radioButtonTravelRabbit, 2, 0, 1, 1)
-
-
-        self.horizontalLayout_3.addWidget(self.groupBox_6)
-
-
-        self.verticalLayout_3.addLayout(self.horizontalLayout_3)
+        self.verticalLayout.addLayout(self.horizontalLayout_3)
 
         self.horizontalLayout_6 = QHBoxLayout()
         self.horizontalLayout_6.setObjectName(u"horizontalLayout_6")
@@ -301,14 +233,76 @@ class Ui_Dialog(object):
         self.horizontalLayout_6.addWidget(self.groupBox_4)
 
 
-        self.verticalLayout_3.addLayout(self.horizontalLayout_6)
+        self.verticalLayout.addLayout(self.horizontalLayout_6)
 
-        self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.horizontalLayout_10 = QHBoxLayout()
+        self.horizontalLayout_10.setObjectName(u"horizontalLayout_10")
+        self.groupBox_6 = QGroupBox(Dialog)
+        self.groupBox_6.setObjectName(u"groupBox_6")
+        self.groupBox_6.setFont(font1)
+        self.gridLayout = QGridLayout(self.groupBox_6)
+        self.gridLayout.setObjectName(u"gridLayout")
+        self.radioButtonTravelRamp = QRadioButton(self.groupBox_6)
+        self.radioButtonTravelRamp.setObjectName(u"radioButtonTravelRamp")
+        self.radioButtonTravelRamp.setFont(font)
+        self.radioButtonTravelRamp.setStyleSheet(u"QRadioButton::indicator\n"
+"{\n"
+"	width : 24px;\n"
+"	height : 24px;\n"
+"}")
 
-        self.verticalLayout_3.addItem(self.verticalSpacer)
+        self.gridLayout.addWidget(self.radioButtonTravelRamp, 0, 0, 1, 1)
+
+        self.radioButtonTravelTurtle = QRadioButton(self.groupBox_6)
+        self.radioButtonTravelTurtle.setObjectName(u"radioButtonTravelTurtle")
+        self.radioButtonTravelTurtle.setFont(font)
+        self.radioButtonTravelTurtle.setStyleSheet(u"QRadioButton::indicator\n"
+"{\n"
+"	width : 24px;\n"
+"	height : 24px;\n"
+"}")
+        self.radioButtonTravelTurtle.setChecked(True)
+
+        self.gridLayout.addWidget(self.radioButtonTravelTurtle, 0, 1, 1, 1)
+
+        self.radioButtonTravelForwardUphill = QRadioButton(self.groupBox_6)
+        self.radioButtonTravelForwardUphill.setObjectName(u"radioButtonTravelForwardUphill")
+        self.radioButtonTravelForwardUphill.setFont(font)
+        self.radioButtonTravelForwardUphill.setStyleSheet(u"QRadioButton::indicator\n"
+"{\n"
+"	width : 24px;\n"
+"	height : 24px;\n"
+"}")
+
+        self.gridLayout.addWidget(self.radioButtonTravelForwardUphill, 1, 0, 1, 1)
+
+        self.radioButtonTravelReverseUphill = QRadioButton(self.groupBox_6)
+        self.radioButtonTravelReverseUphill.setObjectName(u"radioButtonTravelReverseUphill")
+        self.radioButtonTravelReverseUphill.setFont(font)
+        self.radioButtonTravelReverseUphill.setStyleSheet(u"QRadioButton::indicator\n"
+"{\n"
+"	width : 24px;\n"
+"	height : 24px;\n"
+"}")
+
+        self.gridLayout.addWidget(self.radioButtonTravelReverseUphill, 1, 1, 1, 1)
+
+        self.radioButtonTravelRabbit = QRadioButton(self.groupBox_6)
+        self.radioButtonTravelRabbit.setObjectName(u"radioButtonTravelRabbit")
+        self.radioButtonTravelRabbit.setFont(font)
+        self.radioButtonTravelRabbit.setStyleSheet(u"QRadioButton::indicator\n"
+"{\n"
+"	width : 24px;\n"
+"	height : 24px;\n"
+"}")
+
+        self.gridLayout.addWidget(self.radioButtonTravelRabbit, 2, 0, 1, 1)
 
 
-        self.horizontalLayout_10.addLayout(self.verticalLayout_3)
+        self.horizontalLayout_10.addWidget(self.groupBox_6)
+
+
+        self.verticalLayout.addLayout(self.horizontalLayout_10)
 
 
         self.retranslateUi(Dialog)
@@ -318,7 +312,6 @@ class Ui_Dialog(object):
 
     def retranslateUi(self, Dialog):
         Dialog.setWindowTitle(QCoreApplication.translate("Dialog", u"Roller Control GUI", None))
-        self.label.setText("")
         self.radioButtonManual.setText(QCoreApplication.translate("Dialog", u"Manual", None))
         self.radioButtonAuto.setText(QCoreApplication.translate("Dialog", u"Automatic", None))
         self.groupBox.setTitle(QCoreApplication.translate("Dialog", u"Planning", None))
@@ -329,15 +322,12 @@ class Ui_Dialog(object):
         self.groupBox_2.setTitle(QCoreApplication.translate("Dialog", u"Controlling", None))
         self.pushButtonRepeat.setText(QCoreApplication.translate("Dialog", u"Auto\n"
 "Repeat", None))
-        self.pushButtonStartTask.setText(QCoreApplication.translate("Dialog", u"Start", None))
+        self.pushButtonStartMotion.setText(QCoreApplication.translate("Dialog", u"Start\n"
+"Motion", None))
+        self.pushButtonStartTask.setText(QCoreApplication.translate("Dialog", u"Start\n"
+"Task", None))
         self.pushButtonStop.setText(QCoreApplication.translate("Dialog", u"Stop", None))
         self.pushButtonEStop.setText(QCoreApplication.translate("Dialog", u"E-STOP", None))
-        self.groupBox_6.setTitle(QCoreApplication.translate("Dialog", u"Travel Mode", None))
-        self.radioButtonTravelRamp.setText(QCoreApplication.translate("Dialog", u"Ramp", None))
-        self.radioButtonTravelTurtle.setText(QCoreApplication.translate("Dialog", u"Turtle", None))
-        self.radioButtonTravelForwardUphill.setText(QCoreApplication.translate("Dialog", u"Forward uphill", None))
-        self.radioButtonTravelReverseUphill.setText(QCoreApplication.translate("Dialog", u"Reverse uphill", None))
-        self.radioButtonTravelRabbit.setText(QCoreApplication.translate("Dialog", u"Rabbit", None))
         self.groupBox_3.setTitle(QCoreApplication.translate("Dialog", u"Vibration", None))
         self.radioButtonVibrationOff.setText(QCoreApplication.translate("Dialog", u"Off", None))
         self.radioButtonVibrationLow.setText(QCoreApplication.translate("Dialog", u"Low", None))
@@ -345,5 +335,11 @@ class Ui_Dialog(object):
         self.pushButtonVibrationON.setText(QCoreApplication.translate("Dialog", u"ON", None))
         self.groupBox_4.setTitle(QCoreApplication.translate("Dialog", u"Horn", None))
         self.pushButtonHornOn.setText(QCoreApplication.translate("Dialog", u"ON", None))
+        self.groupBox_6.setTitle(QCoreApplication.translate("Dialog", u"Travel Mode", None))
+        self.radioButtonTravelRamp.setText(QCoreApplication.translate("Dialog", u"Ramp", None))
+        self.radioButtonTravelTurtle.setText(QCoreApplication.translate("Dialog", u"Turtle", None))
+        self.radioButtonTravelForwardUphill.setText(QCoreApplication.translate("Dialog", u"Forward uphill", None))
+        self.radioButtonTravelReverseUphill.setText(QCoreApplication.translate("Dialog", u"Reverse uphill", None))
+        self.radioButtonTravelRabbit.setText(QCoreApplication.translate("Dialog", u"Rabbit", None))
     # retranslateUi
 
