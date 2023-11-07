@@ -12,6 +12,11 @@ def generate_launch_description():
                 [get_package_share_directory('ros2_socketcan'), '/launch/socket_can_bridge.launch.xml']
             )
         ),
+        IncludeLaunchDescription(
+            XMLLaunchDescriptionSource(
+                [get_package_share_directory('rosbridge_server'), '/launch/rosbridge_websocket_launch.xml']
+            )
+        ),
         Node(
             package='gps_rclpy_pkg',
             executable='tcpgps_pub',
