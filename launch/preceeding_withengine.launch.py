@@ -16,7 +16,7 @@ def generate_launch_description():
             package='gps_rclpy_pkg',
             executable='tcpgps_pub',
             parameters=[
-                {'gps_ip': '192.168.0.152'}
+                {'gps_ip': '192.168.150.116'}
             ]
         ),
         Node(
