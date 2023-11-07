@@ -54,7 +54,7 @@ class VibrationRollerStateMachine(StateMachine):
             if self.navigator.plan_path():
                 self.go()
             else:
-                self.navigator.load_pathfile()
+                self.navigator.load_pathfile(self.navigator.filenamecmd)
                 self.plan_path()
         elif self.navigator.auto_task:
             if self.navigator.plan_path():
@@ -112,6 +112,7 @@ class Navigator(Node):
         self.filename = None
         self.goal_handle = None
         self.gps_quality = 0
+        self.filenamecmd = ''
 
     def recieve_motioncmd(self, msg: String):
         self.get_logger().info(f'{msg}')
@@ -146,13 +147,15 @@ class Navigator(Node):
         self.gps_quality = msg.quality
 
     def load_pathfile(self, filenamecmd=''):
+        json_string = ''
         if filenamecmd != '':
-            _, self.filename = filenamecmd.split(':')
-        if self.filename is None:
+            _, json_string = filenamecmd.split(':', maxsplit=1)
+        if json_string == '':
             return
-        with open(self.filename, 'r') as pathfile:
-            self.path_json = json.load(pathfile)
-        self.get_logger().info(f'Path file \'{self.filename.split("/")[-1]}\' has been loaded')
+        self.filenamecmd = filenamecmd
+        # with open(self.filename, 'r') as pathfile:
+        self.path_json = json.loads(json_string)
+        # self.get_logger().info(f'Path file \'{self.filename.split("/")[-1]}\' has been loaded')
         self.get_logger().info(f'{self.path_json}')
         self.path_tm_x = self.path_json['tm_x']
         self.path_tm_y = self.path_json['tm_y']
