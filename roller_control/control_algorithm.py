@@ -45,7 +45,7 @@ def stanley_control(x, y, yaw, v, map_xs, map_ys, map_yaws):
 
     """
     # control gain
-    k = 0.5
+    k = 1
 
     # find the nearest point
     min_dist = 1e9
