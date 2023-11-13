@@ -183,7 +183,8 @@ class RollerController(Node):
             f'steer_cmd:{steer_cmd * 180 / np.pi :.3f} '
             f'heading:{theta * 180 / np.pi :.3f} '
             f'ref_vel: {self.cmd_vel[min_index_]}, cmd_vel:{vel_cmd :.2f}\n'
-            f'dist_moved: {dist_moved :.3f}, dist_togo:{dist_togo :.3f}'
+            f'dist_moved: {dist_moved :.3f}, dist_togo:{dist_togo :.3f}\n'
+            f'X_left:{self.map_xs[-1] - self.roller_status.body_pose.x :.3f} Y_goal: {self.map_ys[min_index_] :.3f}, Y_cur:{self.roller_status.body_pose.y :.3f}, ERR:{self.roller_status.body_pose.y - self.map_ys[min_index_] :.3f}\n'            
         )
 
         done = self.check_goal(self.map_xs, self.map_ys, x, y, self.goal_check_error)
