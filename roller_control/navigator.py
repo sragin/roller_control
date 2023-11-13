@@ -97,7 +97,7 @@ class Navigator(Node):
         self.sm = VibrationRollerStateMachine(self)
         self._action_client = ActionClient(self, MoveToPosition, 'move_to')
 
-        self.basepoint = [563934.933, 167308.103]
+        self.basepoint = [371262.716, 159079.566]
         self.planning_index = 0
         self.auto_repeat = False
         self.auto_task = False

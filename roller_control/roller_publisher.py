@@ -85,7 +85,7 @@ class RollerPublisher(Node):
         self.alt = 0.0
 
         # 소부연 테스트베드 원점. 임의로 정한값임. 수준점 측량 후 변경해줘야 함)
-        self.basepoint = [563934.933, 167308.103]
+        self.basepoint = [371262.716, 159079.566]
 
         self.count = 0
         self.log_display_cnt = 10
