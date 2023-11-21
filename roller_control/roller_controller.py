@@ -5,6 +5,7 @@
 # Proprietary and confidential.
 
 from action_msgs.msg import GoalStatus
+from datetime import datetime
 from geometry_msgs.msg import Twist
 from math import dist
 from msg_gps_interface.msg import GPSMsg
@@ -170,7 +171,9 @@ class RollerController(Node):
         cmd_vel_msg.linear.x = vel_cmd
         cmd_vel_msg.angular.z = steer_cmd
 
+        now = datetime.now()
         self.get_logger().info(
+            f'{now.strftime("%Y-%m-%d %H:%M:%S")} '
             f'Controller = steer_:{steer_ :.3f}, yaw_:{yaw_ :.3f}, cte_:{cte_ :.3f}, '
             f'min_dist_:{min_dist_ :.3f} idx:{min_index_}\n'
             f'MAP = xs:{self.map_xs[0] :.3f} xe:{self.map_xs[-1] :.3f} '
@@ -184,7 +187,7 @@ class RollerController(Node):
             f'heading:{theta * 180 / np.pi :.3f} '
             f'ref_vel: {self.cmd_vel[min_index_]}, cmd_vel:{vel_cmd :.2f}\n'
             f'dist_moved: {dist_moved :.3f}, dist_togo:{dist_togo :.3f}\n'
-            f'X_left:{self.map_xs[-1] - self.roller_status.body_pose.x :.3f} Y_goal: {self.map_ys[min_index_] :.3f}, Y_cur:{self.roller_status.body_pose.y :.3f}, ERR:{self.roller_status.body_pose.y - self.map_ys[min_index_] :.3f}\n'            
+            f'X_left:{self.map_xs[-1] - self.roller_status.body_pose.x :.3f} Y_goal: {self.map_ys[min_index_] :.3f}, Y_cur:{self.roller_status.body_pose.y :.3f}, ERR:{self.roller_status.body_pose.y - self.map_ys[min_index_] :.3f}\n'
         )
 
         done = self.check_goal(self.map_xs, self.map_ys, x, y, self.goal_check_error)
