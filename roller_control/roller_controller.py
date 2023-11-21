@@ -22,6 +22,7 @@ from roller_interfaces.msg import RollerStatus
 from std_msgs.msg import String
 import time
 
+from .control_algorithm import BASE_COORDINATES
 from .control_algorithm import MAX_STEER_LIMIT, GNSSTOWHEEL
 from .control_algorithm import stanley_control
 import roller_control.velocity_profile as velocity_profile
@@ -65,7 +66,7 @@ class RollerController(Node):
         self.velocity_profiler = None
         self.is_cancel_requested = False
 
-        self.basepoint = [563934.933, 167308.103]
+        self.basepoint = BASE_COORDINATES
         self.path_json = None
         self.map_xs = None
         self.map_ys = None

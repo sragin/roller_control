@@ -21,6 +21,7 @@ from statemachine.exceptions import TransitionNotAllowed
 from std_msgs.msg import String
 import time
 
+from .control_algorithm import BASE_COORDINATES
 from .path_generator import PathGenerator
 
 
@@ -104,7 +105,7 @@ class Navigator(Node):
         self.sm = VibrationRollerStateMachine(self)
         self._action_client = ActionClient(self, MoveToPosition, 'move_to')
 
-        self.basepoint = [563934.933, 167308.103]
+        self.basepoint = BASE_COORDINATES
         self.planning_index = 0
         self.auto_repeat = False
         self.auto_task = False
