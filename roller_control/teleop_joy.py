@@ -41,16 +41,13 @@ class TeleopJoyPublisher(Node):
         steer = (_steer - AD_MID_VAL) / AD_RANGE
 
         teleop_msg = RollerTeleop()
-        if drive > 0:
-            teleop_msg.drive_up = int(drive)
-        else:
-            teleop_msg.drive_down = int(abs(drive))
+        teleop_msg.drive = int(drive)
         if steer > 0:
             teleop_msg.steer_left = int(steer)
         else:
             teleop_msg.steer_right = int(abs(steer))
-
         self.teleop_msg_publisher.publish(teleop_msg)
+
         if self.count == self.log_display_cnt:
             self.get_logger().info(f"Received: {msg.data}")
             self.get_logger().info(f"Published message: {teleop_msg}")
