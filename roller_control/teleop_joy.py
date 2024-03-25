@@ -29,24 +29,25 @@ class TeleopJoyPublisher(Node):
     # 아날로그 모듈은 0 ~ 10V 입력 가능하도록 세팅됨
     # 장비에 의존적임. 각각의 장비에서 사용하는 범위의 값으로 변환해서 송신해줌
     def recv_joystic_message(self, msg: String):
-        AD_MID_VAL = 16383
-        AD_MAX_VAL = 29490
-        AD_MIN_VAL = 3276
+        AD_MID_VAL = 2048
+        AD_MAX_VAL = 4096
+        AD_MIN_VAL = 409
         AD_RANGE = AD_MAX_VAL - AD_MIN_VAL
 
         data = json.loads(msg.data)
         _drive = data['ch5']
         _steer = data['ch2']
-        drive = (_drive - AD_MID_VAL) / AD_RANGE
-        steer = (_steer - AD_MID_VAL) / AD_RANGE
+        drive = (_drive - AD_MID_VAL) / AD_RANGE * 1024
+        steer = (_steer - AD_MID_VAL) / AD_RANGE * 1024
 
         teleop_msg = RollerTeleop()
-        teleop_msg.drive = int(drive)
-        if steer > 0:
+        if not (-40 < drive < 40):
+            teleop_msg.drive = int(drive)
+        if steer > 40:
             teleop_msg.steer_left = int(steer)
-        else:
+        elif steer < -40:
             teleop_msg.steer_right = int(abs(steer))
-        self.teleop_msg_publisher.publish(teleop_msg)
+        # self.teleop_msg_publisher.publish(teleop_msg)
 
         if self.count == self.log_display_cnt:
             self.get_logger().info(f"Received: {msg.data}")
