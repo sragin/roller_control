@@ -16,8 +16,10 @@ def generate_launch_description():
             package='gps_rclpy_pkg',
             executable='tcpgps_geoid_pub',
             parameters=[
-                {'gps_ip': '192.168.150.116'}
-            ]
+                {'gps_ip': '192.168.150.74'},
+                {'gps_port': 11511},
+                {'sock_type': 'tcp'}
+                ]
         ),
         Node(
             package='roller_control',
@@ -32,6 +34,9 @@ def generate_launch_description():
         Node(
             package='makesurface_rclpy_pkg',
             executable='surface_pub_direct',
+            parameters=[
+                {'can_port': 'can4'},
+            ],
         ),
         # Surface 정보 생성
         Node(
