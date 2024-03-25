@@ -18,39 +18,39 @@ class TeleopJoyPublisher(Node):
             String,
             'joystick',
             self.recv_joystic_message,
-            qos_profile=10
+            qos_profile=5
         )
-        self.teleop_msg_publisher = self.create_publisher(RollerTeleop, 'teleop_cmd', qos_profile=10)
+        self.teleop_msg_publisher = self.create_publisher(RollerTeleop, 'teleop_cmd', qos_profile=5)
 
         self.count = 0
         self.log_display_cnt = 50
 
-    # 아날로그 모듈에서 입력된 조이스틱 값을 양자화, 노말라이즈 0.5 ~ 4.5V 범위
-    # 아날로그 모듈은 0 ~ 10V 입력 가능하도록 세팅됨
+    # 아날로그 모듈은 0 ~ 10V 의 입력을 받을 수 있으나 조이스틱 출력은 0.5 ~ 4.5V 의 범위임
     # 장비에 의존적임. 각각의 장비에서 사용하는 범위의 값으로 변환해서 송신해줌
     def recv_joystic_message(self, msg: String):
-        AD_MID_VAL = 2048
-        AD_MAX_VAL = 4096
-        AD_MIN_VAL = 409
-        AD_RANGE = AD_MAX_VAL - AD_MIN_VAL
+        AD_MID_VAL = 2048 # 2.5V
+        AD_MAX_VAL = 4096 # 5V
+        AD_MIN_VAL = 0
+        AD_RANGE = (AD_MAX_VAL - AD_MIN_VAL) / 2
 
         data = json.loads(msg.data)
         _drive = data['ch5']
         _steer = data['ch2']
-        drive = (_drive - AD_MID_VAL) / AD_RANGE * 1024
-        steer = (_steer - AD_MID_VAL) / AD_RANGE * 1024
+        drive = (_drive - AD_MID_VAL) / AD_RANGE * 1000
+        steer = (_steer - AD_MID_VAL) / AD_RANGE * 100
 
         teleop_msg = RollerTeleop()
-        if not (-40 < drive < 40):
+        if not (-25 < drive < 50):
             teleop_msg.drive = int(drive)
-        if steer > 40:
-            teleop_msg.steer_left = int(steer)
-        elif steer < -40:
-            teleop_msg.steer_right = int(abs(steer))
-        # self.teleop_msg_publisher.publish(teleop_msg)
+        if steer > 5:
+            teleop_msg.steer_right = int(steer)
+        elif steer < -2.5:
+            teleop_msg.steer_left = int(abs(steer))
+        self.teleop_msg_publisher.publish(teleop_msg)
 
         if self.count == self.log_display_cnt:
             self.get_logger().info(f"Received: {msg.data}")
+            self.get_logger().info(f"DRV: {drive}, STEER: {steer}")
             self.get_logger().info(f"Published message: {teleop_msg}")
             self.count = 0
         self.count += 1
