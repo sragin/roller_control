@@ -33,6 +33,8 @@ setup(
             'roller_controller = roller_control.roller_controller:main',
             'base_controller = roller_control.base_controller:main',
             'roller_gui = roller_control.roller_control_ui:main',
+            'teleop_joystick = roller_control.teleop_joy:main',
+            'teleop2can = roller_control.teleop2can:main',
         ],
     },
 )
