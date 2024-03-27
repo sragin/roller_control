@@ -15,6 +15,7 @@ from rclpy.node import Node
 from rclpy.qos import QoSProfile
 from roller_interfaces.msg import RollerStatus
 from std_msgs.msg import String
+from teleop_msgs.msg import RollerTeleop
 
 CONTROL_PERIOD = 0.1
 
@@ -52,6 +53,12 @@ class BaseController(Node):
             'roller_motion_cmd',
             self.recieve_motioncmd,
             qos_profile)
+        self.rollerteleopcmd_subscriber = self.create_subscription(
+            RollerTeleop,
+            'teleop_cmd',
+            self.recv_teleop_cmd,
+            qos_profile
+        )
         self.create_timer(CONTROL_PERIOD, self.velocity_controller)
         self.create_timer(CONTROL_PERIOD, self.steering_controller)
         self.create_timer(CONTROL_PERIOD, self.send_cancommand)
@@ -73,12 +80,13 @@ class BaseController(Node):
         self.vibration_mode = 0
         self.vibration_control = 0
         self.travel_mode = 0
+        self.teleop_cmd = RollerTeleop()
 
         self.roller_status = RollerStatus()
         self.last_steer = 0.
 
         self.count = 0
-        self.log_display_cnt = 50
+        self.log_display_cnt = 10
 
     def recieve_cmdvel(self, msg: Twist):
         self.cmd_drv_vel = msg.linear.x
@@ -100,8 +108,10 @@ class BaseController(Node):
             out = 0.0
             self.vel_pid.Reset()
         self.out_velocity = out
-        self.get_logger().info(f'Velocity cmd: {self.cmd_drv_vel} vel: {vel :.3f}'
-                               f' raw: {vel_ :.5f} out: {out : .1f}')
+        self.get_logger().info(
+            f'Velocity cmd: {self.cmd_drv_vel} vel: {vel :.3f} '
+            f'raw: {vel_ :.5f} out: {out : .1f}'
+        )
 
     def steering_controller(self):
         cur_steer = self.roller_status.steer_angle
@@ -112,7 +122,9 @@ class BaseController(Node):
             out = self.steer_pid.Compute(self.cmd_steer_pos, cur_steer)
         self.out_steering = out
         self.get_logger().info(
-            f'Steer cmd: {self.cmd_steer_pos :.2f} cur: {cur_steer :.3f} valve out: {out :.2f}')
+            f'Steer cmd: {self.cmd_steer_pos :.2f}'
+            f' cur: {cur_steer :.3f} valve out: {out :.2f}'
+        )
 
     def recieve_motioncmd(self, msg: String):
         self.get_logger().info(f'{msg}')
@@ -120,6 +132,8 @@ class BaseController(Node):
             self.mode = 0
         elif msg.data == 'AUTO':
             self.mode = 1
+        elif msg.data == 'REMOTE':
+            self.mode = 2
         elif 'HORN' in msg.data:
             if msg.data[len('HORN '):] == 'ON':
                 self.horn = 1
@@ -149,31 +163,44 @@ class BaseController(Node):
             else:
                 self.travel_mode = 0
 
+    def recv_teleop_cmd(self, msg: RollerTeleop):
+        self.teleop_cmd = msg
+
     def send_cancommand(self):
+        if self.mode == 1 or self.mode == 2:
+            mode_ = 1
+        else:
+            mode_ = 0
         commandsv = self.can_msg_commandsv.encode(
-            {'MODE': self.mode, 'AUTO_DRIVE': 0, 'STOP_CMD': 0})
+            {'MODE': mode_, 'AUTO_DRIVE': 0, 'STOP_CMD': 0})
         cmdsv_msg = Frame()
         cmdsv_msg.id = self.can_msg_commandsv.frame_id
         cmdsv_msg.dlc = self.can_msg_commandsv.length
-        for i in range(cmdsv_msg.dlc):
-            cmdsv_msg.data[i] = int(commandsv[i])
+        cmdsv_msg.data[:cmdsv_msg.dlc] = list(commandsv)
         self.publisher_.publish(cmdsv_msg)
 
-        steer_angle = self.roller_status.steer_angle
-        if self.out_steering > 0 and steer_angle < 30.0:
-            left = self.out_steering
-            right = 0.
-        elif self.out_steering < 0 and steer_angle > -30.0:
-            right = -self.out_steering
-            left = 0.
+        if self.mode == 2:
+            steer_left_ = self.teleop_cmd.steer_left
+            steer_right_ = self.teleop_cmd.steer_right
+            out_velocity_ = self.teleop_cmd.drive
+        elif self.mode == 1:
+            out_velocity_ = self.out_velocity
+            steer_angle = self.roller_status.steer_angle
+            if self.out_steering > 0 and steer_angle < 30.0:
+                steer_left_ = self.out_steering
+                steer_right_ = 0
+            elif self.out_steering < 0 and steer_angle > -30.0:
+                steer_right_ = -self.out_steering
+                steer_left_ = 0
         else:
-            left = 0.
-            right = 0.
-            
+            steer_left_ = 0
+            steer_right_ = 0
+            out_velocity_ = 0
+
         data = self.can_msg_control.encode({
-            'LEFT_DUTY_CONTROL': left,
-            'RIGHT_DUTY_CONTROL': right,
-            'AUTO_SPD_CONTROL': self.out_velocity,
+            'LEFT_DUTY_CONTROL': steer_left_,
+            'RIGHT_DUTY_CONTROL': steer_right_,
+            'AUTO_SPD_CONTROL': out_velocity_,
             'VIB_MODE': self.vibration_mode,
             'VIB_CONTROL': self.vibration_control,
             'DRV_MODE': self.travel_mode,
@@ -181,22 +208,22 @@ class BaseController(Node):
             'RESERVED': 0})
         control_msg = Frame()
         control_msg.id = self.can_msg_control.frame_id
-        for i in range(8):
-            control_msg.data[i] = int(data[i])
-
         control_msg.dlc = self.can_msg_control.length
+        control_msg.data[:control_msg.dlc] = list(data)
         self.publisher_.publish(control_msg)
 
-        # if self.count == self.log_display_cnt:
-        self.get_logger().warning(f'Controller Command id: {control_msg.id}'
-                                  f' data: {control_msg.data}')
-        self.get_logger().warning(f'Supervisor Command id: {cmdsv_msg.id}' 
-                                  f' data: {cmdsv_msg.data}')
+        if self.count == self.log_display_cnt:
+            self.get_logger().warning(
+                f'Controller Command id: {control_msg.id} data: {control_msg.data}'
+            )
+            self.get_logger().warning(
+                f'Supervisor Command id: {cmdsv_msg.id} data: {cmdsv_msg.data}'
+            )
             # self.get_logger().info(f'Velocity cmd: {self.cmd_drv_vel} out: {self.out_velocity}')
             # self.get_logger().info(f'Steering cmd: {self.cmd_steer_vel}'
             #   ' out: {self.out_steering}')
-        #     self.count = 0
-        # self.count += 1
+            self.count = 0
+        self.count += 1
 
 
 class PID():
