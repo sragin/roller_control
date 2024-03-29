@@ -94,7 +94,7 @@ class RollerPublisher(Node):
 
     def recv_autobox_state(self, msg):
         if msg.id == self.can_msg_response.frame_id:
-            _cur = self.can_msg_response.decode(msg.data)
+            _cur = self.can_msg_response.decode(msg.data.tobytes())
             self.response[0] = _cur['MODE']
             self.response[1] = _cur['STATUS']
             self.steer_angle = _cur['STEER_ANGLE'] / 180 * np.pi
