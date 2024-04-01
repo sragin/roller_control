@@ -92,7 +92,7 @@ class RollerPublisher(Node):
         self.count = 0
         self.log_display_cnt = 10
 
-    def recv_autobox_state(self, msg):
+    def recv_autobox_state(self, msg: Frame):
         if msg.id == self.can_msg_response.frame_id:
             _cur = self.can_msg_response.decode(msg.data.tobytes())
             self.response[0] = _cur['MODE']
@@ -157,9 +157,8 @@ class RollerPublisher(Node):
         })
         msg = Frame()
         msg.id = self.can_msg_bodygps_tostation.frame_id
-        for i in range(8):
-            msg.data[i] = int(data[i])
         msg.dlc = self.can_msg_bodygps_tostation.length
+        msg.data[:msg.dlc] = list(data)
         self.canbus1_publisher.publish(msg)
         # self.get_logger().info(f'BODY GPS {msg}')
 
@@ -169,8 +168,7 @@ class RollerPublisher(Node):
         msg = Frame()
         msg.id = self.can_msg_bodygpsalt_tostation.frame_id
         msg.dlc = self.can_msg_bodygpsalt_tostation.length
-        for i in range(msg.dlc):
-            msg.data[i] = int(data[i])
+        msg.data[:msg.dlc] = list(data)
         self.canbus1_publisher.publish(msg)
         # self.get_logger().info(f'BODY GPS ALT {msg}')
 
@@ -181,8 +179,7 @@ class RollerPublisher(Node):
         msg = Frame()
         msg.id = self.can_msg_bodyheadyaw_tostation.frame_id
         msg.dlc = self.can_msg_bodyheadyaw_tostation.length
-        for i in range(msg.dlc):
-            msg.data[i] = int(data[i])
+        msg.data[:msg.dlc] = list(data)
         self.canbus1_publisher.publish(msg)
         # self.get_logger().info(f'BODY HEAD YAW {msg}')
 
@@ -193,8 +190,7 @@ class RollerPublisher(Node):
         msg = Frame()
         msg.id = self.can_msg_bodyrollpitch_tostation.frame_id
         msg.dlc = self.can_msg_bodyrollpitch_tostation.length
-        for i in range(msg.dlc):
-            msg.data[i] = int(data[i])
+        msg.data[:msg.dlc] = list(data)
         self.canbus1_publisher.publish(msg)
         # self.get_logger().info(f'BODY ROLL PITCH {msg}')
 
