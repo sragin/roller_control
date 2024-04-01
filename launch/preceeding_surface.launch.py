@@ -22,8 +22,7 @@ def generate_launch_description():
             executable='tcpgps_geoid_pub',
             parameters=[
                 {'gps_ip': '192.168.150.74'},
-                {'gps_port': 11512},
-                {'sock_type': 'udp'},
+                {'gps_port': 11511},
             ]
         ),
         Node(
