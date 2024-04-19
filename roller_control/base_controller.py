@@ -122,8 +122,8 @@ class BaseController(Node):
             out = self.steer_pid.Compute(self.cmd_steer_pos, cur_steer)
         self.out_steering = out
         self.get_logger().info(
-            f'Steer cmd: {self.cmd_steer_pos :.2f}'
-            f' cur: {cur_steer :.3f} valve out: {out :.2f}'
+            f'Steer cmd: {self.cmd_steer_pos/np.pi*180 :.2f}'
+            f' cur: {cur_steer/np.pi*180 :.3f} valve out: {out :.2f}'
         )
 
     def recieve_motioncmd(self, msg: String):
