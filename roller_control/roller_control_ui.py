@@ -5,6 +5,7 @@
 # Proprietary and confidential.
 
 
+import json
 import sys
 
 from ament_index_python import get_package_share_directory
@@ -88,7 +89,15 @@ class RollerControlUI(QDialog):
             filename, _ = QFileDialog.getOpenFileName(self, 'Open File', get_package_share_directory('roller_control'), filter='*.json')
             if filename == "":
                 return
-            self.cmd_motion.data = f'PATHFILE:{filename}'
+            with open(filename, 'r') as f:
+                data = f.read()
+                try:
+                    jd = json.loads(data)
+                    self.node.get_logger().info(f'json file loaded {filename}')
+                except Exception as e:
+                    self.node.get_logger().error(f'failed to load json file. error:{e}')
+                    return
+                self.cmd_motion.data = 'PATHFILE:' + data
         if button == self.ui.pushButtonPlanPath:
             self.cmd_motion.data = 'PLAN PATH'
         elif button == self.ui.pushButtonPlanTask:
