@@ -29,6 +29,8 @@ class VibrationRollerStateMachine(StateMachine):
     idle = State(initial=True)
     preparing_goal = State()
     navigating = State()
+    emergency = State()
+    stopping = State()
 
     plan_path = (
         idle.to(preparing_goal)
@@ -37,7 +39,11 @@ class VibrationRollerStateMachine(StateMachine):
     go = preparing_goal.to(navigating)
     stop = (
         idle.to(idle)
-        | navigating.to(idle)
+        | navigating.to(stopping)
+    )
+    estop = (
+        idle.to(idle)
+        | navigating.to(emergency)
     )
     navigation_done = navigating.to(preparing_goal)
     task_done = preparing_goal.to(idle)
@@ -81,6 +87,13 @@ class VibrationRollerStateMachine(StateMachine):
             future.add_done_callback(self.navigator.cancel_done)
         return
 
+    def on_estop(self):
+        self.navigator.get_logger().warn('E-Stop')
+        if self.navigator.goal_handle is not None:
+            future = self.navigator.goal_handle.cancel_goal_async()
+            future.add_done_callback(self.navigator.cancel_done)
+        return
+
 
 class Navigator(Node):
 
@@ -119,6 +132,8 @@ class Navigator(Node):
         self.get_logger().info(f'{msg}')
         try:
             if msg.data == 'STOP' or msg.data =='E-STOP' or msg.data == 'MANUAL':
+                self.sm.estop()
+            elif msg.data == 'STOP' or msg.data == 'MANUAL':
                 self.sm.stop()
             elif 'PATHFILE' in msg.data:
                 self.load_pathfile(msg.data)
