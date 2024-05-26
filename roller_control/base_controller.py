@@ -71,7 +71,7 @@ class BaseController(Node):
         self.vel_pid.SetTunnings(500, 0.0, 0.0)
         self.vel_pid.SetOutputLimits(1000.0, -1000.0)
         self.steer_pid = PID()
-        self.steer_pid.SetTunnings(1000, 0., 0.)
+        self.steer_pid.SetTunnings(500, 0., 0.)
         self.steer_pid.SetOutputLimits(100.0, -100.0)
         self.steer_filter = LowPassFilter(1, CONTROL_PERIOD)
         self.vel_filter = LowPassFilter(0.2, CONTROL_PERIOD)
@@ -122,8 +122,8 @@ class BaseController(Node):
             out = self.steer_pid.Compute(self.cmd_steer_pos, cur_steer)
         self.out_steering = out
         self.get_logger().info(
-            f'Steer cmd: {self.cmd_steer_pos :.2f}'
-            f' cur: {cur_steer :.3f} valve out: {out :.2f}'
+            f'Steer cmd: {self.cmd_steer_pos/np.pi*180 :.2f}'
+            f' cur: {cur_steer/np.pi*180 :.3f} valve out: {out :.2f}'
         )
 
     def recieve_motioncmd(self, msg: String):
@@ -179,6 +179,9 @@ class BaseController(Node):
         cmdsv_msg.data[:cmdsv_msg.dlc] = list(commandsv)
         self.publisher_.publish(cmdsv_msg)
 
+        steer_left_ = 0
+        steer_right_ = 0
+        out_velocity_ = 0
         if self.mode == 2:
             steer_left_ = self.teleop_cmd.steer_left
             steer_right_ = self.teleop_cmd.steer_right
@@ -192,10 +195,6 @@ class BaseController(Node):
             elif self.out_steering < 0 and steer_angle > -30.0:
                 steer_right_ = -self.out_steering
                 steer_left_ = 0
-        else:
-            steer_left_ = 0
-            steer_right_ = 0
-            out_velocity_ = 0
 
         data = self.can_msg_control.encode({
             'LEFT_DUTY_CONTROL': steer_left_,
