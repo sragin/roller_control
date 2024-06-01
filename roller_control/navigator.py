@@ -131,7 +131,7 @@ class Navigator(Node):
     def recieve_motioncmd(self, msg: String):
         self.get_logger().info(f'{msg}')
         try:
-            if msg.data == 'STOP' or msg.data =='E-STOP' or msg.data == 'MANUAL':
+            if msg.data =='E-STOP':
                 self.sm.estop()
             elif msg.data == 'STOP' or msg.data == 'MANUAL':
                 self.sm.stop()
@@ -274,6 +274,7 @@ class Navigator(Node):
             self.planning_index = len(self.path_tm_x)
         else:
             self.get_logger().info('Motion failed to cancel')
+            # 있어서는 안되는 상태이나 만일 도달했을 경우 직접 base controller에 명령 송신해야할 듯
 
 
 def main(args=None):
