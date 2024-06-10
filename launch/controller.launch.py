@@ -17,11 +17,11 @@ def generate_launch_description():
             executable='navigator',
         ),
         Node(
-            package='remote_control_rclpy_pkg',
-            executable='remote_control_node',
-        ),
-        Node(
             package='roller_control',
             executable='teleop_joystick',
+        ),
+        Node(
+            package='mqtt_send_rclpy_pkg',
+            executable='mqtt_publisher',
         ),
     ])

@@ -34,4 +34,8 @@ def generate_launch_description():
             package='engine_can_pkg',
             executable='get_engine_direct',
         ),
+        Node(
+            package='remote_control_rclpy_pkg',
+            executable='remote_control_node',
+        ),
     ])
