@@ -29,7 +29,6 @@ class VibrationRollerStateMachine(StateMachine):
     idle = State(initial=True)
     preparing_goal = State()
     navigating = State()
-    stopping = State()
 
     plan_path = (
         idle.to(preparing_goal)
@@ -38,11 +37,11 @@ class VibrationRollerStateMachine(StateMachine):
     go = preparing_goal.to(navigating)
     stop = (
         idle.to(idle)
-        | navigating.to(stopping)
+        | navigating.to(idle)
     )
     estop = (
         idle.to(idle)
-        | navigating.to(stopping)
+        | navigating.to(idle)
     )
     navigation_done = navigating.to(preparing_goal)
     task_done = preparing_goal.to(idle)
