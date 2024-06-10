@@ -108,7 +108,7 @@ class RollerController(Node):
             # 감속정지 루프 실행
             # 타이머로 뺄 경우 모션이 끝나서 다음모션 실행가능하게되지만
             # 일단 정지할 때 까지 다음모션 실행하지 않도록 for 루프로 구현
-            self.cmd_vel_msg.angular.z = 0
+            self.cmd_vel_msg.angular.z = 0.0
             vel = self.cmd_vel_msg.linear.x
             dec_time = 30  # 3초
             for i in range(dec_time-1, -1, -1):
