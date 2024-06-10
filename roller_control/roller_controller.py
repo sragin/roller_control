@@ -67,6 +67,7 @@ class RollerController(Node):
         self.velocity_profiler = None
         self.is_cancel_requested = False
         self.is_estop = False
+        self.is_stop = False
         self.cmd_vel_msg = None
 
         self.basepoint = BASE_COORDINATES
