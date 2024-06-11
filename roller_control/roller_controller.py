@@ -66,6 +66,9 @@ class RollerController(Node):
         self.control_timer = None
         self.velocity_profiler = None
         self.is_cancel_requested = False
+        self.is_estop = False
+        self.is_stop = False
+        self.cmd_vel_msg = None
 
         self.basepoint = BASE_COORDINATES
         self.path_json = None
@@ -82,12 +85,12 @@ class RollerController(Node):
         self.log_display_cnt = 50
 
     def recieve_motioncmd(self, msg: String):
-        if msg.data =='E-STOP':
-            self.get_logger().info(f'{msg}')
-            if self.control_timer is not None:
-                self.is_cancel_requested = True
-                # self.control_timer.cancel()
-                # self.control_timer = None
+        if msg.data == 'E-STOP':
+            self.get_logger().warn(f'Recieved: {msg}')
+            self.is_stop = False
+        elif msg.data == 'STOP':
+            self.get_logger().warn(f'Recieved: {msg}')
+            self.is_stop = True
 
     def execute_callback(self, goal_handle: ServerGoalHandle):
         self.get_logger().info('Executing goal')
@@ -100,6 +103,22 @@ class RollerController(Node):
             if goal_handle.is_cancel_requested:
                 self.is_cancel_requested = True
             time.sleep(0.05)
+
+        if self.is_stop:
+            # 감속정지 루프 실행
+            # 타이머로 뺄 경우 모션이 끝나서 다음모션 실행가능하게되지만
+            # 일단 정지할 때 까지 다음모션 실행하지 않도록 for 루프로 구현
+            self.cmd_vel_msg.angular.z = 0.0
+            vel = self.cmd_vel_msg.linear.x
+            dec_time = 30  # 3초
+            for i in range(dec_time-1, -1, -1):
+                self.cmd_vel_msg.linear.x = vel * i / dec_time
+                self.cmd_vel_publisher.publish(self.cmd_vel_msg)
+                time.sleep(0.1)
+        else:
+            self.cmd_vel_msg.linear.x = 0.0
+            self.cmd_vel_msg.angular.z = 0.0
+            self.cmd_vel_publisher.publish(self.cmd_vel_msg)
 
         result = MoveToPosition.Result()
         if goal_handle.is_cancel_requested:
@@ -158,7 +177,7 @@ class RollerController(Node):
                             map_xs=self.map_xs, map_ys=self.map_ys, map_yaws=self.map_yaws)
         steer_cmd = np.clip(steer_, -MAX_STEER_LIMIT, MAX_STEER_LIMIT)
 
-        cmd_vel_msg = Twist()
+        self.cmd_vel_msg = Twist()
         start_p = (self.map_xs[0], self.map_ys[0])
         end_p = (self.map_xs[-1], self.map_ys[-1])
         cur_p = (x, y)
@@ -168,8 +187,8 @@ class RollerController(Node):
         vel_cmd = self.velocity_profiler.get_simple_trapezoidal_profile_velocity(dist_moved, dist_togo)
         if vel < 0:
             vel_cmd = -vel_cmd
-        cmd_vel_msg.linear.x = vel_cmd
-        cmd_vel_msg.angular.z = steer_cmd
+        self.cmd_vel_msg.linear.x = vel_cmd
+        self.cmd_vel_msg.angular.z = steer_cmd
 
         now = datetime.now()
         self.get_logger().info(
@@ -193,12 +212,11 @@ class RollerController(Node):
         done = self.check_goal(self.map_xs, self.map_ys, x, y, self.goal_check_error)
         cancel_requested = self.is_cancel_requested
         if done or cancel_requested:
-            cmd_vel_msg.linear.x = 0.0
-            cmd_vel_msg.angular.z = 0.0
             self.control_timer.cancel()
             self.control_timer = None
             self.get_logger().info('Motion is done')
-        self.cmd_vel_publisher.publish(cmd_vel_msg)
+        else:
+            self.cmd_vel_publisher.publish(self.cmd_vel_msg)
 
     def check_goal(self, map_xs, map_ys, x, y, error):
         x1 = map_xs[-1]
