@@ -25,8 +25,13 @@ def generate_launch_description():
                 {'gps_port': 11511},
             ]
         ),
-        # Node(
-        #     package='roller_control',
-        #     executable='roller_publisher',
-        # ),
+        Node(
+            package='roller_control',
+            executable='roller_publisher',
+        ),
+        # 엔진 CAN 정보를 받기 위한 것 - 1세부
+        Node(
+            package='engine_can_pkg',
+            executable='get_engine_direct',
+        ),
     ])

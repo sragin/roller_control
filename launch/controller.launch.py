@@ -1,9 +1,11 @@
 from launch import LaunchDescription
+from launch.actions import LogInfo
 from launch_ros.actions import Node
 
 
 def generate_launch_description():
     return LaunchDescription([
+        LogInfo(msg=['Execute roller control launch!']),
         Node(
             package='roller_control',
             executable='base_controller',

@@ -19,7 +19,13 @@ setup(
         # Include all launch files.
         (os.path.join('share', package_name, 'launch'), glob(os.path.join('launch', '*launch.[pxy][yma]*')))
     ],
-    install_requires=['setuptools'],
+    install_requires=[
+        'setuptools',
+        'numpy',
+        'scipy',
+        'python-statemachine',
+        'cantools',
+    ],
     zip_safe=True,
     maintainer='Jongpil Kim',
     maintainer_email='jpkim@koceti.re.kr',

@@ -5,6 +5,7 @@
 # Proprietary and confidential.
 
 
+import json
 import sys
 
 from ament_index_python import get_package_share_directory
@@ -13,18 +14,35 @@ from PySide6.QtCore import *
 from PySide6.QtGui import *
 from PySide6.QtWidgets import *
 import rclpy
+import rclpy.executors
 from rclpy.node import Node
 from std_msgs.msg import String
 
 from .localui import *
 
 
-class RollerControlUI(QDialog):
+class Ros2Node(Node):
 
     def __init__(self):
+        super().__init__('roller_gui')
+        self.nodeName = self.get_name()
+        self.get_logger().info(f'{self.nodeName} started')
+
+        self.motioncmd_publisher = self.create_publisher(
+            String,
+            'roller_motion_cmd',
+            10)
+        self.velocitycmd_publisher = self.create_publisher(
+            Twist,
+            'cmd_vel',
+            10)
+
+class RollerControlUI(QDialog):
+
+    def __init__(self, ros2_node: Node):
         super().__init__()
+        self.node = ros2_node
         self.initUI()
-        self.initROS()
         self.cmd_vel = Twist()
         self.cmd_motion = String()
 
@@ -55,20 +73,6 @@ class RollerControlUI(QDialog):
         self.ui.radioButtonTravelReverseUphill.clicked.connect(self.clickTravel)
         self.ui.radioButtonTravelTurtle.clicked.connect(self.clickTravel)
 
-    def initROS(self):
-        rclpy.init(args=None)
-        self.node = Node('roller_teleop_key')
-        self.nodeName = self.node.get_name()
-        self.motioncmd_publisher = self.node.create_publisher(
-            String,
-            'roller_motion_cmd',
-            10)
-        self.velocitycmd_publisher = self.node.create_publisher(
-            Twist,
-            'cmd_vel',
-            10)
-        rclpy.spin_once(self.node, timeout_sec=1)
-
     def clickMode(self):
         self.cmd_vel.linear.x = 0.0
         self.cmd_vel.angular.z = 0.0
@@ -77,7 +81,7 @@ class RollerControlUI(QDialog):
         elif self.ui.radioButtonManual.isChecked():
             self.cmd_motion.data = 'MANUAL'
         self.publish_commands()
-        self.velocitycmd_publisher.publish(self.cmd_vel)
+        self.node.velocitycmd_publisher.publish(self.cmd_vel)
 
     def clickPlanning(self):
         button = self.sender()
@@ -85,7 +89,15 @@ class RollerControlUI(QDialog):
             filename, _ = QFileDialog.getOpenFileName(self, 'Open File', get_package_share_directory('roller_control'), filter='*.json')
             if filename == "":
                 return
-            self.cmd_motion.data = f'PATHFILE:{filename}'
+            with open(filename, 'r') as f:
+                data = f.read()
+                try:
+                    jd = json.loads(data)
+                    self.node.get_logger().info(f'json file loaded {filename}')
+                except Exception as e:
+                    self.node.get_logger().error(f'failed to load json file. error:{e}')
+                    return
+                self.cmd_motion.data = 'PATHFILE:' + data
         if button == self.ui.pushButtonPlanPath:
             self.cmd_motion.data = 'PLAN PATH'
         elif button == self.ui.pushButtonPlanTask:
@@ -155,19 +167,21 @@ class RollerControlUI(QDialog):
         self.publish_commands()
 
     def publish_commands(self):
-        self.motioncmd_publisher.publish(self.cmd_motion)
+        self.node.motioncmd_publisher.publish(self.cmd_motion)
         self.node.get_logger().info(f'Publishing: {self.cmd_motion.data}')
 
 def main():
     app = QApplication(sys.argv)
-    try:
-        roller = RollerControlUI()
-    except Exception as e:
-        roller.node.get_logger().info(f'{e}')
-        roller.node.get_logger().info('Set all commands to zero')
-        roller.node.destroy_node()
-        rclpy.shutdown()
-    sys.exit(app.exec_())
+    rclpy.init(args=None)
+
+    ros2_node = Ros2Node()
+    gui_app = RollerControlUI(ros2_node)
+    gui_app.show()
+
+    while rclpy.ok():
+        app.processEvents()
+        rclpy.spin_once(ros2_node, timeout_sec=0.1)
+    rclpy.shutdown()
 
 
 if __name__ == '__main__':
