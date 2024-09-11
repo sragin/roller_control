@@ -32,7 +32,7 @@ class RollerPublisher(Node):
         self.can_msg_response = self.candb_autobox_to_supervisor.get_message_by_name('Response')
         self.candb_remotestation_supervisor = \
             cantools.db.load_file(
-                get_package_share_directory('roller_control') + '/Remote_station_230901.dbc')
+                get_package_share_directory('roller_control') + '/Remote_station_240911.dbc')
         self.can_msg_bodygps_tostation = \
             self.candb_remotestation_supervisor.get_message_by_name('BODY_GPS')
         self.can_msg_bodygpsalt_tostation = \
