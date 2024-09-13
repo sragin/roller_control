@@ -20,6 +20,7 @@ from rclpy.node import Node
 from rclpy.qos import QoSProfile
 from roller_interfaces.action import MoveToPosition
 from roller_interfaces.msg import RollerStatus
+from std_msgs.msg import Int8
 from std_msgs.msg import String
 import time
 
@@ -54,6 +55,12 @@ class RollerController(Node):
             self.recv_gpsmsg,
             qos_profile
         )
+        self.radar_msg_subscriber = self.create_subscription(
+            Int8,
+            'radar_msg',
+            self.recv_radarmsg,
+            qos_profile
+        )
         self._action_server = ActionServer(
             self,
             MoveToPosition,
@@ -80,6 +87,7 @@ class RollerController(Node):
 
         self.roller_status = RollerStatus()
         self.gps_quality = 0
+        self.radar_status = Int8()
 
         self.count = 0
         self.log_display_cnt = 50
@@ -190,6 +198,11 @@ class RollerController(Node):
         self.cmd_vel_msg.linear.x = vel_cmd
         self.cmd_vel_msg.angular.z = steer_cmd
 
+        # 안전디바이스 처리
+        if self.radar_status.data == 2 or self.radar_status.data == 3:
+            self.cmd_vel_msg.linear.x = 0.0
+            self.cmd_vel_msg.angular.z = 0.0
+
         now = datetime.now()
         self.get_logger().info(
             f'{now.strftime("%Y-%m-%d %H:%M:%S")} '
@@ -206,7 +219,11 @@ class RollerController(Node):
             f'heading:{theta * 180 / np.pi :.3f} '
             f'ref_vel: {self.cmd_vel[min_index_]}, cmd_vel:{vel_cmd :.2f}\n'
             f'dist_moved: {dist_moved :.3f}, dist_togo:{dist_togo :.3f}\n'
-            f'X_left:{self.map_xs[-1] - self.roller_status.body_pose.x :.3f} Y_goal: {self.map_ys[min_index_] :.3f}, Y_cur:{self.roller_status.body_pose.y :.3f}, ERR:{self.roller_status.body_pose.y - self.map_ys[min_index_] :.3f}\n'
+            f'X_left:{self.map_xs[-1] - self.roller_status.body_pose.x :.3f}'
+            f' Y_goal: {self.map_ys[min_index_] :.3f},'
+            f' Y_cur:{self.roller_status.body_pose.y :.3f},'
+            f' ERR:{self.roller_status.body_pose.y - self.map_ys[min_index_] :.3f}\n'
+            f'Radar:{self.radar_status.data}'
         )
 
         done = self.check_goal(self.map_xs, self.map_ys, x, y, self.goal_check_error)
@@ -250,6 +267,9 @@ class RollerController(Node):
 
     def recv_gpsmsg(self, msg: GPSMsg):
         self.gps_quality = msg.quality
+
+    def recv_radarmsg(self, msg: Int8):
+        self.radar_status = msg
 
 def main(args=None):
     rclpy.init(args=args)
