@@ -87,6 +87,7 @@ class RollerController(Node):
 
         self.roller_status = RollerStatus()
         self.gps_quality = 0
+        self.gps_speed = 0.0
         self.radar_status = Int8()
 
         self.count = 0
@@ -102,6 +103,11 @@ class RollerController(Node):
 
     def execute_callback(self, goal_handle: ServerGoalHandle):
         self.get_logger().info('Executing goal')
+        self.get_logger().info(
+            f'Goal info = xs:{self.map_xs[0] :.3f} xe:{self.map_xs[-1] :.3f} '
+            f'ys:{self.map_ys[0] :.3f} ye:{self.map_ys[-1] :.3f} '
+            f'vel: {self.cmd_vel[0]}'
+        )
         feedback_msg = MoveToPosition.Feedback()
         self.velocity_profiler = velocity_profile.VelocityProfiler(self.cmd_vel[0])
         self.is_cancel_requested = False
@@ -208,22 +214,17 @@ class RollerController(Node):
             f'{now.strftime("%Y-%m-%d %H:%M:%S")} '
             f'Controller = steer_:{steer_ :.3f}, yaw_:{yaw_ :.3f}, cte_:{cte_ :.3f}, '
             f'min_dist_:{min_dist_ :.3f} idx:{min_index_}\n'
-            f'MAP = xs:{self.map_xs[0] :.3f} xe:{self.map_xs[-1] :.3f} '
-            f'xi:{self.map_xs[min_index_] :.3f} x:{x :.3f} '
-            f'ys:{self.map_ys[0] :.3f} ye:{self.map_ys[-1] :.3f} '
-            f'yi:{self.map_ys[min_index_] :.3f} y:{y :.3f} '
-            f'yaw goal:{self.map_yaws[min_index_] * 180 / np.pi :.3f} '
-            f'yaw:{(theta + steer_angle) * 180 / np.pi :.3f}\n'
-            f'Roller Status = steer angle:{steer_angle * 180 / np.pi :.3f} '
+            f'Position = xi:{self.map_xs[min_index_] :.3f} yi:{self.map_ys[min_index_] :.3f} '
+            f'yaw_i(deg):{self.map_yaws[min_index_] * 180 / np.pi :.3f} '
+            f'drum x:{self.roller_status.pose.x :.3f} y:{self.roller_status.pose.y :.3f} '
+            f'yaw:{(self.roller_status.pose.theta + steer_angle) * 180 / np.pi} '
+            f'body x:{self.roller_status.body_pose.x :.3f} y:{self.roller_status.body_pose.y :.3f} '
+            f'yaw:{self.roller_status.pose.theta * 180 / np.pi}\n'
+            f'Roller Status = steer angle(deg):{steer_angle * 180 / np.pi :.3f} '
             f'steer_cmd:{steer_cmd * 180 / np.pi :.3f} '
-            f'heading:{theta * 180 / np.pi :.3f} '
-            f'ref_vel: {self.cmd_vel[min_index_]}, cmd_vel:{vel_cmd :.2f}\n'
-            f'dist_moved: {dist_moved :.3f}, dist_togo:{dist_togo :.3f}\n'
-            f'X_left:{self.map_xs[-1] - self.roller_status.body_pose.x :.3f}'
-            f' Y_goal: {self.map_ys[min_index_] :.3f},'
-            f' Y_cur:{self.roller_status.body_pose.y :.3f},'
-            f' ERR:{self.roller_status.body_pose.y - self.map_ys[min_index_] :.3f}\n'
-            f'Radar:{self.radar_status.data}'
+            f'cmd_vel:{vel_cmd :.2f} cur_vel:{self.gps_speed}\n'
+            f'dist_moved: {dist_moved :.3f}, dist_togo:{dist_togo :.3f} '
+            f'ERR:{y - self.map_ys[min_index_] :.3f} Radar:{self.radar_status.data}'
         )
 
         done = self.check_goal(self.map_xs, self.map_ys, x, y, self.goal_check_error)
@@ -267,6 +268,7 @@ class RollerController(Node):
 
     def recv_gpsmsg(self, msg: GPSMsg):
         self.gps_quality = msg.quality
+        self.gps_speed = msg.speed
 
     def recv_radarmsg(self, msg: Int8):
         self.radar_status = msg
