@@ -29,30 +29,56 @@ def generate_launch_description():
             package='roller_control',
             executable='roller_publisher',
         ),
+        Node(
+            package='remote_control_rclpy_pkg',
+            executable='remote_control_node',
+        ),
         # 엔진 CAN 정보를 받기 위한 것 - 1세부
         Node(
             package='engine_can_pkg',
             executable='get_engine_direct',
         ),
+
         # Surface 정보 생성을 위한 데이터 publish - 1,3 세부
         Node(
             package='makesurface_rclpy_pkg',
             executable='surface_pub_direct',
         ),
         # Surface 정보 생성
-        Node(
-            package='makesurface_rclpy_pkg',
-            executable='calc_pts',
-        ),
+        # Node(
+        #     package='makesurface_rclpy_pkg',
+        #     executable='calc_pts',
+        # ),
         # Drum point 정보 - 1세부용
         # Node(
         #     package = 'makesurface_rclpy_pkg',
         #     executable = 'calcdrum_pts',
         # ),
         # 1세부 한양대 정보 보내기
-        Node(
-            package='emulate_iotedge_pkg',
-            executable='iotemul_roller',
-        ),
+        # Node(
+        #     package='emulate_iotedge_pkg',
+        #     executable='iotemul_roller',
+        # ),
 
+        # 관제시스템 데이터 전송 (24-09-23 : 아직 디버깅중이어서 여기서 실행하지 않음)
+        # Node(
+        #     package='emulate_iotedge_pkg',
+        #     executable='iot_roller_mqtt',
+        #     parameters=[
+        #         {'prj_id': '3afa400d-2ee8-4c80-8f6e-f2b8b9e55ec1'},
+        #         {'user_id': '01012341234'},
+        #         {'asset_id': 'a903e340-0459-4516-aacf-9307d70f5f22'},
+        #         {'asset_num': '서울06가1234'},
+        #         {'asset_type': "06"},
+        #         {'mqtt_server': 'koceti.re.kr'},
+        #         {'mqtt_server_port': 11011},
+        #         {'mqtt_id': 'koceti_client'},
+        #         {'mqtt_pw': 'ZpfMc10fRKaJNIHR'},
+        #         {'mqtt_topic': 'con_experiment'},
+        #         {'logfile_duration': 1800},
+        #         {'logfile_change_dir': 24*3600},
+        #         {'sending_rate': 1},            # 전송 주기 (sec.)
+        #         {'log_on': True},
+        #     ]
+        # ),
     ])
