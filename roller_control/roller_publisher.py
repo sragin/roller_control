@@ -117,8 +117,10 @@ class RollerPublisher(Node):
         self.heading = msg.heading
 
     def recv_remotestation_cmd(self, msg: Frame):
+        self.get_logger().info(f'recv: {msg}')
         if msg.id == self.candb_remotestation_supervisor.get_message_by_name('CONTROL_COMMAND').frame_id:
             msg.id = 116
+            msg.is_extended = False
             self.canbus_publisher.publish(msg)
             self.get_logger().info(f'send_remotestation_cmd: {msg}')
 
