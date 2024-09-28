@@ -213,10 +213,11 @@ def main(args=None):
         roller_publisher = RollerPublisher()
         rclpy.spin(roller_publisher)
     except KeyboardInterrupt:
-        roller_publisher.get_logger().info('Keyboard interrrupt (SIGINT)')
+        roller_publisher.get_logger().warn('Keyboard interrrupt (SIGINT)')
     finally:
         roller_publisher.destroy_node()
-        rclpy.shutdown()
+        if rclpy.ok():
+            rclpy.shutdown()
 
 
 if __name__ == '__main__':
