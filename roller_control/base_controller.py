@@ -85,9 +85,6 @@ class BaseController(Node):
         self.roller_status = RollerStatus()
         self.last_steer = 0.
 
-        self.count = 0
-        self.log_display_cnt = 10
-
     def recieve_cmdvel(self, msg: Twist):
         self.cmd_drv_vel = msg.linear.x
         self.cmd_steer_pos = msg.angular.z
@@ -110,7 +107,8 @@ class BaseController(Node):
         self.out_velocity = out
         self.get_logger().info(
             f'Velocity cmd: {self.cmd_drv_vel} vel: {vel :.3f} '
-            f'raw: {vel_ :.5f} out: {out : .1f}'
+            f'raw: {vel_ :.5f} out: {out : .1f}',
+            throttle_duration_sec=0.99
         )
 
     def steering_controller(self):
@@ -123,7 +121,8 @@ class BaseController(Node):
         self.out_steering = out
         self.get_logger().info(
             f'Steer cmd: {self.cmd_steer_pos/np.pi*180 :.2f}'
-            f' cur: {cur_steer/np.pi*180 :.3f} valve out: {out :.2f}'
+            f' cur: {cur_steer/np.pi*180 :.3f} valve out: {out :.2f}',
+            throttle_duration_sec=0.99
         )
 
     def recieve_motioncmd(self, msg: String):
@@ -211,19 +210,17 @@ class BaseController(Node):
         control_msg.data[:control_msg.dlc] = list(data)
         self.publisher_.publish(control_msg)
 
-        if self.count == self.log_display_cnt:
-            self.get_logger().warning(
-                f'Controller Command id: {control_msg.id} data: {control_msg.data}'
-            )
-            self.get_logger().warning(
-                f'Supervisor Command id: {cmdsv_msg.id} data: {cmdsv_msg.data}'
-            )
-            # self.get_logger().info(f'Velocity cmd: {self.cmd_drv_vel} out: {self.out_velocity}')
-            # self.get_logger().info(f'Steering cmd: {self.cmd_steer_vel}'
-            #   ' out: {self.out_steering}')
-            self.count = 0
-        self.count += 1
-
+        self.get_logger().warning(
+            f'Controller Command id: {control_msg.id} data: {control_msg.data}',
+            throttle_duration_sec=0.99
+        )
+        self.get_logger().warning(
+            f'Supervisor Command id: {cmdsv_msg.id} data: {cmdsv_msg.data}',
+            throttle_duration_sec=0.99
+        )
+        # self.get_logger().info(f'Velocity cmd: {self.cmd_drv_vel} out: {self.out_velocity}')
+        # self.get_logger().info(f'Steering cmd: {self.cmd_steer_vel}'
+        #   ' out: {self.out_steering}')
 
 class PID():
 

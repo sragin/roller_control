@@ -89,9 +89,6 @@ class RollerPublisher(Node):
         # 소부연 테스트베드 원점. 임의로 정한값임. 수준점 측량 후 변경해줘야 함)
         self.basepoint = BASE_COORDINATES
 
-        self.count = 0
-        self.log_display_cnt = 10
-
     def recv_autobox_state(self, msg: Frame):
         if msg.id == self.can_msg_response.frame_id:
             _cur = self.can_msg_response.decode(msg.data.tobytes())
@@ -139,16 +136,19 @@ class RollerPublisher(Node):
         msg.body_pose.y = self.position[1]
         msg.speed = self.speed
         self.roller_status_publisher.publish(msg)
-        if self.count == self.log_display_cnt:
-            self.get_logger().info(f'MODE: {self.response[0]}, STATUS:{self.response[1]},'
-                                   f' STEER_ANGLE(deg):{self.steer_angle / np.pi * 180 :.2f}')
-            self.get_logger().info(f'DRUM POS_X: {msg.pose.x :.4f},'
-                                   f' POS_Y:{msg.pose.y :.4f},'
-                                   f' HEAD body(deg):{self.theta / np.pi * 180 :.2f},'
-                                   f' SPEED:{self.speed :.2f}'
-                                   f' POS X:{self.position[0] :.3f}, Y:{self.position[1] :.3f}')
-            self.count = 0
-        self.count += 1
+        self.get_logger().info(
+            f'MODE: {self.response[0]}, STATUS:{self.response[1]},'
+            f' STEER_ANGLE(deg):{self.steer_angle / np.pi * 180 :.2f}',
+            throttle_duration_sec=0.99
+        )
+        self.get_logger().info(
+            f'DRUM POS_X: {msg.pose.x :.4f},'
+            f' POS_Y:{msg.pose.y :.4f},'
+            f' HEAD body(deg):{self.theta / np.pi * 180 :.2f},'
+            f' SPEED:{self.speed :.2f}'
+            f' POS X:{self.position[0] :.3f}, Y:{self.position[1] :.3f}',
+            throttle_duration_sec=0.99
+        )
 
     def publish_remotestation_response(self):
         data = self.can_msg_bodygps_tostation.encode({
