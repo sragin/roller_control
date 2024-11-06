@@ -21,7 +21,7 @@ def generate_launch_description():
             package='gps_rclpy_pkg',
             executable='tcpgps_geoid_pub',
             parameters=[
-                {'gps_ip': '192.168.48.31'},
+                {'gps_ip': '192.168.150.74'},
                 {'gps_port': 11511},
             ]
         ),
@@ -60,4 +60,25 @@ def generate_launch_description():
         #     executable='iotemul_roller',
         # ),
 
+        # 관제시스템 데이터 전송 (24-09-23 : 아직 디버깅중이어서 여기서 실행하지 않음)
+        # Node(
+        #     package='emulate_iotedge_pkg',
+        #     executable='iot_roller_mqtt',
+        #     parameters=[
+        #         {'prj_id': '3afa400d-2ee8-4c80-8f6e-f2b8b9e55ec1'},
+        #         {'user_id': '01012341234'},
+        #         {'asset_id': 'a903e340-0459-4516-aacf-9307d70f5f22'},
+        #         {'asset_num': '서울06가1234'},
+        #         {'asset_type': "06"},
+        #         {'mqtt_server': 'koceti.re.kr'},
+        #         {'mqtt_server_port': 11011},
+        #         {'mqtt_id': 'koceti_client'},
+        #         {'mqtt_pw': 'ZpfMc10fRKaJNIHR'},
+        #         {'mqtt_topic': 'con_experiment'},
+        #         {'logfile_duration': 1800},
+        #         {'logfile_change_dir': 24*3600},
+        #         {'sending_rate': 1},            # 전송 주기 (sec.)
+        #         {'log_on': True},
+        #     ]
+        # ),
     ])

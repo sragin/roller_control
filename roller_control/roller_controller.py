@@ -57,7 +57,7 @@ class RollerController(Node):
         )
         self.radar_msg_subscriber = self.create_subscription(
             Int8,
-            'radar_cmdmsg',
+            'radar_msg',
             self.recv_radarmsg,
             qos_profile
         )
@@ -272,7 +272,6 @@ class RollerController(Node):
 
     def recv_radarmsg(self, msg: Int8):
         self.radar_status = msg
-        self.get_logger().info(f'RADAR {self.radar_status}')
 
 def main(args=None):
     rclpy.init(args=args)

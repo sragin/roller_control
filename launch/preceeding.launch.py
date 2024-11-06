@@ -21,7 +21,7 @@ def generate_launch_description():
             package='gps_rclpy_pkg',
             executable='tcpgps_geoid_pub',
             parameters=[
-                {'gps_ip': '192.168.48.31'},
+                {'gps_ip': '192.168.150.74'},
                 {'gps_port': 11511},
             ]
         ),
