@@ -23,7 +23,7 @@ def generate_launch_description():
             executable='teleop_joystick',
         ),
         Node(
-            package='mqtt_send_rclpy_pkg',
-            executable='mqtt_publisher',
+            package='radar_hdms',
+            executable='radar_parser',
         ),
     ])
