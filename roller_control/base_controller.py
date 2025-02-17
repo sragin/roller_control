@@ -11,6 +11,7 @@ import cantools
 from geometry_msgs.msg import Twist
 import numpy as np
 import rclpy
+from rclpy.executors import ExternalShutdownException
 from rclpy.node import Node
 from rclpy.qos import QoSProfile
 from roller_interfaces.msg import RollerStatus
@@ -297,15 +298,12 @@ class LowPassFilter(object):
 
 
 def main(args=None):
-    rclpy.init(args=args)
     try:
+        rclpy.init(args=args)
         base_controller = BaseController()
         rclpy.spin(base_controller)
-    except KeyboardInterrupt:
-        base_controller.get_logger().info('Keyboard interrrupt (SIGINT)')
-    finally:
-        base_controller.destroy_node()
-        rclpy.shutdown()
+    except (KeyboardInterrupt, ExternalShutdownException):
+        print('Keyboard interrrupt or External Shutdown')
 
 
 if __name__ == '__main__':
